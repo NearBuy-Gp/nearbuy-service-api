@@ -1,0 +1,17 @@
+{
+  "swagger_messages": {
+    "new_user": "Register a new user.",
+    "login_user": "Log in a user.",
+    "swagger_prefix": "api/docs",
+    "google_login": "Initiate Google OAuth login.",
+    "google_description": "Redirecting to Google authentication.",
+    "google_redirect": "Handle Google OAuth redirect and validate user."
+  },
+  "document_description": {
+    "project_title": "NearBuy API",
+    "project_description": "API documentation for the NearBuy service.",
+    "project_version": "1.0",
+    "project_global_prefix": "api/",
+    "project_environment_production": "production"
+  }
+}
