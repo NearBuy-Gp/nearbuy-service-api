@@ -4,6 +4,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { mongoConfig } from './config/mongo.config';
+import { AuthModule } from './modules/auth/auth.module';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
@@ -12,6 +14,8 @@ import { mongoConfig } from './config/mongo.config';
       envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
     }),
     MongooseModule.forRootAsync(mongoConfig()),
+    AuthModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],

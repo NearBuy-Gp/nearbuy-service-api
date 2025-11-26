@@ -2,8 +2,21 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import STATIC_MESSAGES from './config/staticMessages.json';
+import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
+  app.setGlobalPrefix(
+    STATIC_MESSAGES.document_description.project_global_prefix,
+  );
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+
   const config = new DocumentBuilder()
     .setTitle(STATIC_MESSAGES.document_description.project_title)
     .setDescription(STATIC_MESSAGES.document_description.project_description)
