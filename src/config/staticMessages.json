@@ -20,6 +20,9 @@
       "success_send_phone_verification": "Verification code sent successfully to {PHONE_NUMBER}",
       "success_phone_verification": "Phone number {PHONE_NUMBER} verified successfully.",
       "success_refresh_token": "Access Token Has Been Refreshed successfully."
+    },
+    "business_messages": {
+      "success_register": "Business registered successfully."
     }
   },
   "error_messages": {

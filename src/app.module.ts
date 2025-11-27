@@ -7,6 +7,7 @@ import { mongoConfig } from './config/mongo.config';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { BusinessModule } from './modules/business/business.module';
+import { AutoGenerationModuleModule } from './modules/auto-generation-module/auto-generation-module.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { BusinessModule } from './modules/business/business.module';
     AuthModule,
     UserModule,
     BusinessModule,
+    AutoGenerationModuleModule,
   ],
   controllers: [AppController],
   providers: [AppService],
