@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { mongoConfig } from './config/mongo.config';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
+import { BusinessModule } from './modules/business/business.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { UserModule } from './modules/user/user.module';
     MongooseModule.forRootAsync(mongoConfig()),
     AuthModule,
     UserModule,
+    BusinessModule,
   ],
   controllers: [AppController],
   providers: [AppService],
