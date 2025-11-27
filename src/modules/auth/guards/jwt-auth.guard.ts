@@ -53,13 +53,10 @@ export class AuthGuard implements CanActivate {
         );
       }
 
-      // if (userPayload.tokenVersion !== user.tokenVersion) {
-      //   throw new UnauthorizedException(
-      //     STATIC_MESSAGES.error_messages.auth_errors.blacklisted_token,
-      //   );
-      // }
-
-      req['user'] = userPayload;
+      req['user'] = {
+        ...userPayload,
+        role: user.role,
+      };
       return true;
     } catch (error) {
       throw new UnauthorizedException(

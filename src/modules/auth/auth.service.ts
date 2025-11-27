@@ -23,21 +23,28 @@ export class AuthService {
   public async signup(
     signUpRequestDto: SignUpRequestDto,
   ): Promise<MessageResponseDto> {
-    const { email, password, userName } = signUpRequestDto;
+    const { email, password, userName, role } = signUpRequestDto;
     const user = await this.userModel.findOne({ email });
     if (user) {
       throw new BadRequestException(
         STATIC_MESSAGES.error_messages.user_errors.user_exist,
       );
     }
-    const userNameExist = await this.userModel.findOne({ userName });
-    if (userNameExist) {
-      throw new BadRequestException(
-        STATIC_MESSAGES.error_messages.user_errors.user_name_exist,
-      );
+    if (userName) {
+      const userNameExist = await this.userModel.findOne({ userName });
+      if (userNameExist) {
+        throw new BadRequestException(
+          STATIC_MESSAGES.error_messages.user_errors.user_name_exist,
+        );
+      }
     }
     const hashedPassword = await bcrypt.hash(password, 10);
-    await this.userModel.create({ userName, password: hashedPassword, email });
+    await this.userModel.create({
+      userName,
+      password: hashedPassword,
+      email,
+      role,
+    });
     return {
       message: STATIC_MESSAGES.success_messages.user_messages.success_register,
     };
@@ -65,18 +72,24 @@ export class AuthService {
     const tokenPayload = {
       email: existingUser.email,
       id: userId,
+      role: existingUser.role,
     };
     const accessToken = this.generateAccessToken(tokenPayload);
     const userPayload = {
       id: userId,
       userName: existingUser.userName,
+      role: existingUser.role,
     };
     return {
       userPayload: userPayload,
       accessToken,
     };
   }
-  private generateAccessToken(payload: { email: string; id: string }): string {
+  private generateAccessToken(payload: {
+    email: string;
+    id: string;
+    role: string;
+  }): string {
     return this.jwtService.sign(payload);
   }
 }

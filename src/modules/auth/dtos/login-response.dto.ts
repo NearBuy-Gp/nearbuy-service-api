@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Role } from 'src/utils/enums/user-role.enum';
 
 export class LoginResponseDto {
   @ApiProperty({
@@ -8,6 +9,7 @@ export class LoginResponseDto {
   userPayload: {
     userName: string;
     id: string;
+    role: Role;
   };
 
   @ApiProperty({
