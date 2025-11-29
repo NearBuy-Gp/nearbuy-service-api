@@ -7,6 +7,7 @@ import { Business } from './schemas/buisness.schema';
 import { BusinessStatus } from './enums/business-status.enum';
 import { RegisterBusinessResponseDto } from './dtos/response/register-business-response.dto';
 import STATIC_MESSAGES from '../../config/staticMessages.json';
+import { UpdateBusinessDto } from './dtos/request/business-update-request.dto';
 @Injectable()
 export class BusinessService {
   constructor(
@@ -32,6 +33,29 @@ export class BusinessService {
         STATIC_MESSAGES.success_messages.business_messages.success_register,
       business: business,
     };
+  }
+  public async getBusinessById(businessId: string): Promise<Business> {
+    const business = await this.businessModel.findOne({ _id: businessId });
+    if (!business) {
+      throw new NotFoundException('Business not found');
+    }
+    return business;
+  }
+  public async updateBusiness(
+    businessId: string,
+    business: UpdateBusinessDto,
+  ): Promise<Business> {
+    const updatedBusiness = await this.businessModel.findByIdAndUpdate(
+      { _id: businessId },
+      { $set: business },
+      { new: true },
+    );
+
+    if (!updatedBusiness) {
+      throw new NotFoundException('Business not found');
+    }
+
+    return updatedBusiness;
   }
   private async validateOwner(ownerId: string) {
     const owner = await this.userModel.findById(ownerId);
