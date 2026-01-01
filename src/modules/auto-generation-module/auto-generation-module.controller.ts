@@ -1,4 +1,4 @@
 import { Controller } from '@nestjs/common';
 
-@Controller('auto-generation-module')
+@Controller('auto-generation')
 export class AutoGenerationModuleController {}

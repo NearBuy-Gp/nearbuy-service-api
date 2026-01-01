@@ -42,11 +42,13 @@ export class BusinessService {
     return business;
   }
   public async updateBusiness(
+    ownerId: string,
     businessId: string,
     business: UpdateBusinessDto,
   ): Promise<Business> {
+    const valitetedBusiness = await this.validateBusiness(ownerId, businessId);
     const updatedBusiness = await this.businessModel.findByIdAndUpdate(
-      { _id: businessId },
+      { _id: valitetedBusiness._id },
       { $set: business },
       { new: true },
     );
@@ -63,5 +65,18 @@ export class BusinessService {
       throw new NotFoundException('Owner not found');
     }
     return owner;
+  }
+  private async validateBusiness(
+    ownerId: string,
+    businessId: string,
+  ): Promise<Business> {
+    const business = await this.businessModel.findOne({
+      _id: businessId,
+      ownerId: ownerId,
+    });
+    if (!business) {
+      throw new NotFoundException('Business not found');
+    }
+    return business;
   }
 }
