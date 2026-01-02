@@ -27,6 +27,22 @@ export enum BusinessCategory {
   CLEANING = 'cleaning',
   BEAUTY = 'beauty',
   CONSULTING = 'consulting',
-
+  // Products
+  FASHION = 'fashion',
+  GROCERY = 'grocery',
+  HEALTH = 'health',
+  SPORTS = 'sports',
+  HOME = 'home',
+  TOYS = 'toys',
+  // Services
+  MEDICAL = 'medical',
+  SALON = 'salon',
+  FITNESS = 'fitness',
+  EDUCATION = 'education',
+  AUTOMOTIVE = 'automotive',
+  // Experiences / Hybrid
+  FOOD_AND_BEVERAGE = 'food_beverage',
+  ENTERTAINMENT = 'entertainment',
+  TRAVEL = 'travel',
   OTHER = 'other',
 }

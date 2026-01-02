@@ -56,8 +56,13 @@ export class BusinessController {
   @ApiBody({ type: UpdateBusinessDto })
   public updateBusiness(
     @Param('id', ParseObjectIdPipe) businessId: string,
+    @Req() req: Request,
     @Body() updateBusinessDto: UpdateBusinessDto,
   ) {
-    return this.buisnessService.updateBusiness(businessId, updateBusinessDto);
+    return this.buisnessService.updateBusiness(
+      req['user'].id,
+      businessId,
+      updateBusinessDto,
+    );
   }
 }
