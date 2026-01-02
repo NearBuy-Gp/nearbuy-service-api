@@ -81,11 +81,10 @@ export class ItemService {
     itemsIds: string[],
   ) {
     const business = await this.validateBusiness(ownerId, businessId);
-    await this.itemModel.findByIdAndUpdate(
-      business._id,
-      { $in: { _id: itemsIds } },
-      { new: true },
-    );
+    await this.itemModel.deleteMany({
+      businessId: business._id,
+      _id: { $in: itemsIds },
+    });
     return { message: 'Items Deleted Successfully' };
   }
   private async validateBusiness(

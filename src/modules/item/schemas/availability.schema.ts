@@ -1,4 +1,5 @@
 import { Prop } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 
 export class AvailabilitySchema extends Document {
   @Prop({ type: Boolean, default: null })

@@ -19,9 +19,9 @@ import { CreateItemDto } from './dtos/requests/create-item.dto';
 import { ItemResponseDto } from './dtos/response/item.response.dto';
 import { UpdateItemDto } from './dtos/requests/update-item.dto';
 
-@ApiTags(':businessId/Item')
+@ApiTags('Item')
 @UseGuards(AuthGuard, RolesGuard)
-@Controller('item')
+@Controller(':businessId/item')
 export class ItemController {
   constructor(private itemService: ItemService) {}
 
@@ -51,7 +51,7 @@ export class ItemController {
     @Param('itemId') itemId: string,
     @Req() req: Request,
   ) {
-    return this.itemService.getItem(businessId, itemId, req['user'].id);
+    return this.itemService.getItem(req['user'].id, businessId, itemId);
   }
   @Roles(Role.OWNER)
   @Patch('/:itemId')
@@ -65,9 +65,9 @@ export class ItemController {
     @Req() req: Request,
   ) {
     return this.itemService.updateItem(
+      req['user'].id,
       businessId,
       itemId,
-      req['user'].id,
       item,
     );
   }
@@ -80,23 +80,23 @@ export class ItemController {
     @Param('itemId') itemId: string,
     @Req() req: Request,
   ) {
-    return this.itemService.deleteItem(businessId, itemId, req['user'].id);
+    return this.itemService.deleteItem(req['user'].id, businessId, itemId);
   }
-  @Roles(Role.OWNER)
-  @Delete('/bulk')
-  @ApiOperation({ summary: 'Delete Item' })
-  @ApiResponse({ status: 200, description: 'Item Deleted Successfully' })
-  public bulkDeleteItems(
-    @Param('businessId') businessId: string,
-    @Param('itemId') itemId: string,
-    @Body() itemIds: string[],
-    @Req() req: Request,
-  ) {
-    return this.itemService.bulkDeleteItem(
-      businessId,
-      itemId,
-      req['user'].id,
-      itemIds,
-    );
-  }
+  // @Roles(Role.OWNER)
+  // @Delete('/bulk')
+  // @ApiOperation({ summary: 'Delete Item' })
+  // @ApiResponse({ status: 200, description: 'Item Deleted Successfully' })
+  // public bulkDeleteItems(
+  //   @Param('businessId') businessId: string,
+  //   @Param('itemId') itemId: string,
+  //   @Body() itemIds: string[],
+  //   @Req() req: Request,
+  // ) {
+  //   return this.itemService.bulkDeleteItem(
+  //     req['user'].id,
+  //     businessId,
+  //     itemId,
+  //     itemIds,
+  //   );
+  // }
 }
