@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, ArrayMinSize, IsNumber } from 'class-validator';
+import { ArrayMinSize, IsArray, IsNumber } from 'class-validator';
 
 export class LocationDto {
   @ApiProperty({

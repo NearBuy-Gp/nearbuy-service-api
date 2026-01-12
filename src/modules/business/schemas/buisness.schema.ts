@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Schema as MongooseSchema } from 'mongoose';
+import { Document, Schema as MongooseSchema, Types } from 'mongoose';
 import { BusinessType } from '../enums/business-type.enum';
 import { BusinessCategory } from '../enums/business-category.enum';
 import { BusinessStatus } from '../enums/business-status.enum';
@@ -10,6 +10,7 @@ import { WorkingHours } from '../interfaces/working-hours.interface';
   versionKey: false,
 })
 export class Business extends Document {
+  _id: Types.ObjectId;
   @Prop({ required: true, trim: true })
   name: string;
 
@@ -98,6 +99,7 @@ export class Business extends Document {
   ownerId: MongooseSchema.Types.ObjectId;
 
   @Prop({ type: MongooseSchema.Types.Mixed, default: {} })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   attributes?: Record<string, any>;
 }
 

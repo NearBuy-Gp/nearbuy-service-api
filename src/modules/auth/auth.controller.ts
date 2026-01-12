@@ -20,7 +20,7 @@ export class AuthController {
   @ApiBody({ type: SignUpRequestDto })
   public signUp(
     @Body() signUpRequestDto: SignUpRequestDto,
-  ): Promise<MessageResponseDto> {
+  ): Promise<LoginResponseDto> {
     return this.authServices.signup(signUpRequestDto);
   }
   @Post('/signin')

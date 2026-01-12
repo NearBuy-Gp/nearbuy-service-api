@@ -1,9 +1,9 @@
 import {
-  IsString,
-  IsEnum,
-  IsOptional,
   IsArray,
+  IsEnum,
   IsNumber,
+  IsOptional,
+  IsString,
   ValidateNested,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
@@ -115,5 +115,6 @@ export class CreateItemDto {
     required: false,
   })
   @IsOptional()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   attributes?: Record<string, any>;
 }

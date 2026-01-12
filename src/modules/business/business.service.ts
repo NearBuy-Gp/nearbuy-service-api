@@ -8,6 +8,8 @@ import { BusinessStatus } from './enums/business-status.enum';
 import { RegisterBusinessResponseDto } from './dtos/response/register-business-response.dto';
 import STATIC_MESSAGES from '../../config/staticMessages.json';
 import { UpdateBusinessDto } from './dtos/request/business-update-request.dto';
+import { BusinessOnMapDto } from './dtos/response/business-on-map.dto';
+import { BusinessCategory } from './enums/business-category.enum';
 @Injectable()
 export class BusinessService {
   constructor(
@@ -19,11 +21,18 @@ export class BusinessService {
     ownerId: string,
   ): Promise<RegisterBusinessResponseDto> {
     const owner = await this.validateOwner(ownerId);
+    // Ensure coordinates are in [longitude, latitude] format and are numbers
+    const coordinates = createBusinessDto.location.coordinates.map(Number);
+    if (coordinates.length !== 2) {
+      throw new Error(
+        'Location coordinates must be an array of 2 numbers [longitude, latitude]',
+      );
+    }
     const business = await this.businessModel.create({
       ...createBusinessDto,
       location: {
         type: 'Point',
-        coordinates: createBusinessDto.location.coordinates,
+        coordinates: [coordinates[0], coordinates[1]], // [lng, lat]
       },
       ownerId: owner._id,
       status: BusinessStatus.OPEN,
@@ -31,7 +40,7 @@ export class BusinessService {
     return {
       message:
         STATIC_MESSAGES.success_messages.business_messages.success_register,
-      business: business,
+      business,
     };
   }
   public async getBusinessById(businessId: string): Promise<Business> {
@@ -46,9 +55,9 @@ export class BusinessService {
     businessId: string,
     business: UpdateBusinessDto,
   ): Promise<Business> {
-    const valitetedBusiness = await this.validateBusiness(ownerId, businessId);
+    const validatedBusiness = await this.validateBusiness(ownerId, businessId);
     const updatedBusiness = await this.businessModel.findByIdAndUpdate(
-      { _id: valitetedBusiness._id },
+      { _id: validatedBusiness._id },
       { $set: business },
       { new: true },
     );
@@ -58,6 +67,66 @@ export class BusinessService {
     }
 
     return updatedBusiness;
+  }
+  public async getNearbyBusiness(
+    lat: number,
+    lng: number,
+    radius: number,
+    category?: BusinessCategory,
+  ): Promise<BusinessOnMapDto[]> {
+    const filter: any = {
+      location: {
+        $near: {
+          $geometry: {
+            type: 'Point',
+            coordinates: [Number(lng), Number(lat)],
+          },
+          $maxDistance: Number(radius),
+        },
+      },
+    };
+
+    if (category) {
+      filter.category = category;
+    }
+
+    const business = await this.businessModel.find(filter);
+    return business.map((business) => ({
+      name: business.name,
+      coordinates: business.location.coordinates,
+      image: business.images?.[0] || '',
+      id: business._id.toString(),
+      status: business.status,
+    }));
+  }
+  public async getNearbyBusinessMapView(
+    swLng: number,
+    swLat: number,
+    neLng: number,
+    neLat: number,
+    category?: BusinessCategory,
+  ): Promise<BusinessOnMapDto[]> {
+    const filter: any = {
+      location: {
+        $geoWithin: {
+          $box: [
+            [swLng, swLat],
+            [neLng, neLat],
+          ],
+        },
+      },
+    };
+    if (category) {
+      filter.category = category;
+    }
+    const business = await this.businessModel.find(filter);
+    return business.map((business) => ({
+      name: business.name,
+      coordinates: business.location.coordinates,
+      image: business.images?.[0] || '',
+      id: business._id.toString(),
+      status: business.status,
+    }));
   }
   private async validateOwner(ownerId: string) {
     const owner = await this.userModel.findById(ownerId);
@@ -72,7 +141,7 @@ export class BusinessService {
   ): Promise<Business> {
     const business = await this.businessModel.findOne({
       _id: businessId,
-      ownerId: ownerId,
+      ownerId,
     });
     if (!business) {
       throw new NotFoundException('Business not found');

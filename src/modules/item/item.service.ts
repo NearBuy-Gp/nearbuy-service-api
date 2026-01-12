@@ -93,7 +93,7 @@ export class ItemService {
   ): Promise<Business> {
     const business = await this.businessModel.findOne({
       _id: businessId,
-      ownerId: ownerId,
+      ownerId,
     });
     if (!business) {
       throw new Error('Unauthorized: You do not own this business');

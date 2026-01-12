@@ -7,7 +7,7 @@ export class LoginResponseDto {
     description: 'User Payload',
   })
   userPayload: {
-    userName: string;
+    userName?: string;
     id: string;
     role: Role;
   };

@@ -1,6 +1,9 @@
 import { ConfigService } from '@nestjs/config';
 import { MongooseModuleAsyncOptions } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { Logger } from '@nestjs/common';
+
+const logger = new Logger('MongoConfig');
 
 export const mongoConfig = (): MongooseModuleAsyncOptions => ({
   imports: [],
@@ -19,22 +22,20 @@ export const mongoConfig = (): MongooseModuleAsyncOptions => ({
         connection.set('strictQuery', false);
 
         connection.on('connected', () => {
-          console.log('[MongoDB] Connected successfully to database');
+          logger.log('Connected successfully to database');
         });
 
         connection.on('error', (err: Error) => {
-          console.error('[MongoDB] Connection error:', err.message);
+          logger.error(`Connection error: ${err.message}`);
         });
 
         connection.on('disconnected', () => {
-          console.warn('[MongoDB] Disconnected from database');
+          logger.warn('Disconnected from database');
         });
 
         process.on('SIGINT', () => {
           void connection.close().then(() => {
-            console.log(
-              '[MongoDB] Connection closed due to application termination',
-            );
+            logger.log('Connection closed due to application termination');
             process.exit(0);
           });
         });
