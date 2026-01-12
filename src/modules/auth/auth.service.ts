@@ -9,7 +9,6 @@ import { User } from '../user/schemas/user.schema';
 import { SignUpRequestDto } from './dtos/signup-request.dto';
 import STATIC_MESSAGES from '../../config/staticMessages.json';
 import * as bcrypt from 'bcrypt';
-import { MessageResponseDto } from './dtos/message-response.dto';
 import { LoginResponseDto } from './dtos/login-response.dto';
 import { LoginRequestDto } from './dtos/login-request.dto';
 import { JwtService } from '@nestjs/jwt';
@@ -22,7 +21,7 @@ export class AuthService {
   ) {}
   public async signup(
     signUpRequestDto: SignUpRequestDto,
-  ): Promise<MessageResponseDto> {
+  ): Promise<LoginResponseDto> {
     const { email, password, userName, role } = signUpRequestDto;
     const user = await this.userModel.findOne({ email });
     if (user) {
@@ -30,23 +29,28 @@ export class AuthService {
         STATIC_MESSAGES.error_messages.user_errors.user_exist,
       );
     }
-    if (userName) {
-      const userNameExist = await this.userModel.findOne({ userName });
-      if (userNameExist) {
-        throw new BadRequestException(
-          STATIC_MESSAGES.error_messages.user_errors.user_name_exist,
-        );
-      }
-    }
     const hashedPassword = await bcrypt.hash(password, 10);
-    await this.userModel.create({
-      userName,
+    const existingUser = await this.userModel.create({
+      userName: userName || '',
       password: hashedPassword,
       email,
       role,
     });
+    const userId = existingUser.id;
+    const tokenPayload = {
+      email: existingUser.email,
+      id: userId,
+      role: existingUser.role,
+    };
+    const accessToken = this.generateAccessToken(tokenPayload);
+    const userPayload = {
+      id: userId,
+      userName: existingUser.userName,
+      role: existingUser.role,
+    };
     return {
-      message: STATIC_MESSAGES.success_messages.user_messages.success_register,
+      userPayload,
+      accessToken,
     };
   }
   public async login(
@@ -81,7 +85,7 @@ export class AuthService {
       role: existingUser.role,
     };
     return {
-      userPayload: userPayload,
+      userPayload,
       accessToken,
     };
   }

@@ -6,7 +6,6 @@ import {
   Param,
   Patch,
   Post,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 import { ItemService } from './item.service';
@@ -18,6 +17,7 @@ import { Role } from 'src/utils/enums/user-role.enum';
 import { CreateItemDto } from './dtos/requests/create-item.dto';
 import { ItemResponseDto } from './dtos/response/item.response.dto';
 import { UpdateItemDto } from './dtos/requests/update-item.dto';
+import { User } from 'src/common/decorators/user.decorator';
 
 @ApiTags('Item')
 @UseGuards(AuthGuard, RolesGuard)
@@ -32,45 +32,38 @@ export class ItemController {
   @ApiBody({ type: CreateItemDto })
   public async addItemManual(
     @Param('businessId') businessId: string,
-    @Req() req: Request,
-    @Body()
-    item: CreateItemDto,
+    @User('id') userId: string,
+    @Body() item: CreateItemDto,
   ): Promise<ItemResponseDto> {
-    return await this.itemService.addItemManual(
-      businessId,
-      req['user'].id,
-      item,
-    );
+    return await this.itemService.addItemManual(businessId, userId, item);
   }
+
   @Roles(Role.OWNER)
   @Get('/:itemId')
   @ApiOperation({ summary: 'View Item' })
-  @ApiResponse({ status: 200, description: 'Item  Details' })
+  @ApiResponse({ status: 200, description: 'Item Details' })
   public getItem(
     @Param('businessId') businessId: string,
     @Param('itemId') itemId: string,
-    @Req() req: Request,
+    @User('id') userId: string,
   ) {
-    return this.itemService.getItem(req['user'].id, businessId, itemId);
+    return this.itemService.getItem(userId, businessId, itemId);
   }
+
   @Roles(Role.OWNER)
   @Patch('/:itemId')
   @ApiOperation({ summary: 'Update Item' })
   @ApiResponse({ status: 200, description: 'Item Update Details' })
-  @ApiBody({ type: CreateItemDto })
+  @ApiBody({ type: UpdateItemDto })
   public updateItem(
     @Param('businessId') businessId: string,
     @Param('itemId') itemId: string,
+    @User('id') userId: string,
     @Body() item: UpdateItemDto,
-    @Req() req: Request,
   ) {
-    return this.itemService.updateItem(
-      req['user'].id,
-      businessId,
-      itemId,
-      item,
-    );
+    return this.itemService.updateItem(userId, businessId, itemId, item);
   }
+
   @Roles(Role.OWNER)
   @Delete('/:itemId')
   @ApiOperation({ summary: 'Delete Item' })
@@ -78,25 +71,8 @@ export class ItemController {
   public deleteItem(
     @Param('businessId') businessId: string,
     @Param('itemId') itemId: string,
-    @Req() req: Request,
+    @User('id') userId: string,
   ) {
-    return this.itemService.deleteItem(req['user'].id, businessId, itemId);
+    return this.itemService.deleteItem(userId, businessId, itemId);
   }
-  // @Roles(Role.OWNER)
-  // @Delete('/bulk')
-  // @ApiOperation({ summary: 'Delete Item' })
-  // @ApiResponse({ status: 200, description: 'Item Deleted Successfully' })
-  // public bulkDeleteItems(
-  //   @Param('businessId') businessId: string,
-  //   @Param('itemId') itemId: string,
-  //   @Body() itemIds: string[],
-  //   @Req() req: Request,
-  // ) {
-  //   return this.itemService.bulkDeleteItem(
-  //     req['user'].id,
-  //     businessId,
-  //     itemId,
-  //     itemIds,
-  //   );
-  // }
 }

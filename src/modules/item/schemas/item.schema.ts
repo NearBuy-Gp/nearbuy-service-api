@@ -56,6 +56,7 @@ export class Item extends Document {
   availability: AvailabilitySchema;
 
   @Prop({ type: MongooseSchema.Types.Mixed, default: {} })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   attributes?: Record<string, any>;
 
   @Prop({ default: true })

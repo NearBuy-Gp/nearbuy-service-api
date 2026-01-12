@@ -3,7 +3,8 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import STATIC_MESSAGES from './config/staticMessages.json';
 import { ValidationPipe } from '@nestjs/common';
-async function bootstrap() {
+
+async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, { cors: true });
   app.setGlobalPrefix(
     STATIC_MESSAGES.document_description.project_global_prefix,
@@ -33,4 +34,5 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT ?? 3000);
 }
-bootstrap();
+
+void bootstrap();

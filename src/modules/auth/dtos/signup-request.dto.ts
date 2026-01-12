@@ -1,11 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsNotEmpty,
   IsEmail,
-  IsString,
   IsEnum,
+  IsNotEmpty,
   IsOptional,
+  IsString,
 } from 'class-validator';
 import { Role } from 'src/utils/enums/user-role.enum';
 
@@ -33,7 +32,7 @@ export class SignUpRequestDto {
   })
   @IsOptional()
   @IsString()
-  userName: string;
+  userName?: string;
 
   @IsEnum(Role)
   @ApiProperty({
