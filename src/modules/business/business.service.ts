@@ -21,7 +21,6 @@ export class BusinessService {
     ownerId: string,
   ): Promise<RegisterBusinessResponseDto> {
     const owner = await this.validateOwner(ownerId);
-    // Ensure coordinates are in [longitude, latitude] format and are numbers
     const coordinates = createBusinessDto.location.coordinates.map(Number);
     if (coordinates.length !== 2) {
       throw new Error(
@@ -32,7 +31,7 @@ export class BusinessService {
       ...createBusinessDto,
       location: {
         type: 'Point',
-        coordinates: [coordinates[0], coordinates[1]], // [lng, lat]
+        coordinates: [coordinates[0], coordinates[1]],
       },
       ownerId: owner._id,
       status: BusinessStatus.OPEN,

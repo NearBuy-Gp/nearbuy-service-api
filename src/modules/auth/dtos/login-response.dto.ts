@@ -3,7 +3,11 @@ import { Role } from 'src/utils/enums/user-role.enum';
 
 export class LoginResponseDto {
   @ApiProperty({
-    example: 'name:isel, id:12',
+    example: `{ 
+  "userName": "john_doe",
+  "id": "1234567890",
+  "role": "user" 
+  }`,
     description: 'User Payload',
   })
   userPayload: {
@@ -13,7 +17,7 @@ export class LoginResponseDto {
   };
 
   @ApiProperty({
-    example: 'token',
+    example: 'zgfgdfgfdsgdfhsdfhdfhhtdthgfhdghjh',
     description: 'user token',
     required: false,
   })
