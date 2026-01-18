@@ -19,10 +19,8 @@ async function bootstrap(): Promise<void> {
   );
 
   const corsOrigins = process.env.CORS_ORIGIN
-    ? process.env.CORS_ORIGIN.split(',')
-        .map((origin) => origin.trim().replace(/^["']|["']$/g, ''))
-        .filter((origin) => origin.length > 0)
-    : 'localhost:3000';
+    ? JSON.parse(process.env.CORS_ORIGIN)
+    : ['http://localhost:3000'];
 
   app.enableCors({
     origin: corsOrigins,
