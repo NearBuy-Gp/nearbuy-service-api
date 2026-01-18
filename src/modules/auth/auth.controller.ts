@@ -11,7 +11,7 @@ import { LoginResponseDto } from './dtos/login-response.dto';
 export class AuthController {
   constructor(private readonly authServices: AuthService) {}
   @Post('/register')
-  @ApiOperation({ summary: 'User Register' })
+  @ApiOperation({ summary: 'User Register (User - Owner)' })
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'User Register',
@@ -20,11 +20,11 @@ export class AuthController {
   @ApiBody({ type: SignUpRequestDto })
   public signUp(
     @Body() signUpRequestDto: SignUpRequestDto,
-  ): Promise<MessageResponseDto> {
+  ): Promise<LoginResponseDto> {
     return this.authServices.signup(signUpRequestDto);
   }
   @Post('/signin')
-  @ApiOperation({ summary: 'User Sign In' })
+  @ApiOperation({ summary: 'User Sign In (User - Owner)' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'User Sign In',

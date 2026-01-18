@@ -1,18 +1,17 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   CanActivate,
   ExecutionContext,
   Injectable,
-  UnauthorizedException,
   Logger,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
-import { Request } from 'express';
 import { Model } from 'mongoose';
 import STATIC_MESSAGES from 'src/config/staticMessages.json';
 import { User } from 'src/modules/user/schemas/user.schema';
+import { RequestWithUser } from 'src/common/interfaces/request-with-user.interface';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -25,7 +24,7 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const req: Request = context.switchToHttp().getRequest<Request>();
+    const req = context.switchToHttp().getRequest<RequestWithUser>();
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
@@ -53,12 +52,15 @@ export class AuthGuard implements CanActivate {
         );
       }
 
-      req['user'] = {
-        ...userPayload,
+      // Type-safe assignment using RequestWithUser interface
+      req.user = {
+        id: userPayload.id,
+        email: userPayload.email,
         role: user.role,
       };
       return true;
-    } catch (error) {
+    } catch (_error) {
+      this.logger.warn('Authentication failed');
       throw new UnauthorizedException(
         STATIC_MESSAGES.error_messages.auth_errors.unauthorized,
       );

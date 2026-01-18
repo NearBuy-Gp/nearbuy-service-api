@@ -8,6 +8,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { BusinessModule } from './modules/business/business.module';
 import { AutoGenerationModuleModule } from './modules/auto-generation-module/auto-generation-module.module';
+import { ItemModule } from './modules/item/item.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { AutoGenerationModuleModule } from './modules/auto-generation-module/aut
     UserModule,
     BusinessModule,
     AutoGenerationModuleModule,
+    ItemModule,
   ],
   controllers: [AppController],
   providers: [AppService],

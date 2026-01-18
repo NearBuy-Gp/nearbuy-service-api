@@ -3,7 +3,8 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import STATIC_MESSAGES from './config/staticMessages.json';
 import { ValidationPipe } from '@nestjs/common';
-async function bootstrap() {
+
+async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, { cors: true });
   app.setGlobalPrefix(
     STATIC_MESSAGES.document_description.project_global_prefix,
@@ -16,6 +17,17 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  const corsOrigins = process.env.CORS_ORIGIN
+    ? JSON.parse(process.env.CORS_ORIGIN)
+    : ['http://localhost:3000'];
+
+  app.enableCors({
+    origin: corsOrigins,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  });
 
   const config = new DocumentBuilder()
     .setTitle(STATIC_MESSAGES.document_description.project_title)
@@ -33,4 +45,5 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT ?? 3000);
 }
-bootstrap();
+
+void bootstrap();
