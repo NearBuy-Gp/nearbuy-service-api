@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import OpenAI from 'openai';
 import { GenerateBusinessAiDto } from './dtos/request/business-ai-generation.dto';
 import { CATEGORY_TYPES_MAP } from './constants/category-types.map';
-import { buildPromptV1 } from './Prompts/v1/index';
+import { buildPromptV1 } from './Prompts/v1/prompets-mapper';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -12,10 +12,10 @@ export class AutoGenerationService {
   constructor(private configService: ConfigService) {
     this.openai = new OpenAI({
       apiKey: this.configService.get<string>('OPENROUTER_API_KEY'),
-      baseURL: 'https://openrouter.ai/api/v1',
+      baseURL: this.configService.get<string>('OPENAI_BASE_URL'),
       defaultHeaders: {
-        'HTTP-Referer': 'http://localhost:3000', // change in prod
-        'X-Title': 'NearBuy API',
+        'HTTP-Referer': this.configService.get<string>('APP_HTTP_REFERER'),
+        'X-Title': this.configService.get<string>('APP_X_TITLE'),
       },
     });
   }

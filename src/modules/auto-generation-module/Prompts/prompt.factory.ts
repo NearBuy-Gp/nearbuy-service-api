@@ -94,7 +94,7 @@ Rules:
 - No promotional hype
 `;
 
-    // ❌ Safety fallback (should never happen if validation is correct)
+    
     default:
       return `
 Write a professional business description (2 sentences).
