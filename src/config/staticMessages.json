@@ -90,7 +90,7 @@
     "project_title": "NearBuy API",
     "project_description": "API documentation for the NearBuy service.",
     "project_version": "1.0",
-    "project_global_prefix": "api/",
+    "project_global_prefix": "api",
     "project_environment_production": "production"
   }
 }
