@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { AutoGenerationModuleService } from './auto-generation-module.service';
-import { AutoGenerationModuleController } from './auto-generation-module.controller';
+import { AutoGenerationService } from './auto-generation-module.service';
+import { AutoGenerationController } from './auto-generation-module.controller';
+
 
 @Module({
-  providers: [AutoGenerationModuleService],
-  controllers: [AutoGenerationModuleController],
+  providers: [AutoGenerationService],
+  controllers: [AutoGenerationController],
 })
 export class AutoGenerationModuleModule {}
