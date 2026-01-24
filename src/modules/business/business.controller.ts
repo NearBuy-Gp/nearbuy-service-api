@@ -8,13 +8,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import {
-  ApiBody,
-  ApiOperation,
-  ApiQuery,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { BusinessService } from './business.service';
@@ -25,11 +19,10 @@ import { ParseObjectIdPipe } from '@nestjs/mongoose';
 import { UpdateBusinessDto } from './dtos/request/business-update-request.dto';
 import { User } from 'src/common/decorators/user.decorator';
 import { BusinessOnMapDto } from './dtos/response/business-on-map.dto';
-import { BusinessCategory } from './enums/business-category.enum';
-import { BusinessNearMeDto } from './dtos/response/business-near-me..dto';
 import { NearbyQueryDto } from './dtos/request/nearby-query.dto';
 import { MapViewQueryDto } from './dtos/request/map-view-query';
 import { RegisterBusinessResponseDto } from './dtos/response/register-business-response.dto';
+import { PaginatedBusinessNearMeDto } from './dtos/response/paginated-business-near-me';
 
 @ApiTags('Business')
 @Controller('business')
@@ -56,28 +49,21 @@ export class BusinessController {
   @Roles(Role.USER)
   @Get('/nearby')
   @ApiOperation({ summary: 'Get Nearby business' })
-  @ApiQuery({ name: 'lat', required: true, type: Number })
-  @ApiQuery({ name: 'lng', required: true, type: Number })
-  @ApiQuery({
-    name: 'radius',
-    required: false,
-    type: Number,
-    description: 'Radius in meters (default is 10000)',
-  })
-  @ApiQuery({ name: 'category', required: false, enum: BusinessCategory })
   @ApiResponse({
     status: 200,
     description: 'Get Nearby Business successfully',
-    type: [BusinessNearMeDto],
+    type: PaginatedBusinessNearMeDto,
   })
   public getNearbyBusiness(
     @Query() query: NearbyQueryDto,
-  ): Promise<BusinessNearMeDto[]> {
+  ): Promise<PaginatedBusinessNearMeDto> {
     return this.businessService.getNearbyBusiness(
       query.lat,
       query.lng,
       query.radius,
       query.category,
+      query.page,
+      query.limit,
     );
   }
 
