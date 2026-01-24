@@ -11,7 +11,7 @@ import { UpdateBusinessDto } from './dtos/request/business-update-request.dto';
 import { BusinessOnMapDto } from './dtos/response/business-on-map.dto';
 import { BusinessCategory } from './enums/business-category.enum';
 import { BusinessDataDto } from './dtos/response/business-data.dto';
-import { BusinessNearMeDto } from './dtos/response/business-near-me..dto';
+import { PaginatedBusinessNearMeDto } from './dtos/response/paginated-business-near-me';
 @Injectable()
 export class BusinessService {
   constructor(
@@ -76,7 +76,9 @@ export class BusinessService {
     lng: number,
     radius?: number,
     category?: BusinessCategory,
-  ): Promise<BusinessNearMeDto[]> {
+    page: number = 1,
+    limit: number = 5,
+  ): Promise<PaginatedBusinessNearMeDto> {
     const filter: any = {
       location: {
         $near: {
@@ -92,22 +94,30 @@ export class BusinessService {
     if (category) {
       filter.category = category;
     }
+    const skip = (page - 1) * limit;
 
-    const business = await this.businessModel.find(filter);
-    return business.map((business) => ({
-      name: business.name,
-      coordinates: business.location?.coordinates || [],
-      image: business.images?.[0] || '',
-      id: business._id.toString(),
-      status: business.status,
-      rate: business.rate,
-      category: business.category || BusinessCategory.STORE,
-      address: business.address || '',
-      images: business.images || [],
-      tags: business.tags || [],
-      type: business.type,
-      description: business.description || '',
-    }));
+    const business = await this.businessModel
+      .find(filter)
+      .skip(skip)
+      .limit(limit);
+    return {
+      businesses: business.map((business) => ({
+        name: business.name,
+        coordinates: business.location?.coordinates || [],
+        image: business.images?.[0] || '',
+        id: business._id.toString(),
+        status: business.status,
+        rate: business.rate,
+        category: business.category || BusinessCategory.STORE,
+        address: business.address || '',
+        images: business.images || [],
+        tags: business.tags || [],
+        type: business.type,
+        description: business.description || '',
+      })),
+      page,
+      limit,
+    };
   }
   public async getNearbyBusinessMapView(
     swLng: number,
