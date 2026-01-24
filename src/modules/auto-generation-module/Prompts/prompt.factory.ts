@@ -1,17 +1,16 @@
 import { GenerateBusinessAiDto } from '../dtos/request/business-ai-generation.dto';
-import { BusinessMainCategory } from '../enums/business-category.enum';
+import { BusinessCategory } from '../../business/enums/business-category.enum';
 
 function formatList(items: string[]): string {
-  return items.map(item => `- ${item}`).join('\n');
+  return items.map((item) => `- ${item}`).join('\n');
 }
 
 export function buildPrompt(data: GenerateBusinessAiDto): string {
   const mainItemsFormatted = formatList(data.mainItems);
 
   switch (data.category) {
-
     //  RESTAURANT
-    case BusinessMainCategory.RESTAURANT:
+    case BusinessCategory.RESTAURANT:
       return `
 Write a professional Google-style restaurant description (2 sentences).
 
@@ -28,7 +27,7 @@ Rules:
 `;
 
     //  CLINIC
-    case BusinessMainCategory.CLINIC:
+    case BusinessCategory.CLINIC:
       return `
 Write a professional medical clinic description (2 sentences).
 
@@ -44,7 +43,7 @@ Rules:
 `;
 
     //  GYM
-    case BusinessMainCategory.GYM:
+    case BusinessCategory.GYM:
       return `
 Write a professional gym description (2 sentences).
 
@@ -60,8 +59,8 @@ Rules:
 - No hype language
 `;
 
-    // SERVICE 
-    case BusinessMainCategory.SERVICE:
+    // SERVICE
+    case BusinessCategory.SERVICE:
       return `
 Write a professional local service business description (2 sentences).
 
@@ -77,8 +76,8 @@ Rules:
 - No exaggerated claims
 `;
 
-    // STORE 
-    case BusinessMainCategory.STORE:
+    // STORE
+    case BusinessCategory.STORE:
       return `
 Write a professional retail store description (2 sentences).
 
@@ -94,7 +93,6 @@ Rules:
 - No promotional hype
 `;
 
-    
     default:
       return `
 Write a professional business description (2 sentences).

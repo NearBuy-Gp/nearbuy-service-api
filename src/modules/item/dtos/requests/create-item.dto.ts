@@ -37,7 +37,7 @@ export class CreateItemDto {
   type: ItemType;
 
   @ApiProperty({
-    example: BusinessCategory.MEDICAL,
+    example: BusinessCategory.STORE,
     enum: BusinessCategory,
     required: false,
   })

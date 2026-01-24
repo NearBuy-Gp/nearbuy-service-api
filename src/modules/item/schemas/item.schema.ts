@@ -23,7 +23,7 @@ export class Item extends Document {
 
   @Prop({
     enum: BusinessCategory,
-    default: BusinessCategory.OTHER,
+    default: BusinessCategory.CLINIC,
   })
   category: BusinessCategory;
 

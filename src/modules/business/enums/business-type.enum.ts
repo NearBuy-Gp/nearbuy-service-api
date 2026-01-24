@@ -1,12 +1,30 @@
 export enum BusinessType {
-  STORE = 'store',
-  GYM = 'gym',
-  CLINIC = 'clinic',
-  RESTAURANT = 'restaurant',
-  CAFE = 'cafe',
+  // Store
+  ELECTRONICS = 'electronics',
+  CLOTHING = 'clothing',
+  SUPERMARKET = 'supermarket',
   PHARMACY = 'pharmacy',
-  MARKET = 'market',
-  SERVICE = 'service', // generic service provider
-  SALON = 'salon',
-  OTHER = 'other',
+
+  // Restaurant
+  FAST_FOOD = 'fast_food',
+  CAFE = 'cafe',
+  DESSERT = 'dessert',
+  SEAFOOD = 'seafood',
+
+  // Clinic
+  DENTIST = 'dentist',
+  DERMATOLOGY = 'dermatology',
+  PEDIATRIC = 'pediatric',
+  GENERAL_CLINIC = 'general_clinic',
+
+  // Gym
+  CROSSFIT = 'crossfit',
+  BODYBUILDING = 'bodybuilding',
+  PILATES = 'pilates',
+
+  // Service
+  REPAIR = 'repair',
+  CLEANING = 'cleaning',
+  BEAUTY = 'beauty',
+  CONSULTING = 'consulting',
 }

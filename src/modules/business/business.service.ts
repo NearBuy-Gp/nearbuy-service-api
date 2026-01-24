@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { BusinessDto } from './dtos/request/business.dto';
+import { BusinessRegistrationDto } from './dtos/request/business-registration.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from '../user/schemas/user.schema';
@@ -10,14 +10,17 @@ import STATIC_MESSAGES from '../../config/staticMessages.json';
 import { UpdateBusinessDto } from './dtos/request/business-update-request.dto';
 import { BusinessOnMapDto } from './dtos/response/business-on-map.dto';
 import { BusinessCategory } from './enums/business-category.enum';
+import { BusinessDataDto } from './dtos/response/business-data.dto';
+import { BusinessNearMeDto } from './dtos/response/business-near-me..dto';
 @Injectable()
 export class BusinessService {
   constructor(
     @InjectModel(Business.name) private businessModel: Model<Business>,
     @InjectModel(User.name) private userModel: Model<User>,
   ) {}
+
   public async registerBusiness(
-    createBusinessDto: BusinessDto,
+    createBusinessDto: BusinessRegistrationDto,
     ownerId: string,
   ): Promise<RegisterBusinessResponseDto> {
     const owner = await this.validateOwner(ownerId);
@@ -36,10 +39,11 @@ export class BusinessService {
       ownerId: owner._id,
       status: BusinessStatus.OPEN,
     });
+
     return {
       message:
         STATIC_MESSAGES.success_messages.business_messages.success_register,
-      business,
+      business: BusinessDataDto.fromEntity(business),
     };
   }
   public async getBusinessById(businessId: string): Promise<Business> {
@@ -70,9 +74,9 @@ export class BusinessService {
   public async getNearbyBusiness(
     lat: number,
     lng: number,
-    radius: number,
+    radius?: number,
     category?: BusinessCategory,
-  ): Promise<BusinessOnMapDto[]> {
+  ): Promise<BusinessNearMeDto[]> {
     const filter: any = {
       location: {
         $near: {
@@ -92,10 +96,17 @@ export class BusinessService {
     const business = await this.businessModel.find(filter);
     return business.map((business) => ({
       name: business.name,
-      coordinates: business.location.coordinates,
+      coordinates: business.location?.coordinates || [],
       image: business.images?.[0] || '',
       id: business._id.toString(),
       status: business.status,
+      rate: business.rate,
+      category: business.category || BusinessCategory.STORE,
+      address: business.address || '',
+      images: business.images || [],
+      tags: business.tags || [],
+      type: business.type,
+      description: business.description || '',
     }));
   }
   public async getNearbyBusinessMapView(
@@ -121,10 +132,11 @@ export class BusinessService {
     const business = await this.businessModel.find(filter);
     return business.map((business) => ({
       name: business.name,
-      coordinates: business.location.coordinates,
-      image: business.images?.[0] || '',
+      coordinates: business.location?.coordinates || [],
       id: business._id.toString(),
       status: business.status,
+      rate: business.rate,
+      category: business.category || BusinessCategory.STORE,
     }));
   }
   private async validateOwner(ownerId: string) {

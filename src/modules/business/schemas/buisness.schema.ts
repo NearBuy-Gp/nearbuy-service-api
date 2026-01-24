@@ -2,8 +2,11 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema, Types } from 'mongoose';
 import { BusinessType } from '../enums/business-type.enum';
 import { BusinessCategory } from '../enums/business-category.enum';
+import { BusinessFacility } from '../enums/business-facilities.enum';
+import { BusinessMainItem } from '../enums/business-mainitems.enum';
 import { BusinessStatus } from '../enums/business-status.enum';
 import { WorkingHours } from '../interfaces/working-hours.interface';
+import { BusinessTargetAudience } from '../enums/business-target-audience';
 
 @Schema({
   timestamps: true,
@@ -44,12 +47,16 @@ export class Business extends Document {
   @Prop()
   website?: string;
 
+  @Prop()
+  whatsappNumber?: string;
+
   @Prop({
     type: {
       facebook: { type: String },
       instagram: { type: String },
       tiktok: { type: String },
-      whatsapp: { type: String },
+      twitter: { type: String },
+      linkedin: { type: String },
     },
     default: {},
   })
@@ -91,6 +98,42 @@ export class Business extends Document {
   })
   status: BusinessStatus;
 
+  @Prop({ type: Number, default: 0 })
+  rate: number;
+
+  @Prop({
+    type: [String],
+    enum: BusinessTargetAudience,
+    default: [BusinessTargetAudience.FAMILY],
+  })
+  targetAudience?: BusinessTargetAudience[];
+
+  @Prop({
+    type: [String],
+    enum: BusinessMainItem,
+    default: [],
+  })
+  mainItems?: BusinessMainItem[];
+
+  @Prop({
+    type: [String],
+    enum: BusinessFacility,
+    default: [],
+  })
+  facilities?: BusinessFacility[];
+
+  @Prop({
+    type: [String],
+    default: [],
+  })
+  targetAudienceOther?: string[];
+
+  @Prop({
+    type: [String],
+    default: [],
+  })
+  mainItemsOthers?: string[];
+
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     ref: 'User',
@@ -104,4 +147,4 @@ export class Business extends Document {
 }
 
 export const BusinessSchema = SchemaFactory.createForClass(Business);
-BusinessSchema.index({ location: '2dsphere' });
+BusinessSchema.index({ location: '2dsphere' }, { sparse: true });

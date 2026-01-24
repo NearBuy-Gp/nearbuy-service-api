@@ -13,12 +13,12 @@ export class WorkingHoursDto {
   @ApiPropertyOptional({ example: '09:00' })
   @IsOptional()
   @IsString()
-  open?: string;
+  from?: string;
 
   @ApiPropertyOptional({ example: '22:00' })
   @IsOptional()
   @IsString()
-  close?: string;
+  to?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
