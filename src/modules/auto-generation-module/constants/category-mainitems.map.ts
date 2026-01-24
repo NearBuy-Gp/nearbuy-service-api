@@ -1,11 +1,11 @@
-import { BusinessMainCategory } from '../enums/business-category.enum';
-import { BusinessMainItem } from '../enums/business-mainitems.enum';
+import { BusinessCategory } from '../../business/enums/business-category.enum';
+import { BusinessMainItem } from '../../business/enums/business-mainitems.enum';
 
 export const CATEGORY_MAIN_ITEMS_MAP: Record<
-  BusinessMainCategory,
+  BusinessCategory,
   BusinessMainItem[]
 > = {
-  [BusinessMainCategory.STORE]: [
+  [BusinessCategory.STORE]: [
     BusinessMainItem.GROCERIES,
     BusinessMainItem.FRESH_PRODUCE,
     BusinessMainItem.SNACKS,
@@ -23,7 +23,7 @@ export const CATEGORY_MAIN_ITEMS_MAP: Record<
     BusinessMainItem.BAKERY_ITEMS,
   ],
 
-  [BusinessMainCategory.RESTAURANT]: [
+  [BusinessCategory.RESTAURANT]: [
     BusinessMainItem.SANDWICHES,
     BusinessMainItem.BURGERS,
     BusinessMainItem.GRILLED_ITEMS,
@@ -41,7 +41,7 @@ export const CATEGORY_MAIN_ITEMS_MAP: Record<
     BusinessMainItem.FAMILY_MEALS,
   ],
 
-  [BusinessMainCategory.CLINIC]: [
+  [BusinessCategory.CLINIC]: [
     BusinessMainItem.GENERAL_CONSULTATION,
     BusinessMainItem.FOLLOW_UP,
     BusinessMainItem.PEDIATRIC_CHECKUP,
@@ -59,7 +59,7 @@ export const CATEGORY_MAIN_ITEMS_MAP: Record<
     BusinessMainItem.CHRONIC_DISEASE_MANAGEMENT,
   ],
 
-  [BusinessMainCategory.GYM]: [
+  [BusinessCategory.GYM]: [
     BusinessMainItem.STRENGTH_TRAINING,
     BusinessMainItem.CARDIO_WORKOUTS,
     BusinessMainItem.PERSONAL_TRAINING,
@@ -77,7 +77,7 @@ export const CATEGORY_MAIN_ITEMS_MAP: Record<
     BusinessMainItem.WEIGHT_LOSS_PROGRAMS,
   ],
 
-  [BusinessMainCategory.SERVICE]: [
+  [BusinessCategory.SERVICE]: [
     BusinessMainItem.HOME_CLEANING,
     BusinessMainItem.DEEP_CLEANING,
     BusinessMainItem.AC_MAINTENANCE,

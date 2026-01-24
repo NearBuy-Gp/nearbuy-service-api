@@ -1,11 +1,11 @@
-import { BusinessMainCategory } from '../enums/business-category.enum';
-import { BusinessFacility } from '../enums/business-facilities.enum';
+import { BusinessCategory } from '../../business/enums/business-category.enum';
+import { BusinessFacility } from '../../business/enums/business-facilities.enum';
 
 export const CATEGORY_FACILITIES_MAP: Record<
-  BusinessMainCategory,
+  BusinessCategory,
   BusinessFacility[]
 > = {
-  [BusinessMainCategory.STORE]: [
+  [BusinessCategory.STORE]: [
     BusinessFacility.HOME_DELIVERY,
     BusinessFacility.IN_STORE_PICKUP,
     BusinessFacility.ONLINE_ORDERING,
@@ -16,7 +16,7 @@ export const CATEGORY_FACILITIES_MAP: Record<
     BusinessFacility.CARD_PAYMENTS,
   ],
 
-  [BusinessMainCategory.RESTAURANT]: [
+  [BusinessCategory.RESTAURANT]: [
     BusinessFacility.DINE_IN,
     BusinessFacility.TAKEAWAY,
     BusinessFacility.DELIVERY,
@@ -28,7 +28,7 @@ export const CATEGORY_FACILITIES_MAP: Record<
     BusinessFacility.CARD_PAYMENTS,
   ],
 
-  [BusinessMainCategory.CLINIC]: [
+  [BusinessCategory.CLINIC]: [
     BusinessFacility.APPOINTMENT_REQUIRED,
     BusinessFacility.INSURANCE_ACCEPTED,
     BusinessFacility.LAB_SERVICES,
@@ -37,7 +37,7 @@ export const CATEGORY_FACILITIES_MAP: Record<
     BusinessFacility.PARKING_AVAILABLE,
   ],
 
-  [BusinessMainCategory.GYM]: [
+  [BusinessCategory.GYM]: [
     BusinessFacility.PERSONAL_TRAINER,
     BusinessFacility.GROUP_CLASSES,
     BusinessFacility.WOMEN_ONLY_HOURS,
@@ -48,7 +48,7 @@ export const CATEGORY_FACILITIES_MAP: Record<
     BusinessFacility.AIR_CONDITIONED,
   ],
 
-  [BusinessMainCategory.SERVICE]: [
+  [BusinessCategory.SERVICE]: [
     BusinessFacility.ONSITE_SERVICE,
     BusinessFacility.HOME_SERVICE,
     BusinessFacility.APPOINTMENT_REQUIRED,

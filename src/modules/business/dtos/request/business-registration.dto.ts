@@ -6,6 +6,7 @@ import {
   IsOptional,
   IsString,
   IsUrl,
+  ValidateIf,
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -15,8 +16,11 @@ import { BusinessType } from '../../enums/business-type.enum';
 import { LocationDto } from './business-location.dto';
 import { SocialDto } from './business-social-links.dto';
 import { WorkingHoursDto } from './business-working-hours.dto';
+import { BusinessFacility } from 'src/modules/business/enums/business-facilities.enum';
+import { BusinessMainItem } from 'src/modules/business/enums/business-mainitems.enum';
+import { BusinessTargetAudience } from '../../enums/business-target-audience';
 
-export class BusinessDto {
+export class BusinessRegistrationDto {
   @ApiProperty({ example: 'Gold’s Gym' })
   @IsString()
   @IsNotEmpty()
@@ -41,11 +45,6 @@ export class BusinessDto {
   @IsOptional()
   @IsEnum(BusinessCategory)
   category?: BusinessCategory;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  subcategory?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -78,6 +77,7 @@ export class BusinessDto {
     description: 'GeoJSON Point with coordinates [lng, lat]',
   })
   @ValidateNested()
+  @IsNotEmpty()
   @Type(() => LocationDto)
   location: LocationDto;
 
@@ -88,9 +88,61 @@ export class BusinessDto {
   @Type(() => WorkingHoursDto)
   workingHours?: WorkingHoursDto[];
 
+  @ApiPropertyOptional({
+    type: [String],
+    enum: BusinessMainItem,
+    isArray: true,
+  })
+  @IsOptional()
+  @IsArray()
+  @IsEnum(BusinessMainItem, { each: true })
+  mainItems?: BusinessMainItem[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  @ValidateIf((option) =>
+    option.targetAudience?.includes(BusinessMainItem.OTHERS),
+  )
+  mainItemsOthers?: string[];
+
+  @ApiPropertyOptional({
+    type: [String],
+    enum: BusinessFacility,
+    isArray: true,
+  })
+  @IsOptional()
+  @IsArray()
+  @IsEnum(BusinessFacility, { each: true })
+  facilities?: BusinessFacility[];
+
+  @ApiPropertyOptional({
+    enumName: 'BusinessTargetAudience',
+    type: [BusinessTargetAudience],
+    enum: BusinessTargetAudience,
+    isArray: true,
+  })
+  @IsOptional()
+  @IsArray()
+  @IsEnum(BusinessTargetAudience)
+  targetAudience?: BusinessTargetAudience[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  @ValidateIf((option) =>
+    option.targetAudience?.includes(BusinessTargetAudience.OTHERS),
+  )
+  targetAudienceOther?: string[];
+
   @ApiPropertyOptional({ type: [String] })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
   images?: string[];
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  whatsappNumber?: string;
 }

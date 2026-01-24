@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import { ArrayMinSize, IsArray, IsNumber } from 'class-validator';
 
 export class LocationDto {
@@ -8,6 +9,7 @@ export class LocationDto {
   })
   @IsArray()
   @ArrayMinSize(2)
+  @Type(() => Number)
   @IsNumber({}, { each: true })
   coordinates: number[];
 }

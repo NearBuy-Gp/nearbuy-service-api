@@ -83,4 +83,6 @@ export enum BusinessMainItem {
   PEST_CONTROL = 'pest_control',
   EMERGENCY_REPAIR = 'emergency_repair',
   INSTALLATION_SERVICES = 'installation_services',
+
+  OTHERS = 'others',
 }

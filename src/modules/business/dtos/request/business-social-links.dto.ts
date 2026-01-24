@@ -20,5 +20,10 @@ export class SocialDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsUrl()
-  whatsapp?: string;
+  twitter?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUrl()
+  linkedIn?: string;
 }
