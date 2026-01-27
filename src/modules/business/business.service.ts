@@ -12,6 +12,7 @@ import { BusinessOnMapDto } from './dtos/response/business-on-map.dto';
 import { BusinessCategory } from './enums/business-category.enum';
 import { BusinessDataDto } from './dtos/response/business-data.dto';
 import { PaginatedBusinessNearMeDto } from './dtos/response/paginated-business-near-me';
+import geohash from 'src/utils/helpers/geohash';
 @Injectable()
 export class BusinessService {
   constructor(
@@ -30,6 +31,16 @@ export class BusinessService {
         'Location coordinates must be an array of 2 numbers [longitude, latitude]',
       );
     }
+    const {
+      full_geohash,
+      geohash_country,
+      geohash_region,
+      geohash_city,
+      geohash_district,
+      geohash_neighborhood,
+      geohash_street,
+      geohash_building,
+    } = geohash.generateGeohashes(coordinates[0], coordinates[1]);
     const business = await this.businessModel.create({
       ...createBusinessDto,
       location: {
@@ -38,6 +49,14 @@ export class BusinessService {
       },
       ownerId: owner._id,
       status: BusinessStatus.OPEN,
+      geohash_country,
+      geohash_region,
+      geohash_city,
+      geohash_district,
+      geohash_neighborhood,
+      geohash_street,
+      geohash_building,
+      geohash: full_geohash,
     });
 
     return {
@@ -124,6 +143,7 @@ export class BusinessService {
     swLat: number,
     neLng: number,
     neLat: number,
+    zoom: number,
     category?: BusinessCategory,
   ): Promise<BusinessOnMapDto[]> {
     const filter: any = {
@@ -139,15 +159,46 @@ export class BusinessService {
     if (category) {
       filter.category = category;
     }
-    const business = await this.businessModel.find(filter);
-    return business.map((business) => ({
-      name: business.name,
-      coordinates: business.location?.coordinates || [],
-      id: business._id.toString(),
-      status: business.status,
-      rate: business.rate,
-      category: business.category || BusinessCategory.STORE,
-    }));
+
+    const { field } = geohash.getGeohashConfigForZoom(zoom);
+
+    if (zoom >= 14) {
+      const business = await this.businessModel.find(filter);
+      return business.map((business) => ({
+        name: business.name,
+        coordinates: business.location?.coordinates || [],
+        id: business._id.toString(),
+        status: business.status,
+        rate: business.rate,
+        category: business.category || BusinessCategory.STORE,
+      }));
+    }
+    const ClusterdBusiness = await this.businessModel.aggregate([
+      { $match: filter },
+
+      {
+        $group: {
+          _id: `$${field}`,
+          sampleBusiness: { $first: '$$ROOT' },
+          count: { $sum: 1 },
+        },
+      },
+
+      {
+        $project: {
+          _id: 0,
+          id: '$sampleBusiness._id',
+          name: '$sampleBusiness.name',
+          coordinates: '$sampleBusiness.location.coordinates',
+          category: '$sampleBusiness.category',
+          status: '$sampleBusiness.status',
+          rate: '$sampleBusiness.rate',
+          count: 1,
+        },
+      },
+    ]);
+
+    return ClusterdBusiness;
   }
   private async validateOwner(ownerId: string) {
     const owner = await this.userModel.findById(ownerId);

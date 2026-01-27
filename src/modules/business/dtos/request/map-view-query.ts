@@ -48,4 +48,12 @@ export class MapViewQueryDto {
   @IsOptional()
   @IsEnum(BusinessCategory)
   category?: BusinessCategory;
+
+  @ApiProperty({
+    example: 12,
+    description: 'Map zoom level',
+  })
+  @IsNumber()
+  @Type(() => Number)
+  zoom: number;
 }
