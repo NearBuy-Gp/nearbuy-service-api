@@ -83,6 +83,7 @@ export class BusinessController {
       query.swLat,
       query.neLng,
       query.neLat,
+      query.zoom,
       query.category,
     );
   }
