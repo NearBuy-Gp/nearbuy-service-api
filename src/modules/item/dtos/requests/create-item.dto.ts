@@ -36,14 +36,14 @@ export class CreateItemDto {
   @IsEnum(ItemType)
   type: ItemType;
 
-  @ApiProperty({
-    example: BusinessCategory.MEDICAL,
-    enum: BusinessCategory,
-    required: false,
-  })
-  @IsOptional()
-  @IsEnum(BusinessCategory)
-  category?: BusinessCategory;
+  // @ApiProperty({
+  //   example: BusinessCategory.MEDICAL,
+  //   enum: BusinessCategory,
+  //   required: false,
+  // })
+  // @IsOptional()
+  // @IsEnum(BusinessCategory)
+  // category?: BusinessCategory;
 
   @ApiProperty({
     example: 'Dairy',

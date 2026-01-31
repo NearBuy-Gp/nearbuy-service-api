@@ -18,6 +18,7 @@ import { CreateItemDto } from './dtos/requests/create-item.dto';
 import { ItemResponseDto } from './dtos/response/item.response.dto';
 import { UpdateItemDto } from './dtos/requests/update-item.dto';
 import { User } from 'src/common/decorators/user.decorator';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Item')
 @UseGuards(AuthGuard, RolesGuard)
@@ -36,6 +37,19 @@ export class ItemController {
     @Body() item: CreateItemDto,
   ): Promise<ItemResponseDto> {
     return await this.itemService.addItemManual(businessId, userId, item);
+  }
+
+  @Roles(Role.OWNER)
+  @Post('/add-bulk')
+  @ApiOperation({ summary: 'Add Multiple Items (from upload)' })
+  @ApiResponse({ status: 200, description: 'Items Added Successfully' })
+  @ApiBody({ type: [CreateItemDto] })
+  public async addItemsBulk(
+    @Param('businessId') businessId: string,
+    @User('id') userId: string,
+    @Body() items: CreateItemDto[],
+  ) {
+    return await this.itemService.addItemsBulk(businessId, userId, items);
   }
 
   @Roles(Role.OWNER)

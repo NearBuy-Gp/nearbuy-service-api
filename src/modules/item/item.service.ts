@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException ,BadRequestException } from '@nestjs/common';
 import { CreateItemDto } from './dtos/requests/create-item.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -10,6 +10,7 @@ import { UpdateItemDto } from './dtos/requests/update-item.dto';
 
 @Injectable()
 export class ItemService {
+  strategyFactory: any;
   constructor(
     @InjectModel(Business.name) private businessModel: Model<Business>,
     @InjectModel(User.name) private userModel: Model<User>,
@@ -26,6 +27,27 @@ export class ItemService {
       businessId: business._id,
     });
     return { message: 'Item Added Successfully', item: newItem };
+  }
+
+   public async addItemsBulk(
+    businessId: string,
+    ownerId: string,
+    items: CreateItemDto[],
+  ) {
+    if (!items || items.length === 0) {
+      throw new BadRequestException('No items to insert');
+    }
+    const business = await this.validateBusiness(ownerId, businessId);
+    const itemsWithBusinessId = items.map(item => ({
+      ...item,
+      businessId: business._id,
+    }));
+    const insertedItems = await this.itemModel.insertMany(itemsWithBusinessId);
+    return {
+      message: 'Items Added Successfully',
+      count: insertedItems.length,
+      items: insertedItems,
+    };
   }
   public async deleteItem(ownerId: string, businessId: string, itemId: string) {
     const business = await this.validateBusiness(ownerId, businessId);

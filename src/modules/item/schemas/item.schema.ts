@@ -21,11 +21,11 @@ export class Item extends Document {
   })
   type: ItemType;
 
-  @Prop({
-    enum: BusinessCategory,
-    default: BusinessCategory.OTHER,
-  })
-  category: BusinessCategory;
+  // @Prop({
+  //   enum: BusinessCategory,
+  //   default: BusinessCategory.OTHER,
+  // })
+  // category: BusinessCategory;
 
   @Prop({ trim: true })
   subcategory?: string;

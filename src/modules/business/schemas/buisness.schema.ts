@@ -17,20 +17,23 @@ export class Business extends Document {
   @Prop({ trim: true })
   description?: string;
 
-  @Prop({ type: [String], default: [] })
-  tags?: string[];
-
-  @Prop({
+  @Prop({ 
     required: true,
+    enum: BusinessCategory,
+    type: String 
+  })
+  category: BusinessCategory;
+
+  @Prop({ 
+    required: true, 
     enum: BusinessType,
+    type: String 
   })
   type: BusinessType;
 
-  @Prop({
-    required: false,
-    enum: BusinessCategory,
-  })
-  category?: BusinessCategory;
+  @Prop({ type: [String], default: [] })
+  tags?: string[];
+
 
   @Prop({ required: false })
   subcategory?: string;
