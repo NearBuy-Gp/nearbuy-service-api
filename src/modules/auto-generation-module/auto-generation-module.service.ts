@@ -33,13 +33,14 @@ export class AutoGenerationService {
 
     const prompt = buildPromptV1(dto);
 
-    // DESCRIPTION 
+    // DESCRIPTION
     const completion = await this.openai.chat.completions.create({
       model: 'google/gemma-2-9b-it',
       messages: [
         {
           role: 'system',
-          content: 'You write concise, engaging local business descriptions. Focus on what makes the business unique. Avoid generic phrases. Use natural, customer-friendly language.',
+          content:
+            'You write concise, engaging local business descriptions. Focus on what makes the business unique. Avoid generic phrases. Use natural, customer-friendly language.',
         },
         {
           role: 'user',
@@ -54,9 +55,9 @@ export class AutoGenerationService {
       completion.choices[0]?.message?.content?.trim() ??
       'Professional business description is currently unavailable.';
 
-    // TAGS 
+    // TAGS
     const tagCompletion = await this.openai.chat.completions.create({
-      model: "google/gemma-2-9b-it",
+      model: 'google/gemma-2-9b-it',
       messages: [
         {
           role: 'user',

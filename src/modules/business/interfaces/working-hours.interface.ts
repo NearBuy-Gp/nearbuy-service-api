@@ -1,6 +1,8 @@
+import { WeekDays } from 'src/utils/enums/week-days.enum';
+
 export interface WorkingHours {
-  day: string;
-  open: string;
-  close: string;
-  isClosed: boolean;
+  day: WeekDays;
+  From?: string;
+  to?: string;
+  isClosed?: boolean;
 }

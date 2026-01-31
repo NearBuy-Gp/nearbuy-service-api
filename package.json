@@ -20,7 +20,8 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "seed": "ts-node -r tsconfig-paths/register src/common/seed/business-seed.ts"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -40,6 +41,7 @@
     "dotenv": "^17.2.3",
     "groq-sdk": "^0.37.0",
     "mongoose": "^8.19.1",
+    "ngeohash": "^0.6.3",
     "nodemon": "^3.1.10",
     "openai": "^6.15.0",
     "pdf-lib": "^1.17.1",

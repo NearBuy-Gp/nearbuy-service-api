@@ -1,4 +1,4 @@
 import { PartialType } from '@nestjs/swagger';
-import { BusinessDto } from './business.dto';
+import { BusinessRegistrationDto } from './business-registration.dto';
 
-export class UpdateBusinessDto extends PartialType(BusinessDto) {}
+export class UpdateBusinessDto extends PartialType(BusinessRegistrationDto) {}

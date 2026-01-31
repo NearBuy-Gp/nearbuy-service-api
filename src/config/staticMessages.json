@@ -22,7 +22,10 @@
       "success_refresh_token": "Access Token Has Been Refreshed successfully."
     },
     "business_messages": {
-      "success_register": "Business registered successfully."
+      "success_register": "Business registered successfully.",
+      "basic_info_added": "Business basic information added successfully.",
+      "location_info_added": "Business location information added successfully.",
+      "operation_info_added": "Business operation hours added successfully."
     }
   },
   "error_messages": {
