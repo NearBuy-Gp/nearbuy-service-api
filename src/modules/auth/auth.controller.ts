@@ -18,9 +18,7 @@ export class AuthController {
     type: MessageResponseDto,
   })
   @ApiBody({ type: SignUpRequestDto })
-  public signUp(
-    @Body() signUpRequestDto: SignUpRequestDto,
-  ): Promise<LoginResponseDto> {
+  public signUp(@Body() signUpRequestDto: SignUpRequestDto): Promise<LoginResponseDto> {
     return this.authServices.signup(signUpRequestDto);
   }
   @Post('/signin')
@@ -39,9 +37,7 @@ export class AuthController {
     description: 'Invalid credentials',
   })
   @ApiBody({ type: LoginRequestDto })
-  public signIn(
-    @Body() loginRequestDto: LoginRequestDto,
-  ): Promise<LoginResponseDto> {
+  public signIn(@Body() loginRequestDto: LoginRequestDto): Promise<LoginResponseDto> {
     return this.authServices.login(loginRequestDto);
   }
 }

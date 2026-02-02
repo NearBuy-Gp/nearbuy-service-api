@@ -1,14 +1,4 @@
-import {
-  IsArray,
-  IsEmail,
-  IsEnum,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  IsUrl,
-  ValidateIf,
-  ValidateNested,
-} from 'class-validator';
+import { IsArray, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, IsUrl, ValidateIf, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BusinessCategory } from '../../enums/business-category.enum';
@@ -98,12 +88,14 @@ export class BusinessRegistrationDto {
   @IsEnum(BusinessMainItem, { each: true })
   mainItems?: BusinessMainItem[];
 
+  @ApiPropertyOptional({
+    type: [String],
+    example: ['apple', 'banana'],
+  })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  @ValidateIf((option) =>
-    option.targetAudience?.includes(BusinessMainItem.OTHERS),
-  )
+  @ValidateIf((option) => option.targetAudience?.includes(BusinessMainItem.OTHERS))
   mainItemsOthers?: string[];
 
   @ApiPropertyOptional({
@@ -117,22 +109,23 @@ export class BusinessRegistrationDto {
   facilities?: BusinessFacility[];
 
   @ApiPropertyOptional({
-    enumName: 'BusinessTargetAudience',
-    type: [BusinessTargetAudience],
+    type: [String],
     enum: BusinessTargetAudience,
     isArray: true,
   })
   @IsOptional()
   @IsArray()
-  @IsEnum(BusinessTargetAudience)
+  @IsEnum(BusinessTargetAudience, { each: true })
   targetAudience?: BusinessTargetAudience[];
 
+  @ApiPropertyOptional({
+    type: [String],
+    example: ['teenagers', 'adults'],
+  })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  @ValidateIf((option) =>
-    option.targetAudience?.includes(BusinessTargetAudience.OTHERS),
-  )
+  @ValidateIf((option) => option.targetAudience?.includes(BusinessTargetAudience.OTHERS))
   targetAudienceOther?: string[];
 
   @ApiPropertyOptional({ type: [String] })

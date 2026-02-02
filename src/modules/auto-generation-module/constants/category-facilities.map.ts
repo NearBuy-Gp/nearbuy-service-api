@@ -1,10 +1,7 @@
 import { BusinessCategory } from '../../business/enums/business-category.enum';
 import { BusinessFacility } from '../../business/enums/business-facilities.enum';
 
-export const CATEGORY_FACILITIES_MAP: Record<
-  BusinessCategory,
-  BusinessFacility[]
-> = {
+export const CATEGORY_FACILITIES_MAP: Record<BusinessCategory, BusinessFacility[]> = {
   [BusinessCategory.STORE]: [
     BusinessFacility.HOME_DELIVERY,
     BusinessFacility.IN_STORE_PICKUP,

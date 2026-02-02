@@ -1,78 +1,146 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { ItemService } from './item.service';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiExtraModels, ApiOperation, ApiResponse, ApiTags, getSchemaPath } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'src/utils/enums/user-role.enum';
-import { CreateItemDto } from './dtos/requests/create-item.dto';
-import { ItemResponseDto } from './dtos/response/item.response.dto';
-import { UpdateItemDto } from './dtos/requests/update-item.dto';
+import {
+  CreateClassSessionDto,
+  CreateClinicServiceDto,
+  CreateClothingProductDto,
+  CreatePharmacyProductDto,
+  CreateRestaurantItemDto,
+  CreateSupermarketProductDto,
+} from './dtos/requests/create-item.dto';
 import { User } from 'src/common/decorators/user.decorator';
+import {
+  UpdateClassSessionDto,
+  UpdateClinicServiceDto,
+  UpdateClothingProductDto,
+  UpdatePharmacyProductDto,
+  UpdateRestaurantItemDto,
+  UpdateSupermarketProductDto,
+} from './dtos/requests/update-item.dto';
+import { DiscriminatedItemValidationPipe } from './pipes/discriminated-validation.pipe';
+import { ClassSessionAttributesDto } from './dtos/requests/class-session.dto';
+import { ClinicServiceAttributesDto } from './dtos/requests/clinic-serivce.dto';
+import { ClothingProductAttributesDto } from './dtos/requests/cloths-product.dto';
+import { PharmacyProductAttributesDto } from './dtos/requests/pharmacy-product.dto';
+import { RestaurantItemAttributesDto } from './dtos/requests/resturant-item.dto';
+import { SupermarketProductAttributesDto } from './dtos/requests/supermarket-porduct.dto';
+import { Item } from './schemas/item.schema';
 
 @ApiTags('Item')
-@UseGuards(AuthGuard, RolesGuard)
+@ApiExtraModels(
+  CreateRestaurantItemDto,
+  CreateClinicServiceDto,
+  CreateClassSessionDto,
+  CreatePharmacyProductDto,
+  CreateSupermarketProductDto,
+  CreateClothingProductDto,
+  RestaurantItemAttributesDto,
+  ClinicServiceAttributesDto,
+  ClassSessionAttributesDto,
+  PharmacyProductAttributesDto,
+  SupermarketProductAttributesDto,
+  ClothingProductAttributesDto,
+)
 @Controller(':businessId/item')
 export class ItemController {
   constructor(private itemService: ItemService) {}
 
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.OWNER)
   @Post('/add-manual')
   @ApiOperation({ summary: 'Add Item' })
   @ApiResponse({ status: 200, description: 'Item Added Successfully' })
-  @ApiBody({ type: CreateItemDto })
+  @ApiBody({
+    schema: {
+      oneOf: [
+        { $ref: getSchemaPath(CreateRestaurantItemDto) },
+        { $ref: getSchemaPath(CreateClinicServiceDto) },
+        { $ref: getSchemaPath(CreateClassSessionDto) },
+        { $ref: getSchemaPath(CreatePharmacyProductDto) },
+        { $ref: getSchemaPath(CreateSupermarketProductDto) },
+        { $ref: getSchemaPath(CreateClothingProductDto) },
+      ],
+      discriminator: {
+        propertyName: 'type',
+        mapping: {
+          RESTAURANT: getSchemaPath(CreateRestaurantItemDto),
+          CLINIC: getSchemaPath(CreateClinicServiceDto),
+          CLASS: getSchemaPath(CreateClassSessionDto),
+          PHARMACY: getSchemaPath(CreatePharmacyProductDto),
+          SUPERMARKET: getSchemaPath(CreateSupermarketProductDto),
+          CLOTHING: getSchemaPath(CreateClothingProductDto),
+        },
+      },
+    },
+    description: 'Item payload varies based on type',
+  })
   public async addItemManual(
     @Param('businessId') businessId: string,
     @User('id') userId: string,
-    @Body() item: CreateItemDto,
-  ): Promise<ItemResponseDto> {
+    @Body(new DiscriminatedItemValidationPipe())
+    item: CreateRestaurantItemDto | CreateClinicServiceDto | CreateClassSessionDto | CreatePharmacyProductDto | CreateSupermarketProductDto | CreateClothingProductDto,
+  ) {
     return await this.itemService.addItemManual(businessId, userId, item);
   }
 
-  @Roles(Role.OWNER)
+  @UseGuards(AuthGuard, RolesGuard)
   @Get('/:itemId')
   @ApiOperation({ summary: 'View Item' })
   @ApiResponse({ status: 200, description: 'Item Details' })
-  public getItem(
-    @Param('businessId') businessId: string,
-    @Param('itemId') itemId: string,
-    @User('id') userId: string,
-  ) {
+  public getItem(@Param('businessId') businessId: string, @Param('itemId') itemId: string, @User('id') userId: string): Promise<Item> {
     return this.itemService.getItem(userId, businessId, itemId);
   }
 
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.OWNER)
   @Patch('/:itemId')
   @ApiOperation({ summary: 'Update Item' })
   @ApiResponse({ status: 200, description: 'Item Update Details' })
-  @ApiBody({ type: UpdateItemDto })
+  @ApiBody({
+    schema: {
+      oneOf: [
+        { $ref: getSchemaPath(CreateRestaurantItemDto) },
+        { $ref: getSchemaPath(CreateClinicServiceDto) },
+        { $ref: getSchemaPath(CreateClassSessionDto) },
+        { $ref: getSchemaPath(CreatePharmacyProductDto) },
+        { $ref: getSchemaPath(CreateSupermarketProductDto) },
+        { $ref: getSchemaPath(CreateClothingProductDto) },
+      ],
+      discriminator: {
+        propertyName: 'type',
+        mapping: {
+          RESTAURANT: getSchemaPath(CreateRestaurantItemDto),
+          CLINIC: getSchemaPath(CreateClinicServiceDto),
+          CLASS: getSchemaPath(CreateClassSessionDto),
+          PHARMACY: getSchemaPath(CreatePharmacyProductDto),
+          SUPERMARKET: getSchemaPath(CreateSupermarketProductDto),
+          CLOTHING: getSchemaPath(CreateClothingProductDto),
+        },
+      },
+    },
+    description: 'Item payload varies based on type',
+  })
   public updateItem(
     @Param('businessId') businessId: string,
     @Param('itemId') itemId: string,
     @User('id') userId: string,
-    @Body() item: UpdateItemDto,
+    @Body()
+    item: UpdateRestaurantItemDto | UpdateClinicServiceDto | UpdateClassSessionDto | UpdatePharmacyProductDto | UpdateSupermarketProductDto | UpdateClothingProductDto,
   ) {
     return this.itemService.updateItem(userId, businessId, itemId, item);
   }
 
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.OWNER)
   @Delete('/:itemId')
   @ApiOperation({ summary: 'Delete Item' })
   @ApiResponse({ status: 200, description: 'Item Deleted Successfully' })
-  public deleteItem(
-    @Param('businessId') businessId: string,
-    @Param('itemId') itemId: string,
-    @User('id') userId: string,
-  ) {
+  public deleteItem(@Param('businessId') businessId: string, @Param('itemId') itemId: string, @User('id') userId: string) {
     return this.itemService.deleteItem(userId, businessId, itemId);
   }
 }
