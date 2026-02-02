@@ -7,6 +7,16 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Business, BusinessSchema } from '../business/schemas/buisness.schema';
 import { User, UserSchema } from '../user/schemas/user.schema';
 import { Item, ItemSchema } from './schemas/item.schema';
+import { ItemType } from './enums/item-type.enum';
+import {
+  classSessionSchema,
+  clinicServiceSchema,
+  clothingProductSchema,
+  gymMembershipSchema,
+  pharmacyProductSchema,
+  restaurantItemSchema,
+  supermarketProductSchema,
+} from './schemas/item-types.schema';
 
 @Module({
   imports: [
@@ -25,7 +35,24 @@ import { Item, ItemSchema } from './schemas/item.schema';
     MongooseModule.forFeature([
       { name: Business.name, schema: BusinessSchema },
       { name: User.name, schema: UserSchema },
-      { name: Item.name, schema: ItemSchema },
+    ]),
+    MongooseModule.forFeatureAsync([
+      {
+        name: Item.name,
+        useFactory: () => {
+          const schema = ItemSchema;
+
+          schema.discriminator(ItemType.RESTAURANT, restaurantItemSchema);
+          schema.discriminator(ItemType.CLINIC, clinicServiceSchema);
+          schema.discriminator(ItemType.CLASS_SESSION, classSessionSchema);
+          schema.discriminator(ItemType.MEMBERSHIP, gymMembershipSchema);
+          schema.discriminator(ItemType.SUPER_MARKET_PRODUCT, supermarketProductSchema);
+          schema.discriminator(ItemType.CLOTHING_PRODUCT, clothingProductSchema);
+          schema.discriminator(ItemType.PHARMACY_PRODUCT, pharmacyProductSchema);
+
+          return schema;
+        },
+      },
     ]),
   ],
   providers: [ItemService],

@@ -11,9 +11,7 @@ export const mongoConfig = (): MongooseModuleAsyncOptions => ({
     const mongoUri = configService.get<string>('MONGODB_URI');
 
     if (!mongoUri) {
-      throw new Error(
-        'MONGODB_URI is not defined in environment variables. Please check your .env file.',
-      );
+      throw new Error('MONGODB_URI is not defined in environment variables. Please check your .env file.');
     }
 
     return {

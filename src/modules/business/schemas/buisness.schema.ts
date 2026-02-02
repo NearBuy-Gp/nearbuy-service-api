@@ -43,7 +43,7 @@ export class Business extends Document {
   @Prop()
   phone?: string;
 
-  @Prop()
+  @Prop({ required: false })
   email?: string;
 
   @Prop()
@@ -61,6 +61,7 @@ export class Business extends Document {
       linkedin: { type: String },
     },
     default: {},
+    required: false,
   })
   social?: Record<string, string>;
 

@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from '../user/schemas/user.schema';
@@ -19,15 +15,11 @@ export class AuthService {
     @InjectModel(User.name) private userModel: Model<User>,
     private readonly jwtService: JwtService,
   ) {}
-  public async signup(
-    signUpRequestDto: SignUpRequestDto,
-  ): Promise<LoginResponseDto> {
+  public async signup(signUpRequestDto: SignUpRequestDto): Promise<LoginResponseDto> {
     const { email, password, userName, role } = signUpRequestDto;
     const user = await this.userModel.findOne({ email });
     if (user) {
-      throw new BadRequestException(
-        STATIC_MESSAGES.error_messages.user_errors.user_exist,
-      );
+      throw new BadRequestException(STATIC_MESSAGES.error_messages.user_errors.user_exist);
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     const existingUser = await this.userModel.create({
@@ -53,24 +45,15 @@ export class AuthService {
       accessToken,
     };
   }
-  public async login(
-    loginRequestDto: LoginRequestDto,
-  ): Promise<LoginResponseDto> {
+  public async login(loginRequestDto: LoginRequestDto): Promise<LoginResponseDto> {
     const { email, password } = loginRequestDto;
     const existingUser = await this.userModel.findOne({ email });
     if (!existingUser) {
-      throw new NotFoundException(
-        STATIC_MESSAGES.error_messages.user_errors.user_not_found,
-      );
+      throw new NotFoundException(STATIC_MESSAGES.error_messages.user_errors.user_not_found);
     }
-    const matchedPassword = await bcrypt.compare(
-      password,
-      existingUser.password,
-    );
+    const matchedPassword = await bcrypt.compare(password, existingUser.password);
     if (!matchedPassword) {
-      throw new BadRequestException(
-        STATIC_MESSAGES.error_messages.user_errors.invalid_email_or_password,
-      );
+      throw new BadRequestException(STATIC_MESSAGES.error_messages.user_errors.invalid_email_or_password);
     }
     const userId = existingUser.id;
     const tokenPayload = {
@@ -89,11 +72,7 @@ export class AuthService {
       accessToken,
     };
   }
-  private generateAccessToken(payload: {
-    email: string;
-    id: string;
-    role: string;
-  }): string {
+  private generateAccessToken(payload: { email: string; id: string; role: string }): string {
     return this.jwtService.sign(payload);
   }
 }

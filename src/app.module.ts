@@ -11,6 +11,7 @@ import { AutoGenerationModuleModule } from './modules/auto-generation-module/aut
 import { ItemModule } from './modules/item/item.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { NormalizerModule } from './modules/upload/normalizer/normalizer.module';
+import { CategoriesModule } from './modules/categories/categories.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { NormalizerModule } from './modules/upload/normalizer/normalizer.module'
     ItemModule,
     UploadModule,
     NormalizerModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
