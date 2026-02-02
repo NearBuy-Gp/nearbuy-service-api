@@ -9,6 +9,7 @@ import { UserModule } from './modules/user/user.module';
 import { BusinessModule } from './modules/business/business.module';
 import { AutoGenerationModuleModule } from './modules/auto-generation-module/auto-generation-module.module';
 import { ItemModule } from './modules/item/item.module';
+import { CategoriesModule } from './modules/categories/categories.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ItemModule } from './modules/item/item.module';
     BusinessModule,
     AutoGenerationModuleModule,
     ItemModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

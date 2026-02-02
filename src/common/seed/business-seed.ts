@@ -12,11 +12,7 @@ import { BusinessType } from 'src/modules/business/enums/business-type.enum';
 import { Business } from 'src/modules/business/schemas/buisness.schema';
 
 // Helper function to generate random coordinates within radius
-function generateRandomCoordinates(
-  centerLat: number,
-  centerLng: number,
-  radiusInMeters: number,
-): [number, number] {
+function generateRandomCoordinates(centerLat: number, centerLng: number, radiusInMeters: number): [number, number] {
   const radiusInDegrees = radiusInMeters / 111000;
   const u = Math.random();
   const v = Math.random();
@@ -44,13 +40,7 @@ function generateWorkingHours() {
 }
 
 // Sample owner IDs (replace with actual user IDs from your database)
-const sampleOwnerIds = [
-  new Types.ObjectId(),
-  new Types.ObjectId(),
-  new Types.ObjectId(),
-  new Types.ObjectId(),
-  new Types.ObjectId(),
-];
+const sampleOwnerIds = [new Types.ObjectId(), new Types.ObjectId(), new Types.ObjectId(), new Types.ObjectId(), new Types.ObjectId()];
 
 // Center coordinates: Cairo
 const CENTER_LAT = 29.955560664016126;
@@ -81,17 +71,8 @@ const businessTemplates: Omit<BusinessSeedData, 'location' | 'ownerId'>[] = [
     status: BusinessStatus.OPEN,
     rate: 4.5,
     targetAudience: [BusinessTargetAudience.FAMILY],
-    mainItems: [
-      BusinessMainItem.ELECTRONICS,
-      BusinessMainItem.MOBILE_ACCESSORIES,
-    ],
-    facilities: [
-      BusinessFacility.HOME_DELIVERY,
-      BusinessFacility.IN_STORE_PICKUP,
-      BusinessFacility.WARRANTY_AVAILABLE,
-      BusinessFacility.CARD_PAYMENTS,
-      BusinessFacility.PARKING_AVAILABLE,
-    ],
+    mainItems: [BusinessMainItem.ELECTRONICS, BusinessMainItem.MOBILE_ACCESSORIES],
+    facilities: [BusinessFacility.HOME_DELIVERY, BusinessFacility.IN_STORE_PICKUP, BusinessFacility.WARRANTY_AVAILABLE, BusinessFacility.CARD_PAYMENTS, BusinessFacility.PARKING_AVAILABLE],
   },
   // STORES - Clothing
   {
@@ -108,18 +89,9 @@ const businessTemplates: Omit<BusinessSeedData, 'location' | 'ownerId'>[] = [
     images: ['clothing1.jpg', 'clothing2.jpg'],
     status: BusinessStatus.OPEN,
     rate: 4.3,
-    targetAudience: [
-      BusinessTargetAudience.FAMILY,
-      BusinessTargetAudience.TOURISTS,
-    ],
+    targetAudience: [BusinessTargetAudience.FAMILY, BusinessTargetAudience.TOURISTS],
     mainItems: [BusinessMainItem.HOUSEHOLD_ESSENTIALS],
-    facilities: [
-      BusinessFacility.IN_STORE_PICKUP,
-      BusinessFacility.CARD_PAYMENTS,
-      BusinessFacility.PARKING_AVAILABLE,
-      BusinessFacility.WHEELCHAIR_ACCESS,
-      BusinessFacility.WIFI_AVAILABLE,
-    ],
+    facilities: [BusinessFacility.IN_STORE_PICKUP, BusinessFacility.CARD_PAYMENTS, BusinessFacility.PARKING_AVAILABLE, BusinessFacility.WHEELCHAIR_ACCESS, BusinessFacility.WIFI_AVAILABLE],
   },
   // STORES - Supermarket
   {
@@ -135,21 +107,8 @@ const businessTemplates: Omit<BusinessSeedData, 'location' | 'ownerId'>[] = [
     status: BusinessStatus.OPEN,
     rate: 4.6,
     targetAudience: [BusinessTargetAudience.FAMILY],
-    mainItems: [
-      BusinessMainItem.GROCERIES,
-      BusinessMainItem.FRESH_PRODUCE,
-      BusinessMainItem.DAIRY_PRODUCTS,
-      BusinessMainItem.BAKERY_ITEMS,
-      BusinessMainItem.SNACKS,
-      BusinessMainItem.BEVERAGES,
-    ],
-    facilities: [
-      BusinessFacility.HOME_DELIVERY,
-      BusinessFacility.IN_STORE_PICKUP,
-      BusinessFacility.CARD_PAYMENTS,
-      BusinessFacility.PARKING_AVAILABLE,
-      BusinessFacility.WHEELCHAIR_ACCESS,
-    ],
+    mainItems: [BusinessMainItem.GROCERIES, BusinessMainItem.FRESH_PRODUCE, BusinessMainItem.DAIRY_PRODUCTS, BusinessMainItem.BAKERY_ITEMS, BusinessMainItem.SNACKS, BusinessMainItem.BEVERAGES],
+    facilities: [BusinessFacility.HOME_DELIVERY, BusinessFacility.IN_STORE_PICKUP, BusinessFacility.CARD_PAYMENTS, BusinessFacility.PARKING_AVAILABLE, BusinessFacility.WHEELCHAIR_ACCESS],
   },
   // STORES - Pharmacy
   {
@@ -164,21 +123,9 @@ const businessTemplates: Omit<BusinessSeedData, 'location' | 'ownerId'>[] = [
     workingHours: generateWorkingHours(),
     status: BusinessStatus.OPEN,
     rate: 4.7,
-    targetAudience: [
-      BusinessTargetAudience.FAMILY,
-      BusinessTargetAudience.SENIORS,
-    ],
-    mainItems: [
-      BusinessMainItem.HEALTH_WELLNESS,
-      BusinessMainItem.PERSONAL_CARE,
-      BusinessMainItem.BABY_PRODUCTS,
-    ],
-    facilities: [
-      BusinessFacility.HOME_DELIVERY,
-      BusinessFacility.ONLINE_ORDERING,
-      BusinessFacility.CARD_PAYMENTS,
-      BusinessFacility.WHEELCHAIR_ACCESS,
-    ],
+    targetAudience: [BusinessTargetAudience.FAMILY, BusinessTargetAudience.SENIORS],
+    mainItems: [BusinessMainItem.HEALTH_WELLNESS, BusinessMainItem.PERSONAL_CARE, BusinessMainItem.BABY_PRODUCTS],
+    facilities: [BusinessFacility.HOME_DELIVERY, BusinessFacility.ONLINE_ORDERING, BusinessFacility.CARD_PAYMENTS, BusinessFacility.WHEELCHAIR_ACCESS],
   },
   // RESTAURANTS - Fast Food
   {
@@ -193,24 +140,9 @@ const businessTemplates: Omit<BusinessSeedData, 'location' | 'ownerId'>[] = [
     workingHours: generateWorkingHours(),
     status: BusinessStatus.OPEN,
     rate: 4.2,
-    targetAudience: [
-      BusinessTargetAudience.FAMILY,
-      BusinessTargetAudience.CHILDREN,
-    ],
-    mainItems: [
-      BusinessMainItem.BURGERS,
-      BusinessMainItem.FRIED_CHICKEN,
-      BusinessMainItem.SANDWICHES,
-      BusinessMainItem.SIDES,
-    ],
-    facilities: [
-      BusinessFacility.DINE_IN,
-      BusinessFacility.TAKEAWAY,
-      BusinessFacility.DELIVERY,
-      BusinessFacility.FAMILY_FRIENDLY,
-      BusinessFacility.KIDS_MENU,
-      BusinessFacility.WIFI_AVAILABLE,
-    ],
+    targetAudience: [BusinessTargetAudience.FAMILY, BusinessTargetAudience.CHILDREN],
+    mainItems: [BusinessMainItem.BURGERS, BusinessMainItem.FRIED_CHICKEN, BusinessMainItem.SANDWICHES, BusinessMainItem.SIDES],
+    facilities: [BusinessFacility.DINE_IN, BusinessFacility.TAKEAWAY, BusinessFacility.DELIVERY, BusinessFacility.FAMILY_FRIENDLY, BusinessFacility.KIDS_MENU, BusinessFacility.WIFI_AVAILABLE],
   },
   // RESTAURANTS - Cafe
   {
@@ -225,23 +157,9 @@ const businessTemplates: Omit<BusinessSeedData, 'location' | 'ownerId'>[] = [
     workingHours: generateWorkingHours(),
     status: BusinessStatus.OPEN,
     rate: 4.4,
-    targetAudience: [
-      BusinessTargetAudience.FAMILY,
-      BusinessTargetAudience.TOURISTS,
-    ],
-    mainItems: [
-      BusinessMainItem.BEVERAGES_MENU,
-      BusinessMainItem.DESSERTS,
-      BusinessMainItem.BREAKFAST,
-      BusinessMainItem.SANDWICHES,
-    ],
-    facilities: [
-      BusinessFacility.DINE_IN,
-      BusinessFacility.TAKEAWAY,
-      BusinessFacility.DELIVERY,
-      BusinessFacility.OUTDOOR_SEATING,
-      BusinessFacility.WIFI_AVAILABLE,
-    ],
+    targetAudience: [BusinessTargetAudience.FAMILY, BusinessTargetAudience.TOURISTS],
+    mainItems: [BusinessMainItem.BEVERAGES_MENU, BusinessMainItem.DESSERTS, BusinessMainItem.BREAKFAST, BusinessMainItem.SANDWICHES],
+    facilities: [BusinessFacility.DINE_IN, BusinessFacility.TAKEAWAY, BusinessFacility.DELIVERY, BusinessFacility.OUTDOOR_SEATING, BusinessFacility.WIFI_AVAILABLE],
   },
   // RESTAURANTS - Dessert
   {
@@ -256,18 +174,9 @@ const businessTemplates: Omit<BusinessSeedData, 'location' | 'ownerId'>[] = [
     workingHours: generateWorkingHours(),
     status: BusinessStatus.OPEN,
     rate: 4.5,
-    targetAudience: [
-      BusinessTargetAudience.FAMILY,
-      BusinessTargetAudience.CHILDREN,
-    ],
+    targetAudience: [BusinessTargetAudience.FAMILY, BusinessTargetAudience.CHILDREN],
     mainItems: [BusinessMainItem.DESSERTS, BusinessMainItem.BAKERY_ITEMS],
-    facilities: [
-      BusinessFacility.DINE_IN,
-      BusinessFacility.TAKEAWAY,
-      BusinessFacility.DELIVERY,
-      BusinessFacility.FAMILY_FRIENDLY,
-      BusinessFacility.OUTDOOR_SEATING,
-    ],
+    facilities: [BusinessFacility.DINE_IN, BusinessFacility.TAKEAWAY, BusinessFacility.DELIVERY, BusinessFacility.FAMILY_FRIENDLY, BusinessFacility.OUTDOOR_SEATING],
   },
   // RESTAURANTS - Seafood
   {
@@ -283,20 +192,8 @@ const businessTemplates: Omit<BusinessSeedData, 'location' | 'ownerId'>[] = [
     status: BusinessStatus.OPEN,
     rate: 4.6,
     targetAudience: [BusinessTargetAudience.FAMILY],
-    mainItems: [
-      BusinessMainItem.SEAFOOD_PLATES,
-      BusinessMainItem.GRILLED_ITEMS,
-      BusinessMainItem.SALADS,
-      BusinessMainItem.FAMILY_MEALS,
-    ],
-    facilities: [
-      BusinessFacility.DINE_IN,
-      BusinessFacility.TAKEAWAY,
-      BusinessFacility.DELIVERY,
-      BusinessFacility.FAMILY_FRIENDLY,
-      BusinessFacility.PARKING_AVAILABLE,
-      BusinessFacility.WIFI_AVAILABLE,
-    ],
+    mainItems: [BusinessMainItem.SEAFOOD_PLATES, BusinessMainItem.GRILLED_ITEMS, BusinessMainItem.SALADS, BusinessMainItem.FAMILY_MEALS],
+    facilities: [BusinessFacility.DINE_IN, BusinessFacility.TAKEAWAY, BusinessFacility.DELIVERY, BusinessFacility.FAMILY_FRIENDLY, BusinessFacility.PARKING_AVAILABLE, BusinessFacility.WIFI_AVAILABLE],
   },
   // CLINICS - Dentist
   {
@@ -311,22 +208,9 @@ const businessTemplates: Omit<BusinessSeedData, 'location' | 'ownerId'>[] = [
     workingHours: generateWorkingHours(),
     status: BusinessStatus.OPEN,
     rate: 4.8,
-    targetAudience: [
-      BusinessTargetAudience.FAMILY,
-      BusinessTargetAudience.CHILDREN,
-    ],
-    mainItems: [
-      BusinessMainItem.DENTAL_EXAMINATION,
-      BusinessMainItem.TEETH_CLEANING,
-      BusinessMainItem.DENTAL_FILLING,
-    ],
-    facilities: [
-      BusinessFacility.APPOINTMENT_REQUIRED,
-      BusinessFacility.INSURANCE_ACCEPTED,
-      BusinessFacility.EMERGENCY_CASES,
-      BusinessFacility.CARD_PAYMENTS,
-      BusinessFacility.PARKING_AVAILABLE,
-    ],
+    targetAudience: [BusinessTargetAudience.FAMILY, BusinessTargetAudience.CHILDREN],
+    mainItems: [BusinessMainItem.DENTAL_EXAMINATION, BusinessMainItem.TEETH_CLEANING, BusinessMainItem.DENTAL_FILLING],
+    facilities: [BusinessFacility.APPOINTMENT_REQUIRED, BusinessFacility.INSURANCE_ACCEPTED, BusinessFacility.EMERGENCY_CASES, BusinessFacility.CARD_PAYMENTS, BusinessFacility.PARKING_AVAILABLE],
   },
   // CLINICS - Dermatology
   {
@@ -342,17 +226,8 @@ const businessTemplates: Omit<BusinessSeedData, 'location' | 'ownerId'>[] = [
     status: BusinessStatus.OPEN,
     rate: 4.7,
     targetAudience: [BusinessTargetAudience.FAMILY],
-    mainItems: [
-      BusinessMainItem.DERMATOLOGY_SESSION,
-      BusinessMainItem.GENERAL_CONSULTATION,
-      BusinessMainItem.FOLLOW_UP,
-    ],
-    facilities: [
-      BusinessFacility.APPOINTMENT_REQUIRED,
-      BusinessFacility.INSURANCE_ACCEPTED,
-      BusinessFacility.CARD_PAYMENTS,
-      BusinessFacility.ONLINE_BOOKING,
-    ],
+    mainItems: [BusinessMainItem.DERMATOLOGY_SESSION, BusinessMainItem.GENERAL_CONSULTATION, BusinessMainItem.FOLLOW_UP],
+    facilities: [BusinessFacility.APPOINTMENT_REQUIRED, BusinessFacility.INSURANCE_ACCEPTED, BusinessFacility.CARD_PAYMENTS, BusinessFacility.ONLINE_BOOKING],
   },
   // CLINICS - Pediatric
   {
@@ -367,22 +242,9 @@ const businessTemplates: Omit<BusinessSeedData, 'location' | 'ownerId'>[] = [
     workingHours: generateWorkingHours(),
     status: BusinessStatus.OPEN,
     rate: 4.9,
-    targetAudience: [
-      BusinessTargetAudience.CHILDREN,
-      BusinessTargetAudience.FAMILY,
-    ],
-    mainItems: [
-      BusinessMainItem.PEDIATRIC_CHECKUP,
-      BusinessMainItem.VACCINATIONS,
-      BusinessMainItem.GENERAL_CONSULTATION,
-    ],
-    facilities: [
-      BusinessFacility.APPOINTMENT_REQUIRED,
-      BusinessFacility.INSURANCE_ACCEPTED,
-      BusinessFacility.EMERGENCY_CASES,
-      BusinessFacility.PARKING_AVAILABLE,
-      BusinessFacility.WHEELCHAIR_ACCESS,
-    ],
+    targetAudience: [BusinessTargetAudience.CHILDREN, BusinessTargetAudience.FAMILY],
+    mainItems: [BusinessMainItem.PEDIATRIC_CHECKUP, BusinessMainItem.VACCINATIONS, BusinessMainItem.GENERAL_CONSULTATION],
+    facilities: [BusinessFacility.APPOINTMENT_REQUIRED, BusinessFacility.INSURANCE_ACCEPTED, BusinessFacility.EMERGENCY_CASES, BusinessFacility.PARKING_AVAILABLE, BusinessFacility.WHEELCHAIR_ACCESS],
   },
   // CLINICS - General
   {
@@ -397,24 +259,9 @@ const businessTemplates: Omit<BusinessSeedData, 'location' | 'ownerId'>[] = [
     workingHours: generateWorkingHours(),
     status: BusinessStatus.OPEN,
     rate: 4.5,
-    targetAudience: [
-      BusinessTargetAudience.FAMILY,
-      BusinessTargetAudience.SENIORS,
-    ],
-    mainItems: [
-      BusinessMainItem.GENERAL_CONSULTATION,
-      BusinessMainItem.LAB_TESTS,
-      BusinessMainItem.BLOOD_ANALYSIS,
-      BusinessMainItem.ULTRASOUND,
-      BusinessMainItem.CHRONIC_DISEASE_MANAGEMENT,
-    ],
-    facilities: [
-      BusinessFacility.APPOINTMENT_REQUIRED,
-      BusinessFacility.INSURANCE_ACCEPTED,
-      BusinessFacility.LAB_SERVICES,
-      BusinessFacility.EMERGENCY_CASES,
-      BusinessFacility.PARKING_AVAILABLE,
-    ],
+    targetAudience: [BusinessTargetAudience.FAMILY, BusinessTargetAudience.SENIORS],
+    mainItems: [BusinessMainItem.GENERAL_CONSULTATION, BusinessMainItem.LAB_TESTS, BusinessMainItem.BLOOD_ANALYSIS, BusinessMainItem.ULTRASOUND, BusinessMainItem.CHRONIC_DISEASE_MANAGEMENT],
+    facilities: [BusinessFacility.APPOINTMENT_REQUIRED, BusinessFacility.INSURANCE_ACCEPTED, BusinessFacility.LAB_SERVICES, BusinessFacility.EMERGENCY_CASES, BusinessFacility.PARKING_AVAILABLE],
   },
   // GYM - CrossFit
   {
@@ -429,16 +276,8 @@ const businessTemplates: Omit<BusinessSeedData, 'location' | 'ownerId'>[] = [
     workingHours: generateWorkingHours(),
     status: BusinessStatus.OPEN,
     rate: 4.6,
-    targetAudience: [
-      BusinessTargetAudience.ATHLETES,
-      BusinessTargetAudience.FAMILY,
-    ],
-    mainItems: [
-      BusinessMainItem.CROSSFIT,
-      BusinessMainItem.HIIT,
-      BusinessMainItem.STRENGTH_TRAINING,
-      BusinessMainItem.GROUP_CLASSES,
-    ],
+    targetAudience: [BusinessTargetAudience.ATHLETES, BusinessTargetAudience.FAMILY],
+    mainItems: [BusinessMainItem.CROSSFIT, BusinessMainItem.HIIT, BusinessMainItem.STRENGTH_TRAINING, BusinessMainItem.GROUP_CLASSES],
     facilities: [
       BusinessFacility.PERSONAL_TRAINER,
       BusinessFacility.GROUP_CLASSES,
@@ -462,12 +301,7 @@ const businessTemplates: Omit<BusinessSeedData, 'location' | 'ownerId'>[] = [
     status: BusinessStatus.OPEN,
     rate: 4.7,
     targetAudience: [BusinessTargetAudience.ATHLETES],
-    mainItems: [
-      BusinessMainItem.WEIGHTLIFTING,
-      BusinessMainItem.STRENGTH_TRAINING,
-      BusinessMainItem.PERSONAL_TRAINING,
-      BusinessMainItem.NUTRITION_GUIDANCE,
-    ],
+    mainItems: [BusinessMainItem.WEIGHTLIFTING, BusinessMainItem.STRENGTH_TRAINING, BusinessMainItem.PERSONAL_TRAINING, BusinessMainItem.NUTRITION_GUIDANCE],
     facilities: [
       BusinessFacility.PERSONAL_TRAINER,
       BusinessFacility.LOCKER,
@@ -491,12 +325,7 @@ const businessTemplates: Omit<BusinessSeedData, 'location' | 'ownerId'>[] = [
     status: BusinessStatus.OPEN,
     rate: 4.8,
     targetAudience: [BusinessTargetAudience.FAMILY],
-    mainItems: [
-      BusinessMainItem.PILATES,
-      BusinessMainItem.YOGA,
-      BusinessMainItem.STRETCHING,
-      BusinessMainItem.GROUP_CLASSES,
-    ],
+    mainItems: [BusinessMainItem.PILATES, BusinessMainItem.YOGA, BusinessMainItem.STRETCHING, BusinessMainItem.GROUP_CLASSES],
     facilities: [
       BusinessFacility.GROUP_CLASSES,
       BusinessFacility.WOMEN_ONLY_HOURS,
@@ -520,19 +349,8 @@ const businessTemplates: Omit<BusinessSeedData, 'location' | 'ownerId'>[] = [
     status: BusinessStatus.OPEN,
     rate: 4.4,
     targetAudience: [BusinessTargetAudience.FAMILY],
-    mainItems: [
-      BusinessMainItem.APPLIANCE_REPAIR,
-      BusinessMainItem.MOBILE_REPAIR,
-      BusinessMainItem.ELECTRICAL_WORK,
-      BusinessMainItem.PLUMBING_REPAIR,
-    ],
-    facilities: [
-      BusinessFacility.HOME_SERVICE,
-      BusinessFacility.ONSITE_SERVICE,
-      BusinessFacility.EMERGENCY_SERVICE,
-      BusinessFacility.WARRANTY,
-      BusinessFacility.ONLINE_BOOKING,
-    ],
+    mainItems: [BusinessMainItem.APPLIANCE_REPAIR, BusinessMainItem.MOBILE_REPAIR, BusinessMainItem.ELECTRICAL_WORK, BusinessMainItem.PLUMBING_REPAIR],
+    facilities: [BusinessFacility.HOME_SERVICE, BusinessFacility.ONSITE_SERVICE, BusinessFacility.EMERGENCY_SERVICE, BusinessFacility.WARRANTY, BusinessFacility.ONLINE_BOOKING],
   },
   // SERVICE - Cleaning
   {
@@ -548,16 +366,8 @@ const businessTemplates: Omit<BusinessSeedData, 'location' | 'ownerId'>[] = [
     status: BusinessStatus.OPEN,
     rate: 4.5,
     targetAudience: [BusinessTargetAudience.FAMILY],
-    mainItems: [
-      BusinessMainItem.HOME_CLEANING,
-      BusinessMainItem.DEEP_CLEANING,
-      BusinessMainItem.PEST_CONTROL,
-    ],
-    facilities: [
-      BusinessFacility.HOME_SERVICE,
-      BusinessFacility.ONLINE_BOOKING,
-      BusinessFacility.CARD_PAYMENTS,
-    ],
+    mainItems: [BusinessMainItem.HOME_CLEANING, BusinessMainItem.DEEP_CLEANING, BusinessMainItem.PEST_CONTROL],
+    facilities: [BusinessFacility.HOME_SERVICE, BusinessFacility.ONLINE_BOOKING, BusinessFacility.CARD_PAYMENTS],
   },
   // SERVICE - Beauty
   {
@@ -573,17 +383,8 @@ const businessTemplates: Omit<BusinessSeedData, 'location' | 'ownerId'>[] = [
     status: BusinessStatus.OPEN,
     rate: 4.6,
     targetAudience: [BusinessTargetAudience.FAMILY],
-    mainItems: [
-      BusinessMainItem.BEAUTY_SERVICES,
-      BusinessMainItem.HAIR_STYLING,
-    ],
-    facilities: [
-      BusinessFacility.ONLINE_BOOKING,
-      BusinessFacility.CARD_PAYMENTS,
-      BusinessFacility.PARKING_AVAILABLE,
-      BusinessFacility.WIFI_AVAILABLE,
-      BusinessFacility.AIR_CONDITIONED,
-    ],
+    mainItems: [BusinessMainItem.BEAUTY_SERVICES, BusinessMainItem.HAIR_STYLING],
+    facilities: [BusinessFacility.ONLINE_BOOKING, BusinessFacility.CARD_PAYMENTS, BusinessFacility.PARKING_AVAILABLE, BusinessFacility.WIFI_AVAILABLE, BusinessFacility.AIR_CONDITIONED],
   },
   // SERVICE - Consulting
   {
@@ -600,16 +401,10 @@ const businessTemplates: Omit<BusinessSeedData, 'location' | 'ownerId'>[] = [
     rate: 4.7,
     targetAudience: [BusinessTargetAudience.OTHERS],
     mainItems: [BusinessMainItem.OTHERS],
-    facilities: [
-      BusinessFacility.ONLINE_BOOKING,
-      BusinessFacility.CARD_PAYMENTS,
-      BusinessFacility.PARKING_AVAILABLE,
-      BusinessFacility.WIFI_AVAILABLE,
-    ],
+    facilities: [BusinessFacility.ONLINE_BOOKING, BusinessFacility.CARD_PAYMENTS, BusinessFacility.PARKING_AVAILABLE, BusinessFacility.WIFI_AVAILABLE],
   },
 ];
 
-// Type for seed business data
 interface BusinessSeedData {
   name: string;
   description?: string;
@@ -648,11 +443,7 @@ function generateBusinessSeedData(count: number = 50): BusinessSeedData[] {
 
   for (let i = 0; i < count; i++) {
     const template = businessTemplates[i % businessTemplates.length];
-    const coordinates = generateRandomCoordinates(
-      CENTER_LAT,
-      CENTER_LNG,
-      RADIUS,
-    );
+    const coordinates = generateRandomCoordinates(CENTER_LAT, CENTER_LNG, RADIUS);
 
     const business: BusinessSeedData = {
       ...template,
@@ -681,18 +472,14 @@ class BusinessSeederService {
 
       // Clear existing data
       const deleteResult = await this.businessModel.deleteMany({});
-      console.log(
-        `🗑️  Cleared ${deleteResult.deletedCount} existing businesses`,
-      );
+      console.log(`🗑️  Cleared ${deleteResult.deletedCount} existing businesses`);
 
       // Generate and insert seed data
       const seedData = generateBusinessSeedData(50);
       const result = await this.businessModel.insertMany(seedData);
 
       console.log(`✅ Successfully seeded ${result.length} businesses`);
-      console.log(
-        `📍 All businesses are within 5km radius of Cairo (${CENTER_LAT}, ${CENTER_LNG})`,
-      );
+      console.log(`📍 All businesses are within 5km radius of Cairo (${CENTER_LAT}, ${CENTER_LNG})`);
 
       // Print summary by category
       const summary = result.reduce(

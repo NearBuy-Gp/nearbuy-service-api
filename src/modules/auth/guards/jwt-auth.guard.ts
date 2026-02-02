@@ -1,10 +1,4 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  Logger,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
@@ -28,17 +22,13 @@ export class AuthGuard implements CanActivate {
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
-      throw new UnauthorizedException(
-        STATIC_MESSAGES.error_messages.auth_errors.unauthorized,
-      );
+      throw new UnauthorizedException(STATIC_MESSAGES.error_messages.auth_errors.unauthorized);
     }
 
     const token = this.extractToken(authHeader);
 
     if (!token) {
-      throw new UnauthorizedException(
-        STATIC_MESSAGES.error_messages.auth_errors.invalid_token_format,
-      );
+      throw new UnauthorizedException(STATIC_MESSAGES.error_messages.auth_errors.invalid_token_format);
     }
 
     try {
@@ -47,9 +37,7 @@ export class AuthGuard implements CanActivate {
       });
       const user = await this.userModel.findOne({ _id: userPayload.id });
       if (!user) {
-        throw new UnauthorizedException(
-          STATIC_MESSAGES.error_messages.auth_errors.blacklisted_token,
-        );
+        throw new UnauthorizedException(STATIC_MESSAGES.error_messages.auth_errors.blacklisted_token);
       }
 
       // Type-safe assignment using RequestWithUser interface
@@ -61,9 +49,7 @@ export class AuthGuard implements CanActivate {
       return true;
     } catch (_error) {
       this.logger.warn('Authentication failed');
-      throw new UnauthorizedException(
-        STATIC_MESSAGES.error_messages.auth_errors.unauthorized,
-      );
+      throw new UnauthorizedException(STATIC_MESSAGES.error_messages.auth_errors.unauthorized);
     }
   }
 

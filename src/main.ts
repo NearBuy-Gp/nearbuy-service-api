@@ -6,9 +6,7 @@ import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, { cors: true });
-  app.setGlobalPrefix(
-    STATIC_MESSAGES.document_description.project_global_prefix,
-  );
+  app.setGlobalPrefix(STATIC_MESSAGES.document_description.project_global_prefix);
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -18,9 +16,7 @@ async function bootstrap(): Promise<void> {
     }),
   );
 
-  const corsOrigins = process.env.CORS_ORIGIN
-    ? JSON.parse(process.env.CORS_ORIGIN)
-    : ['http://localhost:3000'];
+  const corsOrigins = process.env.CORS_ORIGIN ? JSON.parse(process.env.CORS_ORIGIN) : ['http://localhost:3000'];
 
   app.enableCors({
     origin: corsOrigins,
@@ -37,11 +33,7 @@ async function bootstrap(): Promise<void> {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup(
-    STATIC_MESSAGES.swagger_messages.swagger_prefix,
-    app,
-    document,
-  );
+  SwaggerModule.setup(STATIC_MESSAGES.swagger_messages.swagger_prefix, app, document);
 
   await app.listen(process.env.PORT ?? 3000);
 }

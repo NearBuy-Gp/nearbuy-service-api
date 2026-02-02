@@ -1,10 +1,4 @@
-import {
-  ArrayNotEmpty,
-  IsArray,
-  IsEnum,
-  IsNotEmpty,
-  IsString,
-} from 'class-validator';
+import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsString } from 'class-validator';
 import { BusinessCategory } from '../../../business/enums/business-category.enum';
 import { BusinessType } from '../../../business/enums/business-type.enum';
 import { ApiProperty } from '@nestjs/swagger';
