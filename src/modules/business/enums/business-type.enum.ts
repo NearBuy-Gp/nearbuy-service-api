@@ -45,5 +45,4 @@ export enum BusinessType {
   ENTERTAINMENT = 'entertainment',
   TRAVEL = 'travel',
   OTHER = 'other',
-
 }

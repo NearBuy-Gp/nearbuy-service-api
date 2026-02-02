@@ -1,5 +1,4 @@
-import { ItemType } from "../../enums/item-type.enum";
-
+import { ItemType } from '../../../item/enums/item-type.enum';
 export class NormalizeOutputDto {
   name: string;
   description?: string;

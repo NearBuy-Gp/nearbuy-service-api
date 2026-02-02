@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException ,BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { CreateItemDto } from './dtos/requests/create-item.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -29,7 +33,7 @@ export class ItemService {
     return { message: 'Item Added Successfully', item: newItem };
   }
 
-   public async addItemsBulk(
+  public async addItemsBulk(
     businessId: string,
     ownerId: string,
     items: CreateItemDto[],
@@ -38,7 +42,7 @@ export class ItemService {
       throw new BadRequestException('No items to insert');
     }
     const business = await this.validateBusiness(ownerId, businessId);
-    const itemsWithBusinessId = items.map(item => ({
+    const itemsWithBusinessId = items.map((item) => ({
       ...item,
       businessId: business._id,
     }));

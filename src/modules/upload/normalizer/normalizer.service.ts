@@ -7,12 +7,9 @@ import { NormalizeOutputDto } from './dtos/normalizer-output.dto';
 export class NormalizerService {
   private readonly logger = new Logger(NormalizerService.name);
 
-  constructor(
-    private readonly aiStrategy: AiNormalizerStrategy,
-  ) {}
+  constructor(private readonly aiStrategy: AiNormalizerStrategy) {}
 
   async normalize(input: NormalizeInputDto): Promise<NormalizeOutputDto[]> {
-
     this.logger.log('Attempting AI normalization');
     return await this.aiStrategy.normalize(input);
   }

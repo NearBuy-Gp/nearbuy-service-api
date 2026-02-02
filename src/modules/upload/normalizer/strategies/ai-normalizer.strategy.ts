@@ -5,13 +5,12 @@ import { NormalizeOutputDto } from '../dtos/normalizer-output.dto';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { BusinessCategory } from 'src/modules/business/enums/business-category.enum';
 import { BusinessType } from 'src/modules/business/enums/business-type.enum';
-import { ItemType } from '../../enums/item-type.enum';
-
+import { ItemType } from 'src/modules/item/enums/item-type.enum';
 @Injectable()
 export class AiNormalizerStrategy implements NormalizerStrategy {
   private readonly logger = new Logger(AiNormalizerStrategy.name);
   private genAI: GoogleGenerativeAI;
-  private readonly BATCH_SIZE = 20; 
+  private readonly BATCH_SIZE = 20;
 
   constructor() {
     const apiKey = process.env.GEMINI_API_KEY;
@@ -30,7 +29,7 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
     }
 
     this.logger.log(
-      `Normalizing ${rawData.length} items for ${businessCategory}/${businessType}`
+      `Normalizing ${rawData.length} items for ${businessCategory}/${businessType}`,
     );
 
     // lw dataset small process kolo at once
@@ -39,20 +38,20 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
         rawData,
         businessCategory,
         businessType,
-        businessId
+        businessId,
       );
     }
 
     // lw large datasets process in batches
     const allNormalizedItems: NormalizeOutputDto[] = [];
-    
+
     for (let i = 0; i < rawData.length; i += this.BATCH_SIZE) {
       const batch = rawData.slice(i, i + this.BATCH_SIZE);
       const batchNumber = Math.floor(i / this.BATCH_SIZE) + 1;
       const totalBatches = Math.ceil(rawData.length / this.BATCH_SIZE);
-      
+
       this.logger.log(
-        `Processing batch ${batchNumber}/${totalBatches} (${batch.length} items)`
+        `Processing batch ${batchNumber}/${totalBatches} (${batch.length} items)`,
       );
 
       try {
@@ -60,27 +59,26 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
           batch,
           businessCategory,
           businessType,
-          businessId
+          businessId,
         );
-        
+
         allNormalizedItems.push(...normalizedBatch);
-        
-        // delay ben kol batch w el tany 
+
+        // delay ben kol batch w el tany
         if (i + this.BATCH_SIZE < rawData.length) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise((resolve) => setTimeout(resolve, 1000));
         }
       } catch (error) {
         this.logger.error(
-          `Batch ${batchNumber} failed: ${error.message}. Continuing with next batch...`
+          `Batch ${batchNumber} failed: ${error.message}. Continuing with next batch...`,
         );
-        
       }
     }
 
     this.logger.log(
-      `Successfully normalized ${allNormalizedItems.length}/${rawData.length} items`
+      `Successfully normalized ${allNormalizedItems.length}/${rawData.length} items`,
     );
-    
+
     return allNormalizedItems;
   }
 
@@ -88,11 +86,14 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
     rawData: any[],
     businessCategory: BusinessCategory,
     businessType: BusinessType,
-    businessId: string
+    businessId: string,
   ): Promise<NormalizeOutputDto[]> {
     try {
       // get schema and item type for this business
-      const schema = this.getSchemaForBusinessType(businessCategory, businessType);
+      const schema = this.getSchemaForBusinessType(
+        businessCategory,
+        businessType,
+      );
       const itemType = this.getItemType(businessCategory, businessType);
 
       const prompt = this.buildPrompt(
@@ -100,17 +101,19 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
         businessCategory,
         businessType,
         schema,
-        itemType
+        itemType,
       );
 
-      const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
+      const model = this.genAI.getGenerativeModel({
+        model: 'gemini-2.5-flash-lite',
+      });
       const result = await model.generateContent(prompt);
       const responseText = result.response.text();
 
       //  cleaning
       let cleanedText = responseText
-        .replace(/```json\n?|\n?```/g, '') 
-        .replace(/```\n?|\n?```/g, '') 
+        .replace(/```json\n?|\n?```/g, '')
+        .replace(/```\n?|\n?```/g, '')
         .trim();
 
       // Try to extract JSON array if response has extra text
@@ -121,33 +124,38 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
 
       const normalizedItems = JSON.parse(cleanedText);
 
-      
-      const validatedItems = (Array.isArray(normalizedItems) ? normalizedItems : [normalizedItems])
-        .map((item, index) => ({
-          name: item.name || `Unnamed Item ${index + 1}`,
-          description: (item.description || '').replace(/\\n/g, ' ').replace(/\s+/g, ' ').trim(),
-          price: typeof item.price === 'number' ? item.price : parseFloat(item.price) || 0,
-          images: item.images || [],
-          isAvailable: item.isAvailable ?? true,
-          businessId,
-          type: itemType,
-          attributes: item.attributes || {},
-        }));
+      const validatedItems = (
+        Array.isArray(normalizedItems) ? normalizedItems : [normalizedItems]
+      ).map((item, index) => ({
+        name: item.name || `Unnamed Item ${index + 1}`,
+        description: (item.description || '')
+          .replace(/\\n/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim(),
+        price:
+          typeof item.price === 'number'
+            ? item.price
+            : parseFloat(item.price) || 0,
+        images: item.images || [],
+        isAvailable: item.isAvailable ?? true,
+        businessId,
+        type: itemType,
+        attributes: item.attributes || {},
+      }));
 
       return validatedItems;
-
     } catch (error) {
       this.logger.error('Batch normalization failed:', error.message);
-      
+
       this.logger.error('Error details:', error.stack);
-      
+
       throw new Error(`Failed to normalize batch: ${error.message}`);
     }
   }
 
   private getSchemaForBusinessType(
     category: BusinessCategory,
-    type: BusinessType
+    type: BusinessType,
   ): any {
     // Restaurant schemas
     if (category === BusinessCategory.RESTAURANT) {
@@ -167,9 +175,10 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
               'Sides & Appetizers',
               'Salads',
               'Desserts',
-              'Drinks'
+              'Drinks',
             ],
-            description: 'Category of the menu item - choose the most appropriate one',
+            description:
+              'Category of the menu item - choose the most appropriate one',
             required: true,
           },
           sizes: {
@@ -221,7 +230,7 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
                 'Baby Corner',
                 'Pet Care',
                 'Household Essentials',
-                'Stationery'
+                'Stationery',
               ],
               description: 'Product category',
               required: true,
@@ -250,7 +259,7 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
                 'Accessories',
                 'Home Appliances',
                 'Air Conditioners',
-                'Televisions'
+                'Televisions',
               ],
               description: 'Electronics category',
               required: true,
@@ -303,7 +312,7 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
                 'Makeup & Accessories',
                 'Health Care Devices',
                 'Vitamins & Supplements',
-                'Pet Supplies'
+                'Pet Supplies',
               ],
               description: 'Pharmacy product category',
               required: true,
@@ -444,13 +453,17 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
 
   private getItemType(
     category: BusinessCategory,
-    type: BusinessType
+    type: BusinessType,
   ): ItemType {
     const typeMap: Record<BusinessCategory, ItemType> = {
       [BusinessCategory.RESTAURANT]: ItemType.MENU_ITEM,
       [BusinessCategory.STORE]: ItemType.PRODUCT,
       [BusinessCategory.CLINIC]: ItemType.SERVICE,
-      [BusinessCategory.GYM]: [BusinessType.CROSSFIT, BusinessType.PILATES, BusinessType.BODYBUILDING].includes(type)
+      [BusinessCategory.GYM]: [
+        BusinessType.CROSSFIT,
+        BusinessType.PILATES,
+        BusinessType.BODYBUILDING,
+      ].includes(type)
         ? ItemType.CLASS_SESSION
         : ItemType.MEMBERSHIP,
       [BusinessCategory.SERVICE]: ItemType.SERVICE,
@@ -464,7 +477,7 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
     category: BusinessCategory,
     type: BusinessType,
     schema: any,
-    itemType: ItemType
+    itemType: ItemType,
   ): string {
     const schemaStr = JSON.stringify(schema.attributes, null, 2);
 
@@ -529,7 +542,7 @@ IMPORTANT: Return ONLY a valid JSON array. No explanations, no markdown, just th
 
   private getExamplesForCategory(
     category: BusinessCategory,
-    type: BusinessType
+    type: BusinessType,
   ): string {
     if (category === BusinessCategory.RESTAURANT) {
       return `
@@ -573,7 +586,10 @@ Output: {
 }`;
     }
 
-    if (category === BusinessCategory.STORE && type === BusinessType.SUPERMARKET) {
+    if (
+      category === BusinessCategory.STORE &&
+      type === BusinessType.SUPERMARKET
+    ) {
       return `
 Input: { "text": "Fresh Milk 1L - EGP 25" }
 Output: {
@@ -590,7 +606,10 @@ Output: {
 }`;
     }
 
-    if (category === BusinessCategory.STORE && type === BusinessType.ELECTRONICS) {
+    if (
+      category === BusinessCategory.STORE &&
+      type === BusinessType.ELECTRONICS
+    ) {
       return `
 Input: { "text": "iPhone 15 Pro - $999" }
 Output: {

@@ -2,12 +2,15 @@ import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { FileParsingStrategyFactory } from './factories/file-parsing-strategy.factory';
-import { FileProcessingResult, BatchProcessingResponse } from './interfaces/batch-processing.interface';
-import { NormalizerService } from '../normalizer/normalizer.service';
-import { NormalizeOutputDto } from '../normalizer/dtos/normalizer-output.dto';
+import {
+  FileProcessingResult,
+  BatchProcessingResponse,
+} from './interfaces/batch-processing.interface';
 import { Business } from 'src/modules/business/schemas/buisness.schema';
 import { BusinessCategory } from 'src/modules/business/enums/business-category.enum';
 import { BusinessType } from 'src/modules/business/enums/business-type.enum';
+import { NormalizeOutputDto } from './normalizer/dtos/normalizer-output.dto';
+import { NormalizerService } from './normalizer/normalizer.service';
 
 @Injectable()
 export class UploadService {
@@ -21,11 +24,11 @@ export class UploadService {
 
   async extractRaw(businessId: string, file: Express.Multer.File) {
     if (!file) throw new BadRequestException('File is required');
-    
+
     const extension = this.strategyFactory.detectFileType(file);
     const strategy = this.strategyFactory.getStrategy(extension);
     const raw = await strategy.parse(file);
-    
+
     return {
       businessId,
       fileType: extension,
@@ -46,20 +49,19 @@ export class UploadService {
     if (!businessCategory || !businessType) {
       throw new BadRequestException(
         'businessCategory and businessType are required in test mode. ' +
-        'Example: ?testMode=true&businessCategory=restaurant&businessType=fast_food'
+          'Example: ?testMode=true&businessCategory=restaurant&businessType=fast_food',
       );
     }
 
     this.logger.log(
-      `TEST MODE: Processing ${files.length} files for ${businessCategory}/${businessType}`
+      `TEST MODE: Processing ${files.length} files for ${businessCategory}/${businessType}`,
     );
 
     // Process  files in parallel
     const results = await Promise.allSettled(
-      files.map(file => this.processSingleFile(file))
+      files.map((file) => this.processSingleFile(file)),
     );
 
-    
     const fileResults: FileProcessingResult[] = [];
     const combinedData: any[] = [];
     let successCount = 0;
@@ -70,7 +72,7 @@ export class UploadService {
 
       if (result.status === 'fulfilled') {
         const { fileType, data } = result.value;
-        
+
         fileResults.push({
           fileName,
           fileType,
@@ -83,7 +85,7 @@ export class UploadService {
         totalItems += data.length;
 
         this.logger.log(
-          `${fileName} (${fileType}): ${data.length} items extracted`
+          `${fileName} (${fileType}): ${data.length} items extracted`,
         );
       } else {
         fileResults.push({
@@ -100,13 +102,13 @@ export class UploadService {
 
     // Normalize the data using AI
     let normalizedItems: NormalizeOutputDto[] = [];
-    
+
     try {
       normalizedItems = await this.normalizerService.normalize({
         rawData: deduplicatedData,
         businessCategory,
         businessType,
-        businessId: 'test-business-id', // --> Dummy ID 3shan el test 
+        businessId: 'test-business-id', // --> Dummy ID 3shan el test
       });
 
       this.logger.log(`TEST MODE: Normalized ${normalizedItems.length} items`);
@@ -127,8 +129,8 @@ export class UploadService {
 
   // Original method with real business ID
   async extractRawBatch(
-    businessId: string, 
-    files: Express.Multer.File[]
+    businessId: string,
+    files: Express.Multer.File[],
   ): Promise<BatchProcessingResponse> {
     if (!files || files.length === 0) {
       throw new BadRequestException('At least one file is required');
@@ -137,7 +139,7 @@ export class UploadService {
     // Validate businessId format
     if (!Types.ObjectId.isValid(businessId)) {
       throw new BadRequestException(
-        `Invalid business ID format: "${businessId}". Must be a 24 character hex string.`
+        `Invalid business ID format: "${businessId}". Must be a 24 character hex string.`,
       );
     }
 
@@ -151,17 +153,17 @@ export class UploadService {
     // Validate business has category and type
     if (!business.category || !business.type) {
       throw new BadRequestException(
-        'Business must have category and type defined for normalization'
+        'Business must have category and type defined for normalization',
       );
     }
 
     this.logger.log(
-      `Processing ${files.length} files for business ${businessId} (${business.category}/${business.type})`
+      `Processing ${files.length} files for business ${businessId} (${business.category}/${business.type})`,
     );
 
     // Process all files in parallel
     const results = await Promise.allSettled(
-      files.map(file => this.processSingleFile(file))
+      files.map((file) => this.processSingleFile(file)),
     );
 
     // Collect results
@@ -175,7 +177,7 @@ export class UploadService {
 
       if (result.status === 'fulfilled') {
         const { fileType, data } = result.value;
-        
+
         fileResults.push({
           fileName,
           fileType,
@@ -188,7 +190,7 @@ export class UploadService {
         totalItems += data.length;
 
         this.logger.log(
-          `${fileName} (${fileType}): ${data.length} items extracted`
+          `${fileName} (${fileType}): ${data.length} items extracted`,
         );
       } else {
         fileResults.push({
@@ -199,7 +201,7 @@ export class UploadService {
         });
 
         this.logger.error(
-          `${fileName}: ${result.reason?.message || 'Failed to process'}`
+          `${fileName}: ${result.reason?.message || 'Failed to process'}`,
         );
       }
     });
@@ -209,7 +211,7 @@ export class UploadService {
 
     // Normalize
     let normalizedItems: NormalizeOutputDto[] = [];
-    
+
     try {
       normalizedItems = await this.normalizerService.normalize({
         rawData: deduplicatedData,
@@ -250,10 +252,10 @@ export class UploadService {
 
   private deduplicateData(items: any[]): any[] {
     const hasTextField = items.length > 0 && 'text' in items[0];
-    
+
     if (hasTextField) {
       const seen = new Set<string>();
-      return items.filter(item => {
+      return items.filter((item) => {
         const text = item.text?.toLowerCase().trim();
         if (!text || seen.has(text)) return false;
         seen.add(text);

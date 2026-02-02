@@ -1,19 +1,23 @@
 // upload/upload.controller.ts
 import {
-    Controller,
-    Post,
-    Param,
-    UploadedFile,
-    UploadedFiles,
-    UseInterceptors,
-    Body,
-    Query,
-} from '@nestjs/common'
-import { FileInterceptor, FilesInterceptor, AnyFilesInterceptor } from '@nestjs/platform-express'
-import { UploadService } from './upload.service'
+  Controller,
+  Post,
+  Param,
+  UploadedFile,
+  UploadedFiles,
+  UseInterceptors,
+  Body,
+  Query,
+} from '@nestjs/common';
+import {
+  FileInterceptor,
+  FilesInterceptor,
+  AnyFilesInterceptor,
+} from '@nestjs/platform-express';
+import { UploadService } from './upload.service';
 import { BatchProcessingResponse } from './interfaces/batch-processing.interface';
-import { BusinessCategory } from '../../business/enums/business-category.enum';
-import { BusinessType } from '../../business/enums/business-type.enum';
+import { BusinessCategory } from '../business/enums/business-category.enum';
+import { BusinessType } from '../business/enums/business-type.enum';
 
 @Controller(':businessId/item/upload')
 export class UploadController {

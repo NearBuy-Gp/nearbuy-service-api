@@ -20,25 +20,31 @@ export class FileParsingStrategyFactory {
     const ext = file.originalname.split('.').pop()?.toLowerCase();
 
     if (mime === 'text/csv' || ext === 'csv') {
-        return 'csv';
+      return 'csv';
     }
 
-    if (mime.includes('spreadsheet') ||mime.includes('excel') ||ext === 'xls' ||ext === 'xlsx'){
-
-        return 'excel';
+    if (
+      mime.includes('spreadsheet') ||
+      mime.includes('excel') ||
+      ext === 'xls' ||
+      ext === 'xlsx'
+    ) {
+      return 'excel';
     }
 
-    if (mime === 'application/pdf' || ext === 'pdf'){
-      return 'pdf';  
-    } 
-
-    if (mime.startsWith('image/') ||['jpg', 'jpeg', 'png', 'webp'].includes(ext || '')){
-        return 'image';
+    if (mime === 'application/pdf' || ext === 'pdf') {
+      return 'pdf';
     }
-    
-    if (mime.startsWith('text/') || ['txt', 'md'].includes(ext || '')){
 
-        return 'text';
+    if (
+      mime.startsWith('image/') ||
+      ['jpg', 'jpeg', 'png', 'webp'].includes(ext || '')
+    ) {
+      return 'image';
+    }
+
+    if (mime.startsWith('text/') || ['txt', 'md'].includes(ext || '')) {
+      return 'text';
     }
 
     throw new UnsupportedMediaTypeException(`Unsupported file type: ${mime}`);
@@ -57,7 +63,9 @@ export class FileParsingStrategyFactory {
       case 'text':
         return this.textStrategy;
       default:
-        throw new UnsupportedMediaTypeException(`No strategy found for type: ${type}`);
+        throw new UnsupportedMediaTypeException(
+          `No strategy found for type: ${type}`,
+        );
     }
   }
 }
