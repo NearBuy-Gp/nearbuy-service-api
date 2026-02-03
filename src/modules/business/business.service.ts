@@ -17,6 +17,9 @@ import { PaginatedItemsResponseDto } from '../item/dtos/response/paginated-items
 import { Item } from '../item/schemas/item.schema';
 import { BusinessWithItemsResponseDto } from './dtos/response/business-with-items-response.dto';
 import { BusinessResponseDto } from './dtos/response/business-response.dto';
+import { BusinessRateDto } from './dtos/request/business-rate.dto';
+import { Message } from 'openai/resources/beta/threads.js';
+import { MessageResponseDto } from '../auth/dtos/message-response.dto';
 @Injectable()
 export class BusinessService {
   constructor(
@@ -198,6 +201,33 @@ export class BusinessService {
     const business = await this.validateBusiness(ownerId, businessId);
     return BusinessResponseDto.fromEntity(business);
   }
+  // public async rateBusiness(businessId: string, businessRateDto: BusinessRateDto): Promise<MessageResponseDto> {
+  //   const business = await this.businessModel.findById(businessId);
+  //   if (!business) {
+  //     throw new NotFoundException('Business not found');
+  //   }
+  //   const totalRatings = business.rate * business.numberOfRatings;
+  //   business.numberOfRatings += 1;
+  //   business.rate = (totalRatings + businessRateDto.rate) / business.numberOfRatings;
+  //   await business.save();
+  //   return { message: 'Business rated successfully' };
+  // }
+  // public async unRateBusiness(businessId: string, previousRate: number): Promise<MessageResponseDto> {
+  //   const business = await this.businessModel.findById(businessId);
+  //   if (!business) {
+  //     throw new NotFoundException('Business not found');
+  //   }
+  //   if (business.numberOfRatings <= 1) {
+  //     business.rate = 0;
+  //     business.numberOfRatings = 0;
+  //   } else {
+  //     const totalRatings = business.rate * business.numberOfRatings;
+  //     business.numberOfRatings -= 1;
+  //     business.rate = (totalRatings - previousRate) / business.numberOfRatings;
+  //   }
+  //   await business.save();
+  //   return { message: 'Business unrated successfully' };
+  // }
   private async validateOwner(ownerId: string) {
     const owner = await this.userModel.findById(ownerId);
     if (!owner) {
