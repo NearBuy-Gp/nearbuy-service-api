@@ -17,6 +17,8 @@ import { PaginatedBusinessNearMeDto } from './dtos/response/paginated-business-n
 import { PaginatedItemsResponseDto } from '../item/dtos/response/paginated-items-response.dto';
 import { BusinessWithItemsResponseDto } from './dtos/response/business-with-items-response.dto';
 import { BusinessResponseDto } from './dtos/response/business-response.dto';
+import { MessageResponseDto } from '../auth/dtos/message-response.dto';
+import { BusinessRateDto } from './dtos/request/business-rate.dto';
 
 @ApiTags('Business')
 @Controller('business')
@@ -108,11 +110,8 @@ export class BusinessController {
     description: 'Get Business successfully',
     type: BusinessResponseDto,
   })
-  public getBusinessByIdOwner(
-    @Param('id', ParseObjectIdPipe) businessId: string,
-    @User('id') ownerId: string,
-  ): Promise<BusinessResponseDto> {
-    return this.businessService.getBusinessByIdOwner(businessId,ownerId);
+  public getBusinessByIdOwner(@Param('id', ParseObjectIdPipe) businessId: string, @User('id') ownerId: string): Promise<BusinessResponseDto> {
+    return this.businessService.getBusinessByIdOwner(businessId, ownerId);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
@@ -128,4 +127,32 @@ export class BusinessController {
   public updateBusiness(@Param('id', ParseObjectIdPipe) businessId: string, @User('id') userId: string, @Body() updateBusinessDto: UpdateBusinessDto) {
     return this.businessService.updateBusiness(userId, businessId, updateBusinessDto);
   }
+
+  // @UseGuards(AuthGuard, RolesGuard)
+  // @Roles(Role.USER)
+  // @Patch('/:id/user/rate')
+  // @ApiOperation({ summary: 'Rate Business' })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: 'Business rated successfully',
+  //   type: MessageResponseDto,
+  // })
+  // @ApiBody({ type: BusinessRateDto })
+  // public rateBusiness(@Param('id', ParseObjectIdPipe) businessId: string, @Body() businessRateDto: BusinessRateDto): Promise<MessageResponseDto> {
+  //   return this.businessService.rateBusiness(businessId, businessRateDto);
+  // }
+
+  // @UseGuards(AuthGuard, RolesGuard)
+  // @Roles(Role.USER)
+  // @Patch('/:id/user/unrate')
+  // @ApiOperation({ summary: 'Unrate Business' })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: 'Business unrated successfully',
+  //   type: MessageResponseDto,
+  // })
+  // @ApiBody({ schema: { properties: { previousRate: { type: 'number', example: 4 } } } })
+  // public unRateBusiness(@Param('id', ParseObjectIdPipe) businessId: string, @Body('previousRate') previousRate: number): Promise<MessageResponseDto> {
+  //   return this.businessService.unRateBusiness(businessId, previousRate);
+  // }
 }

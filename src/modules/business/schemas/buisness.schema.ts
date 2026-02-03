@@ -99,8 +99,11 @@ export class Business extends Document {
   })
   status: BusinessStatus;
 
-  @Prop({ type: Number, default: 0 })
+  @Prop({ type: Number, default: 0, max: 5, min: 0 })
   rate: number;
+
+  @Prop({ type: Number, default: 0 })
+  numberOfRatings: number;
 
   @Prop({
     type: [String],
