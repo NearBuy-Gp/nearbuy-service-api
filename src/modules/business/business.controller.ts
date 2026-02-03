@@ -16,6 +16,7 @@ import { RegisterBusinessResponseDto } from './dtos/response/register-business-r
 import { PaginatedBusinessNearMeDto } from './dtos/response/paginated-business-near-me';
 import { PaginatedItemsResponseDto } from '../item/dtos/response/paginated-items-response.dto';
 import { BusinessWithItemsResponseDto } from './dtos/response/business-with-items-response.dto';
+import { BusinessResponseDto } from './dtos/response/business-response.dto';
 
 @ApiTags('Business')
 @Controller('business')
@@ -80,7 +81,7 @@ export class BusinessController {
   }
 
   @Get('/:id')
-  @ApiOperation({ summary: 'Get business By ID' })
+  @ApiOperation({ summary: 'Get business By ID (User)' })
   @ApiResponse({
     status: 200,
     description: 'Get Business successfully',
@@ -96,6 +97,22 @@ export class BusinessController {
     @Query('categoryId') categoryId?: string,
   ): Promise<BusinessWithItemsResponseDto> {
     return this.businessService.getBusinessById(businessId, page, limit, categoryId);
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.OWNER)
+  @Get('/:id/owner')
+  @ApiOperation({ summary: 'Get business By ID (Owner)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Get Business successfully',
+    type: BusinessResponseDto,
+  })
+  public getBusinessByIdOwner(
+    @Param('id', ParseObjectIdPipe) businessId: string,
+    @User('id') ownerId: string,
+  ): Promise<BusinessResponseDto> {
+    return this.businessService.getBusinessByIdOwner(businessId,ownerId);
   }
 
   @UseGuards(AuthGuard, RolesGuard)

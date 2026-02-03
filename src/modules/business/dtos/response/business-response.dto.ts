@@ -4,6 +4,7 @@ import { BusinessType } from '../../enums/business-type.enum';
 import { LocationDto } from '../request/business-location.dto';
 import { SocialDto } from '../request/business-social-links.dto';
 import { WorkingHoursDto } from '../request/business-working-hours.dto';
+import { Business } from '../../schemas/buisness.schema';
 
 export class BusinessResponseDto {
   @ApiProperty({ example: 'Gold’s Gym' })
@@ -50,4 +51,32 @@ export class BusinessResponseDto {
 
   @ApiPropertyOptional({ type: [String] })
   images?: string[];
+
+  @ApiProperty({
+    example: '66c3dcaef3b3a6c94c8d91ab',
+    description: 'Business MongoDB ID',
+  })
+  _id: string;
+  @ApiProperty({ example: 4.5 })
+  rate: number;
+  static fromEntity(entity: Business): BusinessResponseDto {
+    const dto = new BusinessResponseDto();
+    dto.name = entity.name;
+    dto.description = entity.description;
+    dto.tags = entity.tags;
+    dto.type = entity.type;
+    dto.category = entity.category;
+    dto.subcategory = entity.subcategory;
+    dto.phone = entity.phone;
+    dto.email = entity.email;
+    dto.website = entity.website;
+    dto.social = entity.social;
+    dto.address = entity.address;
+    dto.location = entity.location;
+    dto.workingHours = entity.workingHours;
+    dto.images = entity.images;
+    dto._id = entity._id.toString();
+    dto.rate = entity.rate;
+    return dto;
+  }
 }

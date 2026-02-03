@@ -16,6 +16,7 @@ import geohash from 'src/utils/helpers/geohash';
 import { PaginatedItemsResponseDto } from '../item/dtos/response/paginated-items-response.dto';
 import { Item } from '../item/schemas/item.schema';
 import { BusinessWithItemsResponseDto } from './dtos/response/business-with-items-response.dto';
+import { BusinessResponseDto } from './dtos/response/business-response.dto';
 @Injectable()
 export class BusinessService {
   constructor(
@@ -192,6 +193,10 @@ export class BusinessService {
       page,
       limit,
     };
+  }
+  public async getBusinessByIdOwner(businessId: string, ownerId: string): Promise<BusinessResponseDto> {
+    const business = await this.validateBusiness(ownerId, businessId);
+    return BusinessResponseDto.fromEntity(business);
   }
   private async validateOwner(ownerId: string) {
     const owner = await this.userModel.findById(ownerId);
