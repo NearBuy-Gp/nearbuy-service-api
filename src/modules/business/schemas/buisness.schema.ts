@@ -139,7 +139,6 @@ export class Business extends Document {
   mainItemsOthers?: string[];
   @Prop({
     type: String,
-    index: true,
   })
   geohash: string;
 
@@ -186,3 +185,4 @@ BusinessSchema.index({ geohash_district: 1 });
 BusinessSchema.index({ geohash_neighborhood: 1 });
 BusinessSchema.index({ geohash_street: 1 });
 BusinessSchema.index({ geohash_building: 1 });
+BusinessSchema.index({ ownerId: 1 });

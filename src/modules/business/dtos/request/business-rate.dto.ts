@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, Min, Max, IsNotEmpty } from 'class-validator';
+import { IsNumber, IsNotEmpty, Min, Max } from 'class-validator';
 
 export class BusinessRateDto {
   @ApiProperty({ example: 4.5, description: 'Rating of the business between 0 to 5' })

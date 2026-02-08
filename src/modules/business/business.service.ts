@@ -17,9 +17,7 @@ import { PaginatedItemsResponseDto } from '../item/dtos/response/paginated-items
 import { Item } from '../item/schemas/item.schema';
 import { BusinessWithItemsResponseDto } from './dtos/response/business-with-items-response.dto';
 import { BusinessResponseDto } from './dtos/response/business-response.dto';
-import { BusinessRateDto } from './dtos/request/business-rate.dto';
-import { Message } from 'openai/resources/beta/threads.js';
-import { MessageResponseDto } from '../auth/dtos/message-response.dto';
+
 @Injectable()
 export class BusinessService {
   constructor(
@@ -232,6 +230,10 @@ export class BusinessService {
     const owner = await this.userModel.findById(ownerId);
     if (!owner) {
       throw new NotFoundException('Owner not found');
+    }
+    const existingBusiness = await this.businessModel.findOne({ ownerId: owner._id });
+    if (existingBusiness) {
+      throw new BadRequestException('Owner already has a business');
     }
     return owner;
   }

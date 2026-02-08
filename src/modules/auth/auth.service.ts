@@ -8,11 +8,14 @@ import * as bcrypt from 'bcrypt';
 import { LoginResponseDto } from './dtos/login-response.dto';
 import { LoginRequestDto } from './dtos/login-request.dto';
 import { JwtService } from '@nestjs/jwt';
+import { Role } from 'src/utils/enums/user-role.enum';
+import { Business } from '../business/schemas/buisness.schema';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(Business.name) private businessModel: Model<Business>,
     private readonly jwtService: JwtService,
   ) {}
   public async signup(signUpRequestDto: SignUpRequestDto): Promise<LoginResponseDto> {
@@ -62,11 +65,18 @@ export class AuthService {
       role: existingUser.role,
     };
     const accessToken = this.generateAccessToken(tokenPayload);
+
     const userPayload = {
       id: userId,
       userName: existingUser.userName,
       role: existingUser.role,
     };
+    if (existingUser.role === Role.OWNER) {
+      const businessId = await this.businessModel.findOne({ ownerId: userId }, { _id: 1 });
+      if (businessId) {
+        userPayload['businessId'] = businessId._id;
+      }
+    }
     return {
       userPayload,
       accessToken,

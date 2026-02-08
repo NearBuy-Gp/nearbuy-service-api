@@ -14,6 +14,7 @@ export class LoginResponseDto {
     userName?: string;
     id: string;
     role: Role;
+    businessId?: string;
   };
 
   @ApiProperty({

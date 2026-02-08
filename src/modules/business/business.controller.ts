@@ -17,8 +17,6 @@ import { PaginatedBusinessNearMeDto } from './dtos/response/paginated-business-n
 import { PaginatedItemsResponseDto } from '../item/dtos/response/paginated-items-response.dto';
 import { BusinessWithItemsResponseDto } from './dtos/response/business-with-items-response.dto';
 import { BusinessResponseDto } from './dtos/response/business-response.dto';
-import { MessageResponseDto } from '../auth/dtos/message-response.dto';
-import { BusinessRateDto } from './dtos/request/business-rate.dto';
 
 @ApiTags('Business')
 @Controller('business')
