@@ -3,6 +3,7 @@ import { BusinessStatus } from '../../enums/business-status.enum';
 import { IsEnum } from 'class-validator';
 import { BusinessCategory } from '../../enums/business-category.enum';
 import { Business } from '../../schemas/buisness.schema';
+import { BusinessType } from '../../enums/business-type.enum';
 
 export class BusinessOnMapDto {
   @ApiProperty({ example: "Gold's Gym" })
@@ -30,6 +31,9 @@ export class BusinessOnMapDto {
     example: BusinessCategory.RESTAURANT,
   })
   category: BusinessCategory;
+  @ApiProperty({ enum: BusinessType, example: BusinessType.CAFE })
+  type: BusinessType;
+
   static fromEntity(entity: Business): BusinessOnMapDto {
     const dto = new BusinessOnMapDto();
     dto.id = entity._id.toString();

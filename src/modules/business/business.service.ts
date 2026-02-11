@@ -152,6 +152,7 @@ export class BusinessService {
         id: business._id.toString(),
         status: business.status,
         rate: business.rate,
+        type: business.type,
         category: business.category || BusinessCategory.STORE,
       }));
     }
@@ -175,6 +176,7 @@ export class BusinessService {
           category: '$sampleBusiness.category',
           status: '$sampleBusiness.status',
           rate: '$sampleBusiness.rate',
+          type: '$sampleBusiness.type',
           count: 1,
         },
       },
