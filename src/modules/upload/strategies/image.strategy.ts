@@ -1,6 +1,6 @@
-import { Injectable } from "@nestjs/common";
-import { FileParsingStrategy } from "../interfaces/file-parsing.interface";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { Injectable } from '@nestjs/common';
+import { FileParsingStrategy } from '../interfaces/file-parsing.interface';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -9,17 +9,17 @@ export class ImageParsingStrategy2 implements FileParsingStrategy {
 
   constructor(private configService: ConfigService) {
     const apiKey = this.configService.get<string>('GEMINI_API_KEY');
-    
+
     if (!apiKey) {
       throw new Error('GEMINI_API_KEY is not configured');
     }
-    
+
     this.genAI = new GoogleGenerativeAI(apiKey);
   }
   async parse(file: Express.Multer.File): Promise<any[]> {
     try {
-      const model = this.genAI.getGenerativeModel({ 
-        model: "models/gemini-2.5-flash" 
+      const model = this.genAI.getGenerativeModel({
+        model: 'models/gemini-2.5-flash',
       });
 
       const prompt = `Extract all items from this menu or service list image.
@@ -38,8 +38,8 @@ Example format:
       const imagePart = {
         inlineData: {
           data: file.buffer.toString('base64'),
-          mimeType: file.mimetype
-        }
+          mimeType: file.mimetype,
+        },
       };
 
       const result = await model.generateContent([prompt, imagePart]);
@@ -48,10 +48,9 @@ Example format:
 
       // Clean potential markdown code blocks
       const cleanedText = text.replace(/```json\n?|\n?```/g, '').trim();
-      
+
       const items = JSON.parse(cleanedText);
       return Array.isArray(items) ? items : [];
-      
     } catch (error) {
       console.error('Gemini API Error:', error);
       throw new Error(`Failed to extract items from image: ${error.message}`);

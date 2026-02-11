@@ -1,12 +1,12 @@
-import { Injectable } from "@nestjs/common";
-import { FileParsingStrategy } from "../interfaces/file-parsing.interface";
-import { parse } from "csv-parse/sync";
+import { Injectable } from '@nestjs/common';
+import { FileParsingStrategy } from '../interfaces/file-parsing.interface';
+import { parse } from 'csv-parse/sync';
 
 @Injectable()
 export class CsvParsingStrategy implements FileParsingStrategy {
   async parse(file: Express.Multer.File): Promise<any[]> {
-    const content = file.buffer.toString("utf-8");
-    // parse kol el rows removing extra spaces w el empty lines 
+    const content = file.buffer.toString('utf-8');
+    // parse kol el rows removing extra spaces w el empty lines
     // relax_column_count 3shan lw fe row el columns bta3to > aw < mn el ba'y my3mlsh error
     const rows: any[][] = parse(content, {
       trim: true,
@@ -18,7 +18,7 @@ export class CsvParsingStrategy implements FileParsingStrategy {
     const firstRow = rows[0];
     // check if first row is header (kolo strings w mafesh wahda empty "")
     const isHeaderRow = firstRow.every(
-      (cell) => typeof cell === "string" && cell.trim() !== ""
+      (cell) => typeof cell === 'string' && cell.trim() !== '',
     );
     let result: any[] = [];
 
@@ -39,7 +39,7 @@ export class CsvParsingStrategy implements FileParsingStrategy {
       const columnCount = firstRow.length;
       const headers: string[] = Array.from(
         { length: columnCount },
-        (_, i) => `column_${i + 1}`
+        (_, i) => `column_${i + 1}`,
       );
       //convert el data l objects
       result = rows.map((row) => {

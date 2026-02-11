@@ -39,16 +39,12 @@ export class ItemService {
     return { message: 'Item Added Successfully', item: newItem };
   }
 
-  //  public async addItemsBulk(
-  //   businessId: string,
-  //   ownerId: string,
-  //   items: CreateItemDto[],
-  // ) {
+  // public async addItemsBulk(businessId: string, ownerId: string, items: CreateItemDto[]) {
   //   if (!items || items.length === 0) {
   //     throw new BadRequestException('No items to insert');
   //   }
   //   const business = await this.validateBusiness(ownerId, businessId);
-  //   const itemsWithBusinessId = items.map(item => ({
+  //   const itemsWithBusinessId = items.map((item) => ({
   //     ...item,
   //     businessId: business._id,
   //   }));

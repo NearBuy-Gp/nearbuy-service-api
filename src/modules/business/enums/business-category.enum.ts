@@ -4,5 +4,4 @@ export enum BusinessCategory {
   CLINIC = 'clinic',
   RESTAURANT = 'restaurant',
   SERVICE = 'service', // generic service provider
-
 }

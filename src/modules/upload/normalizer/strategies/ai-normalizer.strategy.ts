@@ -5,7 +5,7 @@ import { NormalizeOutputDto } from '../dtos/normalizer-output.dto';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { BusinessCategory } from 'src/modules/business/enums/business-category.enum';
 import { BusinessType } from 'src/modules/business/enums/business-type.enum';
-import { ItemType } from '../../enums/item-type.enum';
+import { ItemType } from 'src/modules/item/enums/item-type.enum';
 import { ITEM_CATEGORY_SEED } from 'src/modules/categories/types/item-filter-category.schema';
 
 @Injectable()
@@ -31,7 +31,7 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
     }
 
     this.logger.log(
-      `Normalizing ${rawData.length} items for ${businessCategory}/${businessType}`
+      `Normalizing ${rawData.length} items for ${businessCategory}/${businessType}`,
     );
 
     // If the dataset is small,process all at once
@@ -40,20 +40,20 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
         rawData,
         businessCategory,
         businessType,
-        businessId
+        businessId,
       );
     }
 
     // large datasets,process in batches(20 item for each batch)
     const allNormalizedItems: NormalizeOutputDto[] = [];
-    
+
     for (let i = 0; i < rawData.length; i += this.BATCH_SIZE) {
       const batch = rawData.slice(i, i + this.BATCH_SIZE);
       const batchNumber = Math.floor(i / this.BATCH_SIZE) + 1;
       const totalBatches = Math.ceil(rawData.length / this.BATCH_SIZE);
-      
+
       this.logger.log(
-        `Processing batch ${batchNumber}/${totalBatches} (${batch.length} items)`
+        `Processing batch ${batchNumber}/${totalBatches} (${batch.length} items)`,
       );
 
       try {
@@ -61,26 +61,26 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
           batch,
           businessCategory,
           businessType,
-          businessId
+          businessId,
         );
-        
+
         allNormalizedItems.push(...normalizedBatch);
         
         // Delay between each batch
         if (i + this.BATCH_SIZE < rawData.length) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise((resolve) => setTimeout(resolve, 1000));
         }
       } catch (error) {
         this.logger.error(
-          `Batch ${batchNumber} failed: ${error.message}. Continuing with next batch...`
+          `Batch ${batchNumber} failed: ${error.message}. Continuing with next batch...`,
         );
       }
     }
 
     this.logger.log(
-      `Successfully normalized ${allNormalizedItems.length}/${rawData.length} items`
+      `Successfully normalized ${allNormalizedItems.length}/${rawData.length} items`,
     );
-    
+
     return allNormalizedItems;
   }
 
@@ -88,7 +88,7 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
     rawData: any[],
     businessCategory: BusinessCategory,
     businessType: BusinessType,
-    businessId: string
+    businessId: string,
   ): Promise<NormalizeOutputDto[]> {
     try {
       // Get schema and item type for this business
@@ -100,7 +100,7 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
         businessCategory,
         businessType,
         schema,
-        itemType
+        itemType,
       );
 
       const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
@@ -109,8 +109,8 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
 
       // cleaning
       let cleanedText = responseText
-        .replace(/```json\n?|\n?```/g, '') 
-        .replace(/```\n?|\n?```/g, '') 
+        .replace(/```json\n?|\n?```/g, '')
+        .replace(/```\n?|\n?```/g, '')
         .trim();
 
       // Try to extract JSON array if response has extra text
@@ -134,19 +134,18 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
         }));
 
       return validatedItems;
-
     } catch (error) {
       this.logger.error('Batch normalization failed:', error.message);
 
       this.logger.error('Error details:', error.stack);
-      
+
       throw new Error(`Failed to normalize batch: ${error.message}`);
     }
   }
 
   private getSchemaForBusinessType(
     category: BusinessCategory,
-    type: BusinessType
+    type: BusinessType,
   ): any {
     const itemType = this.getItemType(category, type);
     
@@ -422,7 +421,7 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
 
   private getItemType(
     category: BusinessCategory,
-    type: BusinessType
+    type: BusinessType,
   ): ItemType {
     const typeMap: Record<string, ItemType> = {
       [`${BusinessCategory.RESTAURANT}`]: ItemType.RESTAURANT,
@@ -446,7 +445,7 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
     category: BusinessCategory,
     type: BusinessType,
     schema: any,
-    itemType: ItemType
+    itemType: ItemType,
   ): string {
     const schemaStr = JSON.stringify(schema.attributes, null, 2);
 
@@ -512,7 +511,7 @@ IMPORTANT: Return ONLY a valid JSON array. No explanations, no markdown, just th
 
   private getExamplesForCategory(
     category: BusinessCategory,
-    type: BusinessType
+    type: BusinessType,
   ): string {
     const itemType = this.getItemType(category, type);
     const availableCategories = ITEM_CATEGORY_SEED[itemType] || [];
@@ -547,7 +546,10 @@ Output: {
 }`;
     }
 
-    if (category === BusinessCategory.STORE && type === BusinessType.SUPERMARKET) {
+    if (
+      category === BusinessCategory.STORE &&
+      type === BusinessType.SUPERMARKET
+    ) {
       return `
 Input: { "text": "Fresh Milk 1L - EGP 25" }
 Output: {
@@ -559,6 +561,25 @@ Output: {
     "category": "${availableCategories.find(c => c.key === 'DAIRY')?.name || firstCategory}",
     "brand": "",
     "weight": "1L",
+    "stock": 0
+  }
+}`;
+    }
+
+    if (
+      category === BusinessCategory.STORE &&
+      type === BusinessType.ELECTRONICS
+    ) {
+      return `
+Input: { "text": "iPhone 15 Pro - $999" }
+Output: {
+  "name": "iPhone 15 Pro",
+  "description": "",
+  "price": 999,
+  "type": "product",
+  "attributes": {
+    "category": "Mobile Phones",
+    "brand": "Apple",
     "stock": 0
   }
 }`;

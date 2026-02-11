@@ -20,23 +20,22 @@ export class Business extends Document {
   @Prop({ trim: true })
   description?: string;
 
-  @Prop({ 
+  @Prop({
     required: true,
     enum: BusinessCategory,
-    type: String 
+    type: String,
   })
   category: BusinessCategory;
 
-  @Prop({ 
-    required: true, 
+  @Prop({
+    required: true,
     enum: BusinessType,
-    type: String 
+    type: String,
   })
   type: BusinessType;
 
   @Prop({ type: [String], default: [] })
   tags?: string[];
-
 
   @Prop({ required: false })
   subcategory?: string;
