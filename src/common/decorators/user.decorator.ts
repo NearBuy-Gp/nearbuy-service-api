@@ -7,15 +7,13 @@ import { RequestWithUser } from '../interfaces/request-with-user.interface';
  *
  * This replaces the unsafe req['user'] pattern with type-safe access
  */
-export const User = createParamDecorator(
-  (data: keyof RequestWithUser['user'] | undefined, ctx: ExecutionContext) => {
-    const request = ctx.switchToHttp().getRequest<RequestWithUser>();
-    const user = request.user;
+export const User = createParamDecorator((data: keyof RequestWithUser['user'] | undefined, ctx: ExecutionContext) => {
+  const request = ctx.switchToHttp().getRequest<RequestWithUser>();
+  const user = request.user;
 
-    if (!user) {
-      return undefined;
-    }
+  if (!user) {
+    return undefined;
+  }
 
-    return data ? user[data] : user;
-  },
-);
+  return data ? user[data] : user;
+});

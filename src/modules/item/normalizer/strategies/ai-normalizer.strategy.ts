@@ -6,12 +6,13 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { BusinessCategory } from 'src/modules/business/enums/business-category.enum';
 import { BusinessType } from 'src/modules/business/enums/business-type.enum';
 import { ItemType } from '../../enums/item-type.enum';
+import { ITEM_CATEGORY_SEED } from 'src/modules/categories/types/item-filter-category.schema';
 
 @Injectable()
 export class AiNormalizerStrategy implements NormalizerStrategy {
   private readonly logger = new Logger(AiNormalizerStrategy.name);
   private genAI: GoogleGenerativeAI;
-  private readonly BATCH_SIZE = 20; 
+  private readonly BATCH_SIZE = 20;
 
   constructor() {
     const apiKey = process.env.GEMINI_API_KEY;
@@ -33,7 +34,7 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
       `Normalizing ${rawData.length} items for ${businessCategory}/${businessType}`
     );
 
-    // lw dataset small process kolo at once
+    // If the dataset is small,process all at once
     if (rawData.length <= this.BATCH_SIZE) {
       return await this.processBatch(
         rawData,
@@ -43,7 +44,7 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
       );
     }
 
-    // lw large datasets process in batches
+    // large datasets,process in batches(20 item for each batch)
     const allNormalizedItems: NormalizeOutputDto[] = [];
     
     for (let i = 0; i < rawData.length; i += this.BATCH_SIZE) {
@@ -65,7 +66,7 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
         
         allNormalizedItems.push(...normalizedBatch);
         
-        // delay ben kol batch w el tany 
+        // Delay between each batch
         if (i + this.BATCH_SIZE < rawData.length) {
           await new Promise(resolve => setTimeout(resolve, 1000));
         }
@@ -73,7 +74,6 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
         this.logger.error(
           `Batch ${batchNumber} failed: ${error.message}. Continuing with next batch...`
         );
-        
       }
     }
 
@@ -91,7 +91,7 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
     businessId: string
   ): Promise<NormalizeOutputDto[]> {
     try {
-      // get schema and item type for this business
+      // Get schema and item type for this business
       const schema = this.getSchemaForBusinessType(businessCategory, businessType);
       const itemType = this.getItemType(businessCategory, businessType);
 
@@ -103,11 +103,11 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
         itemType
       );
 
-      const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
+      const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
       const result = await model.generateContent(prompt);
       const responseText = result.response.text();
 
-      //  cleaning
+      // cleaning
       let cleanedText = responseText
         .replace(/```json\n?|\n?```/g, '') 
         .replace(/```\n?|\n?```/g, '') 
@@ -121,7 +121,6 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
 
       const normalizedItems = JSON.parse(cleanedText);
 
-      
       const validatedItems = (Array.isArray(normalizedItems) ? normalizedItems : [normalizedItems])
         .map((item, index) => ({
           name: item.name || `Unnamed Item ${index + 1}`,
@@ -138,7 +137,7 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
 
     } catch (error) {
       this.logger.error('Batch normalization failed:', error.message);
-      
+
       this.logger.error('Error details:', error.stack);
       
       throw new Error(`Failed to normalize batch: ${error.message}`);
@@ -149,27 +148,21 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
     category: BusinessCategory,
     type: BusinessType
   ): any {
+    const itemType = this.getItemType(category, type);
+    
+    // Get available categories
+    const availableCategories = ITEM_CATEGORY_SEED[itemType] || [];
+    const categoryKeys = availableCategories.map(cat => cat.key);
+    const categoryNames = availableCategories.map(cat => cat.name);
+
     // Restaurant schemas
     if (category === BusinessCategory.RESTAURANT) {
       return {
         attributes: {
           menuCategory: {
             type: 'string',
-            enum: [
-              'Burgers',
-              'Sandwiches',
-              'Fried Chicken',
-              'Meals',
-              'Pizza',
-              'Shawarma',
-              'Grills',
-              'Pasta',
-              'Sides & Appetizers',
-              'Salads',
-              'Desserts',
-              'Drinks'
-            ],
-            description: 'Category of the menu item - choose the most appropriate one',
+            enum: categoryNames.length > 0 ? categoryNames : ['General'],
+            description: `Category of the menu item. Available categories: ${categoryNames.join(', ')}`,
             required: true,
           },
           sizes: {
@@ -195,35 +188,8 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
           attributes: {
             category: {
               type: 'string',
-              enum: [
-                'Fruit & Veg',
-                'Bakery',
-                'Poultry, Meat & Seafood',
-                'Cold Cuts & Deli',
-                'Ready To Eat',
-                'Everyday Roastery Coffee',
-                'Frozen Food',
-                'Dairy & Eggs',
-                'Milk',
-                'Beverages',
-                'Snacks & Chocolate',
-                'Ice Cream',
-                'Coffee & Tea',
-                'Breakfast Food',
-                'Cooking & Baking',
-                'Canned & Jarred',
-                'Healthy & Special Diet',
-                'Beauty',
-                'Paper & Plastic',
-                'Cleaning & Laundry',
-                'Personal Care',
-                'Pharma & Wellness',
-                'Baby Corner',
-                'Pet Care',
-                'Household Essentials',
-                'Stationery'
-              ],
-              description: 'Product category',
+              enum: categoryNames.length > 0 ? categoryNames : ['General'],
+              description: `Product category. Available categories: ${categoryNames.join(', ')}`,
               required: true,
             },
             brand: { type: 'string', required: false },
@@ -243,16 +209,8 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
           attributes: {
             category: {
               type: 'string',
-              enum: [
-                'Mobile Phones',
-                'Tablets',
-                'Laptops & Computers',
-                'Accessories',
-                'Home Appliances',
-                'Air Conditioners',
-                'Televisions'
-              ],
-              description: 'Electronics category',
+              enum: categoryNames.length > 0 ? categoryNames : ['General'],
+              description: `Electronics category. Available categories: ${categoryNames.join(', ')}`,
               required: true,
             },
             brand: { type: 'string', required: false },
@@ -267,8 +225,8 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
           attributes: {
             category: {
               type: 'string',
-              enum: ['Men', 'Women', 'Kids', 'Babies'],
-              description: 'Clothing category',
+              enum: categoryNames.length > 0 ? categoryNames : ['General'],
+              description: `Clothing category. Available categories: ${categoryNames.join(', ')}`,
               required: true,
             },
             sizesAvailable: {
@@ -294,18 +252,8 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
           attributes: {
             category: {
               type: 'string',
-              enum: [
-                'Medications',
-                'Hair Care',
-                'Skin Care',
-                'Daily Essentials',
-                'Mom & Baby',
-                'Makeup & Accessories',
-                'Health Care Devices',
-                'Vitamins & Supplements',
-                'Pet Supplies'
-              ],
-              description: 'Pharmacy product category',
+              enum: categoryNames.length > 0 ? categoryNames : ['General'],
+              description: `Pharmacy product category. Available categories: ${categoryNames.join(', ')}`,
               required: true,
             },
             brand: { type: 'string', required: false },
@@ -334,6 +282,12 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
     if (category === BusinessCategory.CLINIC) {
       return {
         attributes: {
+          serviceCategory: {
+            type: 'string',
+            enum: categoryNames.length > 0 ? categoryNames : ['General'],
+            description: `Service category. Available categories: ${categoryNames.join(', ')}`,
+            required: false,
+          },
           doctorName: {
             type: 'string',
             description: 'Name of the doctor providing the service',
@@ -358,6 +312,12 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
       if ([BusinessType.CROSSFIT, BusinessType.PILATES].includes(type)) {
         return {
           attributes: {
+            sessionCategory: {
+              type: 'string',
+              enum: categoryNames.length > 0 ? categoryNames : ['General'],
+              description: `Class category. Available categories: ${categoryNames.join(', ')}`,
+              required: false,
+            },
             trainerName: {
               type: 'string',
               description: 'Name of the trainer',
@@ -391,6 +351,12 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
       if (type === BusinessType.BODYBUILDING) {
         return {
           attributes: {
+            membershipCategory: {
+              type: 'string',
+              enum: categoryNames.length > 0 ? categoryNames : ['General'],
+              description: `Membership category. Available categories: ${categoryNames.join(', ')}`,
+              required: false,
+            },
             accessLevel: {
               type: 'string',
               description: 'Access level (basic, premium, VIP)',
@@ -415,6 +381,12 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
     if (category === BusinessCategory.SERVICE) {
       return {
         attributes: {
+          serviceCategory: {
+            type: 'string',
+            enum: categoryNames.length > 0 ? categoryNames : ['General'],
+            description: `Service category. Available categories: ${categoryNames.join(', ')}`,
+            required: false,
+          },
           duration: {
             type: 'string',
             description: 'Service duration (e.g., 2 hours)',
@@ -437,6 +409,12 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
     // Default schema
     return {
       attributes: {
+        category: {
+          type: 'string',
+          enum: categoryNames.length > 0 ? categoryNames : ['General'],
+          description: `Item category. Available categories: ${categoryNames.join(', ')}`,
+          required: false,
+        },
         additionalInfo: { type: 'string', required: false },
       },
     };
@@ -446,17 +424,21 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
     category: BusinessCategory,
     type: BusinessType
   ): ItemType {
-    const typeMap: Record<BusinessCategory, ItemType> = {
-      [BusinessCategory.RESTAURANT]: ItemType.MENU_ITEM,
-      [BusinessCategory.STORE]: ItemType.PRODUCT,
-      [BusinessCategory.CLINIC]: ItemType.SERVICE,
-      [BusinessCategory.GYM]: [BusinessType.CROSSFIT, BusinessType.PILATES, BusinessType.BODYBUILDING].includes(type)
-        ? ItemType.CLASS_SESSION
-        : ItemType.MEMBERSHIP,
-      [BusinessCategory.SERVICE]: ItemType.SERVICE,
+    const typeMap: Record<string, ItemType> = {
+      [`${BusinessCategory.RESTAURANT}`]: ItemType.RESTAURANT,
+      [`${BusinessCategory.STORE}-${BusinessType.SUPERMARKET}`]: ItemType.SUPER_MARKET_PRODUCT,
+      [`${BusinessCategory.STORE}-${BusinessType.PHARMACY}`]: ItemType.PHARMACY_PRODUCT,
+      [`${BusinessCategory.STORE}-${BusinessType.CLOTHING}`]: ItemType.CLOTHING_PRODUCT,
+      [`${BusinessCategory.STORE}`]: ItemType.PRODUCT,
+      [`${BusinessCategory.CLINIC}`]: ItemType.CLINIC,
+      [`${BusinessCategory.GYM}-${BusinessType.CROSSFIT}`]: ItemType.CLASS_SESSION,
+      [`${BusinessCategory.GYM}-${BusinessType.PILATES}`]: ItemType.CLASS_SESSION,
+      [`${BusinessCategory.GYM}-${BusinessType.BODYBUILDING}`]: ItemType.MEMBERSHIP,
+      [`${BusinessCategory.GYM}`]: ItemType.CLASS_SESSION,
+      [`${BusinessCategory.SERVICE}`]: ItemType.SERVICE,
     };
 
-    return typeMap[category] || ItemType.PRODUCT;
+    return typeMap[`${category}-${type}`] || typeMap[category] || ItemType.PRODUCT;
   }
 
   private buildPrompt(
@@ -502,9 +484,10 @@ CRITICAL RULES:
    - Example: "250 grams\\nchicken breast\\nwith sauce" → "250 grams chicken breast with sauce"
 
 5. **Intelligent inference**: Make smart guesses for attributes based on context:
-   - For restaurants: Infer menuCategory from item name (e.g., "Burger" → "Burgers", "Fries" → "Sides & Appetizers")
+   - For restaurants: Infer menuCategory from item name
    - For stores: Infer category from product type
    - Use common sense to fill in missing attributes
+   - IMPORTANT: Categories must match EXACTLY one of the enum values provided in the schema
 
 6. **Required vs Optional**: 
    - "name" and "price" are ALWAYS required
@@ -531,6 +514,10 @@ IMPORTANT: Return ONLY a valid JSON array. No explanations, no markdown, just th
     category: BusinessCategory,
     type: BusinessType
   ): string {
+    const itemType = this.getItemType(category, type);
+    const availableCategories = ITEM_CATEGORY_SEED[itemType] || [];
+    const firstCategory = availableCategories[0]?.name || 'General';
+
     if (category === BusinessCategory.RESTAURANT) {
       return `
 Input: { "name": "SRIRACHA HONEY", "price": 195, "description": "250 grams\\nchicken breast\\nwith sauce" }
@@ -538,9 +525,9 @@ Output: {
   "name": "SRIRACHA HONEY",
   "description": "250 grams chicken breast with sauce",
   "price": 195,
-  "type": "menu_item",
+  "type": "${itemType}",
   "attributes": {
-    "menuCategory": "Fried Chicken",
+    "menuCategory": "${availableCategories.find(c => c.key === 'FOOD')?.name || firstCategory}",
     "sizes": "medium",
     "tags": ["chicken", "spicy", "honey"]
   }
@@ -551,24 +538,11 @@ Output: {
   "name": "Burger",
   "description": "Beef burger",
   "price": 50,
-  "type": "menu_item",
+  "type": "${itemType}",
   "attributes": {
-    "menuCategory": "Burgers",
+    "menuCategory": "${availableCategories.find(c => c.key === 'FOOD')?.name || firstCategory}",
     "sizes": "medium",
     "tags": ["beef", "burger"]
-  }
-}
-
-Input: { "name": "Fries", "description": "Crispy fries", "price": "30" }
-Output: {
-  "name": "Fries",
-  "description": "Crispy fries",
-  "price": 30,
-  "type": "menu_item",
-  "attributes": {
-    "menuCategory": "Sides & Appetizers",
-    "sizes": "medium",
-    "tags": ["potato", "fried"]
   }
 }`;
     }
@@ -580,27 +554,11 @@ Output: {
   "name": "Fresh Milk",
   "description": "",
   "price": 25,
-  "type": "product",
+  "type": "${itemType}",
   "attributes": {
-    "category": "Dairy & Eggs",
+    "category": "${availableCategories.find(c => c.key === 'DAIRY')?.name || firstCategory}",
     "brand": "",
     "weight": "1L",
-    "stock": 0
-  }
-}`;
-    }
-
-    if (category === BusinessCategory.STORE && type === BusinessType.ELECTRONICS) {
-      return `
-Input: { "text": "iPhone 15 Pro - $999" }
-Output: {
-  "name": "iPhone 15 Pro",
-  "description": "",
-  "price": 999,
-  "type": "product",
-  "attributes": {
-    "category": "Mobile Phones",
-    "brand": "Apple",
     "stock": 0
   }
 }`;
@@ -613,29 +571,12 @@ Output: {
   "name": "Dental Cleaning",
   "description": "",
   "price": 50,
-  "type": "service",
+  "type": "${itemType}",
   "attributes": {
+    "serviceCategory": "${availableCategories.find(c => c.key === 'DENTAL')?.name || firstCategory}",
     "doctorName": "Dr. Smith",
     "doctorSpecialization": "Dentist",
     "waitingPeriod": "30 minutes"
-  }
-}`;
-    }
-
-    if (category === BusinessCategory.GYM) {
-      return `
-Input: { "text": "CrossFit Beginner - Coach Mike - Mon/Wed/Fri 6-7 PM - Max 15 people - $30" }
-Output: {
-  "name": "CrossFit Beginner",
-  "description": "",
-  "price": 30,
-  "type": "class_session",
-  "attributes": {
-    "trainerName": "Coach Mike",
-    "schedule": "Mon/Wed/Fri 6-7 PM",
-    "duration": "60 minutes",
-    "capacity": 15,
-    "intensityLevel": "low"
   }
 }`;
     }

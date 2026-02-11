@@ -86,10 +86,7 @@ export class BusinessDataDto {
   @ApiProperty({
     enum: BusinessFacility,
     isArray: true,
-    example: [
-      BusinessFacility.WIFI_AVAILABLE,
-      BusinessFacility.OUTDOOR_SEATING,
-    ],
+    example: [BusinessFacility.WIFI_AVAILABLE, BusinessFacility.OUTDOOR_SEATING],
     required: false,
   })
   facilities?: BusinessFacility[];

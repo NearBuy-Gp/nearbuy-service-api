@@ -9,9 +9,8 @@ import { UserModule } from './modules/user/user.module';
 import { BusinessModule } from './modules/business/business.module';
 import { AutoGenerationModuleModule } from './modules/auto-generation-module/auto-generation-module.module';
 import { ItemModule } from './modules/item/item.module';
+import { CategoriesModule } from './modules/categories/categories.module';
 import { UploadModule } from './modules/item/upload/upload.module';
-import { NormalizerModule } from './modules/item/normalizer/normalizer.module';
-
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -22,10 +21,10 @@ import { NormalizerModule } from './modules/item/normalizer/normalizer.module';
     AuthModule,
     UserModule,
     BusinessModule,
+    UploadModule,
     AutoGenerationModuleModule,
     ItemModule,
-    UploadModule,
-    NormalizerModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -22,9 +22,7 @@ export class AutoGenerationService {
 
   async generateBusinessContent(dto: GenerateBusinessAiDto) {
     if (!CATEGORY_TYPES_MAP[dto.category]?.includes(dto.type)) {
-      throw new BadRequestException(
-        'Invalid business type for selected category',
-      );
+      throw new BadRequestException('Invalid business type for selected category');
     }
 
     if (!dto.mainItems || dto.mainItems.length === 0) {
@@ -39,8 +37,7 @@ export class AutoGenerationService {
       messages: [
         {
           role: 'system',
-          content:
-            'You write concise, engaging local business descriptions. Focus on what makes the business unique. Avoid generic phrases. Use natural, customer-friendly language.',
+          content: 'You write concise, engaging local business descriptions. Focus on what makes the business unique. Avoid generic phrases. Use natural, customer-friendly language.',
         },
         {
           role: 'user',
@@ -51,9 +48,7 @@ export class AutoGenerationService {
       max_tokens: 200, // IMPORTANT for free tier
     });
 
-    const description =
-      completion.choices[0]?.message?.content?.trim() ??
-      'Professional business description is currently unavailable.';
+    const description = completion.choices[0]?.message?.content?.trim() ?? 'Professional business description is currently unavailable.';
 
     // TAGS
     const tagCompletion = await this.openai.chat.completions.create({

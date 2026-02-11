@@ -1,0 +1,15 @@
+export enum RestaurantItemCategory {
+  BURGERS = 'Burgers',
+  SANDWICHES = 'Sandwiches',
+  FRIED_CHICKEN = 'Fried Chicken',
+  MEALS = 'Meals',
+  PIZZA = 'Pizza',
+  SHAWARMA = 'Shawarma',
+  GRILLS = 'Grills',
+  PASTA = 'Pasta',
+  SIDES_AND_APPETIZERS = 'Sides & Appetizers',
+  SALADS = 'Salads',
+  DESSERTS = 'Desserts',
+  DRINKS = 'Drinks',
+  OTHERS = 'Others',
+}

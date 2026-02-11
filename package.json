@@ -21,7 +21,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "seed": "ts-node -r tsconfig-paths/register src/common/seed/business-seed.ts"
+    "seed": "ts-node -r tsconfig-paths/register src/common/seed/business-seed.ts",
+    "seed:categories": "ts-node -r tsconfig-paths/register src/common/seed/items-category-seed.ts"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -68,7 +69,9 @@
     "@types/node": "^22.10.7",
     "@types/pdf-parse": "^1.1.5",
     "@types/supertest": "^6.0.2",
-    "eslint": "^9.18.0",
+    "@typescript-eslint/eslint-plugin": "^8.54.0",
+    "@typescript-eslint/parser": "^8.54.0",
+    "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
     "globals": "^16.0.0",

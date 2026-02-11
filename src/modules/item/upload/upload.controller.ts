@@ -6,21 +6,25 @@ import {
     UploadedFile,
     UploadedFiles,
     UseInterceptors,
-    Body,
     Query,
 } from '@nestjs/common'
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor, FilesInterceptor, AnyFilesInterceptor } from '@nestjs/platform-express'
 import { UploadService } from './upload.service'
 import { BatchProcessingResponse } from './interfaces/batch-processing.interface';
 import { BusinessCategory } from '../../business/enums/business-category.enum';
 import { BusinessType } from '../../business/enums/business-type.enum';
-
+@ApiTags('Upload')
 @Controller(':businessId/item/upload')
 export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
-
-  // Single file upload (uses 'file')
   @Post('raw')
+  @ApiOperation({ summary: 'Extract Items from 1 uploaded file' })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully Extracted Items from the uploded file.',
+  })
+  // Single file upload (uses 'file')
   @UseInterceptors(FileInterceptor('file'))
   async uploadRaw(
     @Param('businessId') businessId: string,
@@ -31,13 +35,18 @@ export class UploadController {
 
   // Multiple files upload (uses 'files')
   @Post('raw/batch')
-  @UseInterceptors(FilesInterceptor('files', 20))
+  @ApiOperation({ summary: 'Extract Items from more than 1 uploaded file' })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully Extracted Items from uploded files.',
+  })
+  @UseInterceptors(AnyFilesInterceptor())
   async uploadRawBatch(
     @Param('businessId') businessId: string,
     @UploadedFiles() files: Express.Multer.File[],
-    @Query('testMode') testMode?: string, // ✅ Add test mode flag
-    @Query('businessCategory') businessCategory?: BusinessCategory, // ✅ For test mode
-    @Query('businessType') businessType?: BusinessType, // ✅ For test mode
+    @Query('testMode') testMode?: string, //Add test  flag
+    @Query('businessCategory') businessCategory?: BusinessCategory, //For test 
+    @Query('businessType') businessType?: BusinessType, //For test 
   ): Promise<BatchProcessingResponse> {
     // If test mode, use query params instead of DB
     if (testMode === 'true') {

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { BusinessRegistrationDto } from './dtos/request/business-registration.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -13,34 +13,31 @@ import { BusinessCategory } from './enums/business-category.enum';
 import { BusinessDataDto } from './dtos/response/business-data.dto';
 import { PaginatedBusinessNearMeDto } from './dtos/response/paginated-business-near-me';
 import geohash from 'src/utils/helpers/geohash';
+import { PaginatedItemsResponseDto } from '../item/dtos/response/paginated-items-response.dto';
+import { Item } from '../item/schemas/item.schema';
+import { BusinessWithItemsResponseDto } from './dtos/response/business-with-items-response.dto';
+import { BusinessResponseDto } from './dtos/response/business-response.dto';
+import { BusinessRateDto } from './dtos/request/business-rate.dto';
+import { Message } from 'openai/resources/beta/threads.js';
+import { MessageResponseDto } from '../auth/dtos/message-response.dto';
 @Injectable()
 export class BusinessService {
   constructor(
     @InjectModel(Business.name) private businessModel: Model<Business>,
     @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(Item.name) private itemModel: Model<Item>,
   ) {}
 
-  public async registerBusiness(
-    createBusinessDto: BusinessRegistrationDto,
-    ownerId: string,
-  ): Promise<RegisterBusinessResponseDto> {
+  public async registerBusiness(createBusinessDto: BusinessRegistrationDto, ownerId: string): Promise<RegisterBusinessResponseDto> {
     const owner = await this.validateOwner(ownerId);
     const coordinates = createBusinessDto.location.coordinates.map(Number);
     if (coordinates.length !== 2) {
-      throw new Error(
-        'Location coordinates must be an array of 2 numbers [longitude, latitude]',
-      );
+      throw new BadRequestException('Location coordinates must be an array of 2 numbers [longitude, latitude]');
     }
-    const {
-      full_geohash,
-      geohash_country,
-      geohash_region,
-      geohash_city,
-      geohash_district,
-      geohash_neighborhood,
-      geohash_street,
-      geohash_building,
-    } = geohash.generateGeohashes(coordinates[0], coordinates[1]);
+    const { full_geohash, geohash_country, geohash_region, geohash_city, geohash_district, geohash_neighborhood, geohash_street, geohash_building } = geohash.generateGeohashes(
+      coordinates[0],
+      coordinates[1],
+    );
     const business = await this.businessModel.create({
       ...createBusinessDto,
       location: {
@@ -60,29 +57,33 @@ export class BusinessService {
     });
 
     return {
-      message:
-        STATIC_MESSAGES.success_messages.business_messages.success_register,
+      message: STATIC_MESSAGES.success_messages.business_messages.success_register,
       business: BusinessDataDto.fromEntity(business),
     };
   }
-  public async getBusinessById(businessId: string): Promise<Business> {
-    const business = await this.businessModel.findOne({ _id: businessId });
-    if (!business) {
-      throw new NotFoundException('Business not found');
-    }
-    return business;
+  public async getBusinessById(businessId: string, page: number = 1, limit: number = 5, categoryId?: string): Promise<BusinessWithItemsResponseDto> {
+    const business = await this.businessModel.findById(businessId).lean();
+
+    if (!business) throw new NotFoundException();
+    const skip = (page - 1) * limit;
+
+    const items = await this.itemModel.find({ businessId, categoryId }).skip(skip).limit(limit).lean<Item[]>().exec();
+
+    const total = await this.itemModel.countDocuments({ businessId, categoryId });
+
+    return {
+      ...BusinessWithItemsResponseDto.fromEntity(business),
+      itemsPaginated: PaginatedItemsResponseDto.fromEntity({
+        items,
+        total,
+        page,
+        limit,
+      }),
+    };
   }
-  public async updateBusiness(
-    ownerId: string,
-    businessId: string,
-    business: UpdateBusinessDto,
-  ): Promise<Business> {
+  public async updateBusiness(ownerId: string, businessId: string, business: UpdateBusinessDto): Promise<Business> {
     const validatedBusiness = await this.validateBusiness(ownerId, businessId);
-    const updatedBusiness = await this.businessModel.findByIdAndUpdate(
-      { _id: validatedBusiness._id },
-      { $set: business },
-      { new: true },
-    );
+    const updatedBusiness = await this.businessModel.findByIdAndUpdate({ _id: validatedBusiness._id }, { $set: business }, { new: true });
 
     if (!updatedBusiness) {
       throw new NotFoundException('Business not found');
@@ -90,14 +91,7 @@ export class BusinessService {
 
     return updatedBusiness;
   }
-  public async getNearbyBusiness(
-    lat: number,
-    lng: number,
-    radius?: number,
-    category?: BusinessCategory,
-    page: number = 1,
-    limit: number = 5,
-  ): Promise<PaginatedBusinessNearMeDto> {
+  public async getNearbyBusiness(lat: number, lng: number, radius?: number, category?: BusinessCategory, page: number = 1, limit: number = 5): Promise<PaginatedBusinessNearMeDto> {
     const filter: any = {
       location: {
         $near: {
@@ -115,10 +109,7 @@ export class BusinessService {
     }
     const skip = (page - 1) * limit;
 
-    const business = await this.businessModel
-      .find(filter)
-      .skip(skip)
-      .limit(limit);
+    const business = await this.businessModel.find(filter).skip(skip).limit(limit);
     return {
       businesses: business.map((business) => ({
         name: business.name,
@@ -138,14 +129,7 @@ export class BusinessService {
       limit,
     };
   }
-  public async getNearbyBusinessMapView(
-    swLng: number,
-    swLat: number,
-    neLng: number,
-    neLat: number,
-    zoom: number,
-    category?: BusinessCategory,
-  ): Promise<BusinessOnMapDto[]> {
+  public async getNearbyBusinessMapView(swLng: number, swLat: number, neLng: number, neLat: number, zoom: number, category?: BusinessCategory): Promise<BusinessOnMapDto[]> {
     const filter: any = {
       location: {
         $geoWithin: {
@@ -162,7 +146,7 @@ export class BusinessService {
 
     const { field } = geohash.getGeohashConfigForZoom(zoom);
 
-    if (zoom >= 14) {
+    if (zoom >= 9) {
       const business = await this.businessModel.find(filter);
       return business.map((business) => ({
         name: business.name,
@@ -200,6 +184,50 @@ export class BusinessService {
 
     return ClusterdBusiness;
   }
+  public async getBusinessItems(ownerId: string, businessId: string, page: number = 1, limit: number = 10): Promise<PaginatedItemsResponseDto> {
+    await this.validateBusiness(ownerId, businessId);
+    const skip = (page - 1) * limit;
+
+    const [items, total] = await Promise.all([this.itemModel.find({ businessId }).skip(skip).limit(limit).lean<Item[]>().exec(), this.itemModel.countDocuments({ businessId }).exec()]);
+
+    return {
+      items,
+      total,
+      page,
+      limit,
+    };
+  }
+  public async getBusinessByIdOwner(businessId: string, ownerId: string): Promise<BusinessResponseDto> {
+    const business = await this.validateBusiness(ownerId, businessId);
+    return BusinessResponseDto.fromEntity(business);
+  }
+  // public async rateBusiness(businessId: string, businessRateDto: BusinessRateDto): Promise<MessageResponseDto> {
+  //   const business = await this.businessModel.findById(businessId);
+  //   if (!business) {
+  //     throw new NotFoundException('Business not found');
+  //   }
+  //   const totalRatings = business.rate * business.numberOfRatings;
+  //   business.numberOfRatings += 1;
+  //   business.rate = (totalRatings + businessRateDto.rate) / business.numberOfRatings;
+  //   await business.save();
+  //   return { message: 'Business rated successfully' };
+  // }
+  // public async unRateBusiness(businessId: string, previousRate: number): Promise<MessageResponseDto> {
+  //   const business = await this.businessModel.findById(businessId);
+  //   if (!business) {
+  //     throw new NotFoundException('Business not found');
+  //   }
+  //   if (business.numberOfRatings <= 1) {
+  //     business.rate = 0;
+  //     business.numberOfRatings = 0;
+  //   } else {
+  //     const totalRatings = business.rate * business.numberOfRatings;
+  //     business.numberOfRatings -= 1;
+  //     business.rate = (totalRatings - previousRate) / business.numberOfRatings;
+  //   }
+  //   await business.save();
+  //   return { message: 'Business unrated successfully' };
+  // }
   private async validateOwner(ownerId: string) {
     const owner = await this.userModel.findById(ownerId);
     if (!owner) {
@@ -207,10 +235,7 @@ export class BusinessService {
     }
     return owner;
   }
-  private async validateBusiness(
-    ownerId: string,
-    businessId: string,
-  ): Promise<Business> {
+  private async validateBusiness(ownerId: string, businessId: string): Promise<Business> {
     const business = await this.businessModel.findOne({
       _id: businessId,
       ownerId,
