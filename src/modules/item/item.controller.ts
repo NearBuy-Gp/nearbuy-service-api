@@ -88,6 +88,16 @@ export class ItemController {
     return await this.itemService.addItemManual(businessId, userId, item);
   }
 
+  // @Roles(Role.OWNER)
+  // @Post('/add-bulk')
+  // @ApiOperation({ summary: 'Add Multiple Items (from upload)' })
+  // @ApiResponse({ status: 200, description: 'Items Added Successfully' })
+  // @ApiBody({ type: [CreateItemDto] })
+  // public async addItemsBulk(@Param('businessId') businessId: string, @User('id') userId: string, @Body() items: CreateItemDto[]) {
+  //   return await this.itemService.addItemsBulk(businessId, userId, items);
+  // }
+
+  @Roles(Role.OWNER)
   @UseGuards(AuthGuard, RolesGuard)
   @Get('/:itemId')
   @ApiOperation({ summary: 'View Item' })

@@ -9,6 +9,8 @@ import { UserModule } from './modules/user/user.module';
 import { BusinessModule } from './modules/business/business.module';
 import { AutoGenerationModuleModule } from './modules/auto-generation-module/auto-generation-module.module';
 import { ItemModule } from './modules/item/item.module';
+import { UploadModule } from './modules/upload/upload.module';
+import { NormalizerModule } from './modules/upload/normalizer/normalizer.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 
 @Module({
@@ -21,8 +23,11 @@ import { CategoriesModule } from './modules/categories/categories.module';
     AuthModule,
     UserModule,
     BusinessModule,
+    UploadModule,
     AutoGenerationModuleModule,
     ItemModule,
+    UploadModule,
+    NormalizerModule,
     CategoriesModule,
   ],
   controllers: [AppController],
