@@ -1,4 +1,4 @@
-import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsOptional, IsString, ValidateIf } from 'class-validator';
+import { IsArray, IsEnum, IsNotEmpty, IsOptional, IsString, ValidateIf } from 'class-validator';
 import { BusinessCategory } from '../../../business/enums/business-category.enum';
 import { BusinessType } from '../../../business/enums/business-type.enum';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
@@ -41,11 +41,12 @@ export class GenerateBusinessAiDto {
   @IsEnum(BusinessMainItem, { each: true })
   mainItems: BusinessMainItem[];
 
+  mainItemsOthers?: string[];
+
   @ApiProperty({
     description: 'Target audience for the business',
     example: 'Health-conscious individuals aged 18-35',
   })
-
   @ApiProperty({
     type: [String],
     enum: BusinessTargetAudience,
@@ -56,4 +57,6 @@ export class GenerateBusinessAiDto {
   @IsString({ each: true })
   @ValidateIf((option) => option.targetAudience?.includes(BusinessTargetAudience.OTHERS))
   targetAudience: BusinessTargetAudience[];
+
+  targetAudienceOthers?: string[];
 }

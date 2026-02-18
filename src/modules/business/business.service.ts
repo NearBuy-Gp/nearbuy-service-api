@@ -64,10 +64,7 @@ export class BusinessService {
 
     if (!business) throw new NotFoundException();
     const skip = (page - 1) * limit;
-
-    const items = await this.itemModel.find({ businessId, categoryId }).skip(skip).limit(limit).lean<Item[]>().exec();
-
-    const total = await this.itemModel.countDocuments({ businessId, categoryId });
+    const [items, total] = await Promise.all([this.itemModel.find({ businessId }).skip(skip).limit(limit).lean<Item[]>().exec(), this.itemModel.countDocuments({ businessId }).exec()]);
 
     return {
       ...BusinessWithItemsResponseDto.fromEntity(business),
