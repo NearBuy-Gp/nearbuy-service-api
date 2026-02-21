@@ -153,7 +153,7 @@ export class BusinessService {
         category: business.category || BusinessCategory.STORE,
       }));
     }
-    const ClusterdBusiness = await this.businessModel.aggregate([
+    const ClusteredBusiness = await this.businessModel.aggregate([
       { $match: filter },
 
       {
@@ -179,7 +179,7 @@ export class BusinessService {
       },
     ]);
 
-    return ClusterdBusiness;
+    return ClusteredBusiness;
   }
   public async getBusinessItems(ownerId: string, businessId: string, page: number = 1, limit: number = 10): Promise<PaginatedItemsResponseDto> {
     await this.validateBusiness(ownerId, businessId);

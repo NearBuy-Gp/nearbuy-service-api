@@ -57,6 +57,7 @@ export class BusinessController {
     type: [BusinessOnMapDto],
   })
   public getNearbyBusinessMapView(@Query() query: MapViewQueryDto): Promise<BusinessOnMapDto[]> {
+    console.log(query);
     return this.businessService.getNearbyBusinessMapView(query.swLng, query.swLat, query.neLng, query.neLat, query.zoom, query.category);
   }
 

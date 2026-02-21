@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { IsEnum, IsNumber, IsOptional, Max, Min } from 'class-validator';
 import { BusinessCategory } from '../../enums/business-category.enum';
 import { ApiProperty } from '@nestjs/swagger';
@@ -37,6 +37,7 @@ export class NearbyQueryDto {
     description: 'Category',
     required: false,
   })
+  @Transform(({ value }) => (value === '' ? undefined : value))
   @IsOptional()
   @IsEnum(BusinessCategory)
   category?: BusinessCategory;

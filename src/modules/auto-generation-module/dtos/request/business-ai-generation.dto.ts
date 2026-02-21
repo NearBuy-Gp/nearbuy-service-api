@@ -41,6 +41,8 @@ export class GenerateBusinessAiDto {
   @IsEnum(BusinessMainItem, { each: true })
   mainItems: BusinessMainItem[];
 
+  @IsOptional()
+  @IsArray()
   mainItemsOthers?: string[];
 
   @ApiProperty({
@@ -58,5 +60,7 @@ export class GenerateBusinessAiDto {
   @ValidateIf((option) => option.targetAudience?.includes(BusinessTargetAudience.OTHERS))
   targetAudience: BusinessTargetAudience[];
 
+  @IsOptional()
+  @IsArray()
   targetAudienceOthers?: string[];
 }
