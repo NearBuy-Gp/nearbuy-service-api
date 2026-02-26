@@ -28,7 +28,6 @@ export class Item extends Document {
     type: MongooseSchema.Types.ObjectId,
     ref: 'Business',
     required: true,
-    index: true,
   })
   businessId: MongooseSchema.Types.ObjectId;
 
@@ -47,10 +46,11 @@ export class Item extends Document {
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     ref: 'Category',
-    index: true,
     required: true,
   })
   categoryId: MongooseSchema.Types.ObjectId;
 }
 
 export const ItemSchema = SchemaFactory.createForClass(Item);
+ItemSchema.index({ businessId: 1, categoryId: 1 });
+ItemSchema.index({ businessId: 1 });

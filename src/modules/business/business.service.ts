@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { BusinessRegistrationDto } from './dtos/request/business-registration.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { User } from '../user/schemas/user.schema';
 import { Business } from './schemas/buisness.schema';
 import { BusinessStatus } from './enums/business-status.enum';
@@ -62,9 +62,12 @@ export class BusinessService {
   public async getBusinessById(businessId: string, page: number = 1, limit: number = 5, categoryId?: string): Promise<BusinessWithItemsResponseDto> {
     const business = await this.businessModel.findById(businessId).lean();
 
-    if (!business) throw new NotFoundException();
+    if (!business) throw new NotFoundException('Business not found');
     const skip = (page - 1) * limit;
-    const [items, total] = await Promise.all([this.itemModel.find({ businessId }).skip(skip).limit(limit).lean<Item[]>().exec(), this.itemModel.countDocuments({ businessId }).exec()]);
+    const filter: FilterQuery<Item> = { businessId };
+    if (categoryId) filter.categoryId = categoryId;
+
+    const [items, total] = await Promise.all([this.itemModel.find(filter).skip(skip).limit(limit).lean<Item[]>().exec(), this.itemModel.countDocuments(filter).exec()]);
 
     return {
       ...BusinessWithItemsResponseDto.fromEntity(business),

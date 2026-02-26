@@ -58,9 +58,10 @@ export const supermarketProductSchema = new Schema({
 export const clothingProductSchema = new Schema({
   attributes: {
     sizes: {
-      type: String,
+      type: [String],
       enum: Object.values(SizeEnum),
       required: true,
+      array: true,
     },
     colorsAvailable: { type: [String] },
     material: { type: String },

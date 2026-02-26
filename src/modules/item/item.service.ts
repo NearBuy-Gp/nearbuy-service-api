@@ -90,7 +90,7 @@ export class ItemService {
     if (!item) {
       throw new NotFoundException('Item not found');
     }
-    const updatedItem = await this.itemModel.findByIdAndUpdate(item._id, { $set: itemDetails }, { new: true });
+    const updatedItem = await this.itemModel.findByIdAndUpdate(item._id, { $set: itemDetails }, { new: true, strict: false });
     if (!updatedItem) {
       throw new NotFoundException('Item not found');
     }

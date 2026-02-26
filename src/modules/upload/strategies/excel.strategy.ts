@@ -16,9 +16,7 @@ export class ExcelParsingStrategy implements FileParsingStrategy {
 
     if (!rows.length) return [];
     const firstRow = rows[0];
-    const isHeaderRow = firstRow.every(
-      (cell) => typeof cell === 'string' && cell.trim() !== '',
-    );
+    const isHeaderRow = firstRow.every((cell) => typeof cell === 'string' && cell.trim() !== '');
     let result: any[] = [];
 
     if (isHeaderRow) {
@@ -34,10 +32,7 @@ export class ExcelParsingStrategy implements FileParsingStrategy {
       });
     } else {
       const columnCount = firstRow.length;
-      const headers = Array.from(
-        { length: columnCount },
-        (_, i) => `column_${i + 1}`,
-      );
+      const headers = Array.from({ length: columnCount }, (_, i) => `column_${i + 1}`);
       result = rows.map((row) => {
         const obj: any = {};
         headers.forEach((header, i) => {

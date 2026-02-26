@@ -23,12 +23,7 @@ export class FileParsingStrategyFactory {
       return 'csv';
     }
 
-    if (
-      mime.includes('spreadsheet') ||
-      mime.includes('excel') ||
-      ext === 'xls' ||
-      ext === 'xlsx'
-    ) {
+    if (mime.includes('spreadsheet') || mime.includes('excel') || ext === 'xls' || ext === 'xlsx') {
       return 'excel';
     }
 
@@ -36,10 +31,7 @@ export class FileParsingStrategyFactory {
       return 'pdf';
     }
 
-    if (
-      mime.startsWith('image/') ||
-      ['jpg', 'jpeg', 'png', 'webp'].includes(ext || '')
-    ) {
+    if (mime.startsWith('image/') || ['jpg', 'jpeg', 'png', 'webp'].includes(ext || '')) {
       return 'image';
     }
 
@@ -63,9 +55,7 @@ export class FileParsingStrategyFactory {
       case 'text':
         return this.textStrategy;
       default:
-        throw new UnsupportedMediaTypeException(
-          `No strategy found for type: ${type}`,
-        );
+        throw new UnsupportedMediaTypeException(`No strategy found for type: ${type}`);
     }
   }
 }

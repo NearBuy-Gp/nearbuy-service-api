@@ -12,6 +12,7 @@ import { ItemModule } from './modules/item/item.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { NormalizerModule } from './modules/upload/normalizer/normalizer.module';
 import { CategoriesModule } from './modules/categories/categories.module';
+import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { CategoriesModule } from './modules/categories/categories.module';
     UploadModule,
     NormalizerModule,
     CategoriesModule,
+    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

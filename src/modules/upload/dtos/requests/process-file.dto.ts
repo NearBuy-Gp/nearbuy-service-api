@@ -1,11 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsArray,
-  IsNotEmpty,
-  IsObject,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsArray, IsNotEmpty, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class ProcessFileDto {
   @ApiProperty({
@@ -17,10 +11,7 @@ export class ProcessFileDto {
   extractedText: string;
 
   @ApiProperty({
-    example: [
-      'missing price format',
-      'unrecognized category: deserts → desserts',
-    ],
+    example: ['missing price format', 'unrecognized category: deserts → desserts'],
     required: false,
   })
   @IsOptional()

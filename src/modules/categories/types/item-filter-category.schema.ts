@@ -79,5 +79,5 @@ export const ITEM_CATEGORY_SEED: Record<
     { key: ClothesCategory.UNISEX, name: 'Unisex' },
   ],
   [ItemType.MENU_ITEM]: [],
-  [ItemType.PRODUCT]: []
+  [ItemType.PRODUCT]: [],
 };

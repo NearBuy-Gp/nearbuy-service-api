@@ -17,9 +17,7 @@ export class CsvParsingStrategy implements FileParsingStrategy {
     // first row can be headers or actual data
     const firstRow = rows[0];
     // check if first row is header (kolo strings w mafesh wahda empty "")
-    const isHeaderRow = firstRow.every(
-      (cell) => typeof cell === 'string' && cell.trim() !== '',
-    );
+    const isHeaderRow = firstRow.every((cell) => typeof cell === 'string' && cell.trim() !== '');
     let result: any[] = [];
 
     if (isHeaderRow) {
@@ -37,10 +35,7 @@ export class CsvParsingStrategy implements FileParsingStrategy {
     } else {
       // "column_1" "column_2" "column_3" ...
       const columnCount = firstRow.length;
-      const headers: string[] = Array.from(
-        { length: columnCount },
-        (_, i) => `column_${i + 1}`,
-      );
+      const headers: string[] = Array.from({ length: columnCount }, (_, i) => `column_${i + 1}`);
       //convert el data l objects
       result = rows.map((row) => {
         const item: any = {};

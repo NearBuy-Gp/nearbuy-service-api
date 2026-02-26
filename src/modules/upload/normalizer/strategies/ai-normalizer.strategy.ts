@@ -30,18 +30,11 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
       return [];
     }
 
-    this.logger.log(
-      `Normalizing ${rawData.length} items for ${businessCategory}/${businessType}`,
-    );
+    this.logger.log(`Normalizing ${rawData.length} items for ${businessCategory}/${businessType}`);
 
     // If the dataset is small,process all at once
     if (rawData.length <= this.BATCH_SIZE) {
-      return await this.processBatch(
-        rawData,
-        businessCategory,
-        businessType,
-        businessId,
-      );
+      return await this.processBatch(rawData, businessCategory, businessType, businessId);
     }
 
     // large datasets,process in batches(20 item for each batch)
@@ -52,56 +45,34 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
       const batchNumber = Math.floor(i / this.BATCH_SIZE) + 1;
       const totalBatches = Math.ceil(rawData.length / this.BATCH_SIZE);
 
-      this.logger.log(
-        `Processing batch ${batchNumber}/${totalBatches} (${batch.length} items)`,
-      );
+      this.logger.log(`Processing batch ${batchNumber}/${totalBatches} (${batch.length} items)`);
 
       try {
-        const normalizedBatch = await this.processBatch(
-          batch,
-          businessCategory,
-          businessType,
-          businessId,
-        );
+        const normalizedBatch = await this.processBatch(batch, businessCategory, businessType, businessId);
 
         allNormalizedItems.push(...normalizedBatch);
-        
+
         // Delay between each batch
         if (i + this.BATCH_SIZE < rawData.length) {
           await new Promise((resolve) => setTimeout(resolve, 1000));
         }
       } catch (error) {
-        this.logger.error(
-          `Batch ${batchNumber} failed: ${error.message}. Continuing with next batch...`,
-        );
+        this.logger.error(`Batch ${batchNumber} failed: ${error.message}. Continuing with next batch...`);
       }
     }
 
-    this.logger.log(
-      `Successfully normalized ${allNormalizedItems.length}/${rawData.length} items`,
-    );
+    this.logger.log(`Successfully normalized ${allNormalizedItems.length}/${rawData.length} items`);
 
     return allNormalizedItems;
   }
 
-  private async processBatch(
-    rawData: any[],
-    businessCategory: BusinessCategory,
-    businessType: BusinessType,
-    businessId: string,
-  ): Promise<NormalizeOutputDto[]> {
+  private async processBatch(rawData: any[], businessCategory: BusinessCategory, businessType: BusinessType, businessId: string): Promise<NormalizeOutputDto[]> {
     try {
       // Get schema and item type for this business
       const schema = this.getSchemaForBusinessType(businessCategory, businessType);
       const itemType = this.getItemType(businessCategory, businessType);
 
-      const prompt = this.buildPrompt(
-        rawData,
-        businessCategory,
-        businessType,
-        schema,
-        itemType,
-      );
+      const prompt = this.buildPrompt(rawData, businessCategory, businessType, schema, itemType);
 
       const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
       const result = await model.generateContent(prompt);
@@ -121,17 +92,16 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
 
       const normalizedItems = JSON.parse(cleanedText);
 
-      const validatedItems = (Array.isArray(normalizedItems) ? normalizedItems : [normalizedItems])
-        .map((item, index) => ({
-          name: item.name || `Unnamed Item ${index + 1}`,
-          description: (item.description || '').replace(/\\n/g, ' ').replace(/\s+/g, ' ').trim(),
-          price: typeof item.price === 'number' ? item.price : parseFloat(item.price) || 0,
-          images: item.images || [],
-          isAvailable: item.isAvailable ?? true,
-          businessId,
-          type: itemType,
-          attributes: item.attributes || {},
-        }));
+      const validatedItems = (Array.isArray(normalizedItems) ? normalizedItems : [normalizedItems]).map((item, index) => ({
+        name: item.name || `Unnamed Item ${index + 1}`,
+        description: (item.description || '').replace(/\\n/g, ' ').replace(/\s+/g, ' ').trim(),
+        price: typeof item.price === 'number' ? item.price : parseFloat(item.price) || 0,
+        images: item.images || [],
+        isAvailable: item.isAvailable ?? true,
+        businessId,
+        type: itemType,
+        attributes: item.attributes || {},
+      }));
 
       return validatedItems;
     } catch (error) {
@@ -143,16 +113,13 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
     }
   }
 
-  private getSchemaForBusinessType(
-    category: BusinessCategory,
-    type: BusinessType,
-  ): any {
+  private getSchemaForBusinessType(category: BusinessCategory, type: BusinessType): any {
     const itemType = this.getItemType(category, type);
-    
+
     // Get available categories
     const availableCategories = ITEM_CATEGORY_SEED[itemType] || [];
-    const categoryKeys = availableCategories.map(cat => cat.key);
-    const categoryNames = availableCategories.map(cat => cat.name);
+    const categoryKeys = availableCategories.map((cat) => cat.key);
+    const categoryNames = availableCategories.map((cat) => cat.name);
 
     // Restaurant schemas
     if (category === BusinessCategory.RESTAURANT) {
@@ -419,10 +386,7 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
     };
   }
 
-  private getItemType(
-    category: BusinessCategory,
-    type: BusinessType,
-  ): ItemType {
+  private getItemType(category: BusinessCategory, type: BusinessType): ItemType {
     const typeMap: Record<string, ItemType> = {
       [`${BusinessCategory.RESTAURANT}`]: ItemType.RESTAURANT,
       [`${BusinessCategory.STORE}-${BusinessType.SUPERMARKET}`]: ItemType.SUPER_MARKET_PRODUCT,
@@ -440,13 +404,7 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
     return typeMap[`${category}-${type}`] || typeMap[category] || ItemType.PRODUCT;
   }
 
-  private buildPrompt(
-    rawData: any[],
-    category: BusinessCategory,
-    type: BusinessType,
-    schema: any,
-    itemType: ItemType,
-  ): string {
+  private buildPrompt(rawData: any[], category: BusinessCategory, type: BusinessType, schema: any, itemType: ItemType): string {
     const schemaStr = JSON.stringify(schema.attributes, null, 2);
 
     return `You are an expert data normalizer for a ${category} business of type "${type}".
@@ -509,10 +467,7 @@ IMPORTANT: Return ONLY a valid JSON array. No explanations, no markdown, just th
 `;
   }
 
-  private getExamplesForCategory(
-    category: BusinessCategory,
-    type: BusinessType,
-  ): string {
+  private getExamplesForCategory(category: BusinessCategory, type: BusinessType): string {
     const itemType = this.getItemType(category, type);
     const availableCategories = ITEM_CATEGORY_SEED[itemType] || [];
     const firstCategory = availableCategories[0]?.name || 'General';
@@ -526,7 +481,7 @@ Output: {
   "price": 195,
   "type": "${itemType}",
   "attributes": {
-    "menuCategory": "${availableCategories.find(c => c.key === 'FOOD')?.name || firstCategory}",
+    "menuCategory": "${availableCategories.find((c) => c.key === 'FOOD')?.name || firstCategory}",
     "sizes": "medium",
     "tags": ["chicken", "spicy", "honey"]
   }
@@ -539,17 +494,14 @@ Output: {
   "price": 50,
   "type": "${itemType}",
   "attributes": {
-    "menuCategory": "${availableCategories.find(c => c.key === 'FOOD')?.name || firstCategory}",
+    "menuCategory": "${availableCategories.find((c) => c.key === 'FOOD')?.name || firstCategory}",
     "sizes": "medium",
     "tags": ["beef", "burger"]
   }
 }`;
     }
 
-    if (
-      category === BusinessCategory.STORE &&
-      type === BusinessType.SUPERMARKET
-    ) {
+    if (category === BusinessCategory.STORE && type === BusinessType.SUPERMARKET) {
       return `
 Input: { "text": "Fresh Milk 1L - EGP 25" }
 Output: {
@@ -558,7 +510,7 @@ Output: {
   "price": 25,
   "type": "${itemType}",
   "attributes": {
-    "category": "${availableCategories.find(c => c.key === 'DAIRY')?.name || firstCategory}",
+    "category": "${availableCategories.find((c) => c.key === 'DAIRY')?.name || firstCategory}",
     "brand": "",
     "weight": "1L",
     "stock": 0
@@ -566,10 +518,7 @@ Output: {
 }`;
     }
 
-    if (
-      category === BusinessCategory.STORE &&
-      type === BusinessType.ELECTRONICS
-    ) {
+    if (category === BusinessCategory.STORE && type === BusinessType.ELECTRONICS) {
       return `
 Input: { "text": "iPhone 15 Pro - $999" }
 Output: {
@@ -594,7 +543,7 @@ Output: {
   "price": 50,
   "type": "${itemType}",
   "attributes": {
-    "serviceCategory": "${availableCategories.find(c => c.key === 'DENTAL')?.name || firstCategory}",
+    "serviceCategory": "${availableCategories.find((c) => c.key === 'DENTAL')?.name || firstCategory}",
     "doctorName": "Dr. Smith",
     "doctorSpecialization": "Dentist",
     "waitingPeriod": "30 minutes"

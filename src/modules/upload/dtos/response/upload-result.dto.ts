@@ -22,10 +22,7 @@ export class UploadResultDto {
   paresdItems: any[];
 
   @ApiProperty({
-    example: [
-      "Failed to extract price from 'Beef Burger Deluxe'",
-      "Unknown category 'Deserts' mapped to 'Desserts'",
-    ],
+    example: ["Failed to extract price from 'Beef Burger Deluxe'", "Unknown category 'Deserts' mapped to 'Desserts'"],
     description: 'warnings or partially parsed lines',
     required: false,
   })

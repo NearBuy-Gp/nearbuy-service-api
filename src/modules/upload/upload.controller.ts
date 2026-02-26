@@ -1,19 +1,6 @@
 // upload/upload.controller.ts
-import {
-  Controller,
-  Post,
-  Param,
-  UploadedFile,
-  UploadedFiles,
-  UseInterceptors,
-  Body,
-  Query,
-} from '@nestjs/common';
-import {
-  FileInterceptor,
-  FilesInterceptor,
-  AnyFilesInterceptor,
-} from '@nestjs/platform-express';
+import { Controller, Post, Param, UploadedFile, UploadedFiles, UseInterceptors, Body, Query } from '@nestjs/common';
+import { FileInterceptor, FilesInterceptor, AnyFilesInterceptor } from '@nestjs/platform-express';
 import { UploadService } from './upload.service';
 import { BatchProcessingResponse } from './interfaces/batch-processing.interface';
 import { BusinessCategory } from '../business/enums/business-category.enum';
@@ -31,10 +18,7 @@ export class UploadController {
   })
   // Single file upload (uses 'file')
   @UseInterceptors(FileInterceptor('file'))
-  async uploadRaw(
-    @Param('businessId') businessId: string,
-    @UploadedFile() file: Express.Multer.File,
-  ) {
+  async uploadRaw(@Param('businessId') businessId: string, @UploadedFile() file: Express.Multer.File) {
     return this.uploadService.extractRaw(businessId, file);
   }
 
@@ -50,16 +34,12 @@ export class UploadController {
     @Param('businessId') businessId: string,
     @UploadedFiles() files: Express.Multer.File[],
     @Query('testMode') testMode?: string, //Add test  flag
-    @Query('businessCategory') businessCategory?: BusinessCategory, //For test 
-    @Query('businessType') businessType?: BusinessType, //For test 
+    @Query('businessCategory') businessCategory?: BusinessCategory, //For test
+    @Query('businessType') businessType?: BusinessType, //For test
   ): Promise<BatchProcessingResponse> {
     // If test mode, use query params instead of DB
     if (testMode === 'true') {
-      return this.uploadService.extractRawBatchTest(
-        files,
-        businessCategory,
-        businessType,
-      );
+      return this.uploadService.extractRawBatchTest(files, businessCategory, businessType);
     }
 
     // Normal mode with real business ID

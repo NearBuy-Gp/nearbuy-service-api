@@ -9,7 +9,7 @@ export class ClothingProductAttributesDto {
   })
   @IsArray()
   @IsEnum(SizeEnum, { each: true })
-  size: SizeEnum[];
+  sizes: SizeEnum[];
 
   @ApiProperty({
     example: ['Black', 'White'],

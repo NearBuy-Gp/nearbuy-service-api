@@ -2,10 +2,7 @@ import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { FileParsingStrategyFactory } from './factories/file-parsing-strategy.factory';
-import {
-  FileProcessingResult,
-  BatchProcessingResponse,
-} from './interfaces/batch-processing.interface';
+import { FileProcessingResult, BatchProcessingResponse } from './interfaces/batch-processing.interface';
 import { Business } from 'src/modules/business/schemas/buisness.schema';
 import { BusinessCategory } from 'src/modules/business/enums/business-category.enum';
 import { BusinessType } from 'src/modules/business/enums/business-type.enum';
@@ -37,30 +34,19 @@ export class UploadService {
   }
 
   //  Test mode method (no database required)
-  async extractRawBatchTest(
-    files: Express.Multer.File[],
-    businessCategory?: BusinessCategory,
-    businessType?: BusinessType,
-  ): Promise<BatchProcessingResponse> {
+  async extractRawBatchTest(files: Express.Multer.File[], businessCategory?: BusinessCategory, businessType?: BusinessType): Promise<BatchProcessingResponse> {
     if (!files || files.length === 0) {
       throw new BadRequestException('At least one file is required');
     }
 
     if (!businessCategory || !businessType) {
-      throw new BadRequestException(
-        'businessCategory and businessType are required in test mode. ' +
-          'Example: ?testMode=true&businessCategory=restaurant&businessType=fast_food',
-      );
+      throw new BadRequestException('businessCategory and businessType are required in test mode. ' + 'Example: ?testMode=true&businessCategory=restaurant&businessType=fast_food');
     }
 
-    this.logger.log(
-      `TEST MODE: Processing ${files.length} files for ${businessCategory}/${businessType}`,
-    );
+    this.logger.log(`TEST MODE: Processing ${files.length} files for ${businessCategory}/${businessType}`);
 
     // Process  files in parallel
-    const results = await Promise.allSettled(
-      files.map((file) => this.processSingleFile(file)),
-    );
+    const results = await Promise.allSettled(files.map((file) => this.processSingleFile(file)));
 
     const fileResults: FileProcessingResult[] = [];
     const combinedData: any[] = [];
@@ -84,9 +70,7 @@ export class UploadService {
         successCount++;
         totalItems += data.length;
 
-        this.logger.log(
-          `${fileName} (${fileType}): ${data.length} items extracted`,
-        );
+        this.logger.log(`${fileName} (${fileType}): ${data.length} items extracted`);
       } else {
         fileResults.push({
           fileName,
@@ -128,19 +112,14 @@ export class UploadService {
   }
 
   // Original method with real business ID
-  async extractRawBatch(
-    businessId: string,
-    files: Express.Multer.File[],
-  ): Promise<BatchProcessingResponse> {
+  async extractRawBatch(businessId: string, files: Express.Multer.File[]): Promise<BatchProcessingResponse> {
     if (!files || files.length === 0) {
       throw new BadRequestException('At least one file is required');
     }
 
     // Validate businessId format
     if (!Types.ObjectId.isValid(businessId)) {
-      throw new BadRequestException(
-        `Invalid business ID format: "${businessId}". Must be a 24 character hex string.`,
-      );
+      throw new BadRequestException(`Invalid business ID format: "${businessId}". Must be a 24 character hex string.`);
     }
 
     // Fetch business details
@@ -152,19 +131,13 @@ export class UploadService {
 
     // Validate business has category and type
     if (!business.category || !business.type) {
-      throw new BadRequestException(
-        'Business must have category and type defined for normalization',
-      );
+      throw new BadRequestException('Business must have category and type defined for normalization');
     }
 
-    this.logger.log(
-      `Processing ${files.length} files for business ${businessId} (${business.category}/${business.type})`,
-    );
+    this.logger.log(`Processing ${files.length} files for business ${businessId} (${business.category}/${business.type})`);
 
     // Process all files in parallel
-    const results = await Promise.allSettled(
-      files.map((file) => this.processSingleFile(file)),
-    );
+    const results = await Promise.allSettled(files.map((file) => this.processSingleFile(file)));
 
     // Collect results
     const fileResults: FileProcessingResult[] = [];
@@ -189,9 +162,7 @@ export class UploadService {
         successCount++;
         totalItems += data.length;
 
-        this.logger.log(
-          `${fileName} (${fileType}): ${data.length} items extracted`,
-        );
+        this.logger.log(`${fileName} (${fileType}): ${data.length} items extracted`);
       } else {
         fileResults.push({
           fileName,
@@ -200,9 +171,7 @@ export class UploadService {
           error: result.reason?.message || 'Unknown error',
         });
 
-        this.logger.error(
-          `${fileName}: ${result.reason?.message || 'Failed to process'}`,
-        );
+        this.logger.error(`${fileName}: ${result.reason?.message || 'Failed to process'}`);
       }
     });
 
