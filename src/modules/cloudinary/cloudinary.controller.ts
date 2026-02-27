@@ -3,10 +3,25 @@ import { CloudinaryService } from './cloudinary.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { ImageValidationPipe } from '../item/pipes/image-validation.pipe';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Cloudinary')
 @Controller('upload/images')
 export class CloudinaryController {
   constructor(private readonly cloudinaryService: CloudinaryService) {}
+  @ApiOperation({ summary: 'Upload Image business' })
+  @ApiResponse({
+    status: 201,
+    description: 'Image uploaded successfully',
+    type: String,
+  })
+  @ApiResponse({
+    status: 200,
+    description: `{
+        url: 'https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg',
+        message:'Image uploaded successfully',
+    }`,
+  })
   @Post('/business')
   @UseInterceptors(
     FileInterceptor('image', {
@@ -14,14 +29,25 @@ export class CloudinaryController {
     }),
   )
   async uploadImagesBusiness(@UploadedFile(ImageValidationPipe) file: Express.Multer.File) {
-    console.log(file.buffer);
-
     const imageUrl = await this.cloudinaryService.uploadImage(file, 'business');
     return {
       message: 'Image uploaded successfully',
       url: imageUrl,
     };
   }
+  @ApiOperation({ summary: 'Upload Image items' })
+  @ApiResponse({
+    status: 201,
+    description: 'Image uploaded successfully',
+    type: String,
+  })
+  @ApiResponse({
+    status: 200,
+    description: `{
+        url: 'https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg',
+        message:'Image uploaded successfully',
+    }`,
+  })
   @Post('/items')
   @UseInterceptors(
     FileInterceptor('image', {
