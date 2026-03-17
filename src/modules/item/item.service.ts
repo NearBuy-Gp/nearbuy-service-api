@@ -31,10 +31,15 @@ export class ItemService {
     item: CreateRestaurantItemDto | CreateClinicServiceDto | CreateClassSessionDto | CreatePharmacyProductDto | CreateSupermarketProductDto | CreateClothingProductDto,
   ) {
     const business = await this.validateBusiness(ownerId, businessId);
-
     const newItem = await this.itemModel.create({
       ...item,
       businessId: business._id,
+      businessName: business.name,
+      businessCategory: business.category,
+      businessType: business.type,
+      businessRate: business.rate ?? null,
+      workingHours: business?.workingHours || [],
+      location: business.location,
     });
     return { message: 'Item Added Successfully', item: newItem };
   }

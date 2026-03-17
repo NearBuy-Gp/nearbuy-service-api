@@ -61,6 +61,7 @@ export interface NlpBluePrint {
 
     size: string | null;
     color: string | null;
+
     attributes: string[];
 
     modifiers: Modifiers;

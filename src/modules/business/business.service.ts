@@ -86,7 +86,16 @@ export class BusinessService {
     if (!updatedBusiness) {
       throw new NotFoundException('Business not found');
     }
+    const itemUpdate: Partial<Item> = {};
+    if (business.workingHours !== undefined) {
+      itemUpdate.workingHours = business.workingHours;
+    }
+    if (business.location !== undefined)
+      itemUpdate.location = business.location.coordinates ? { type: 'Point', coordinates: [business.location.coordinates[0], business.location.coordinates[1]] } : undefined;
 
+    if (Object.keys(itemUpdate).length > 0) {
+      await this.itemModel.updateMany({ businessId: validatedBusiness._id }, { $set: itemUpdate });
+    }
     return updatedBusiness;
   }
   public async getNearbyBusiness(lat: number, lng: number, radius?: number, category?: BusinessCategory, page: number = 1, limit: number = 5): Promise<PaginatedBusinessNearMeDto> {
