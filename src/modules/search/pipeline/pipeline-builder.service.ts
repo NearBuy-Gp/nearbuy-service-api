@@ -30,15 +30,20 @@ export class PipelineBuilderService {
     private readonly sortStageBuilder: SortStageBuilder,
   ) {}
 
-  async build(blueprint: NlpBluePrint, queryVector: number[], search: SearchRequestDto): Promise<PipelineStage[]> {
+  async build(blueprint: NlpBluePrint, search: SearchRequestDto): Promise<PipelineStage[]> {
     const pipeline: PipelineStage[] = [];
-    // pipeline.push(this.buildVectorSearch(blueprint, queryVector));
+
+    pipeline.push(this.buildVectorSearch(blueprint));
+
     const geoStage = await this.geoStageBuilder.build(blueprint, search);
     if (geoStage) pipeline.push(geoStage);
+
     const timeStage = await this.timeStageBuilder.build(blueprint);
     if (timeStage) pipeline.push(timeStage);
+
     const priceRatingStage = await this.priceRatingStageBuilder.build(blueprint);
     if (priceRatingStage) pipeline.push(priceRatingStage);
+
     const attributeStage = await this.attributeStageBuilder.build(blueprint);
     if (attributeStage) pipeline.push(attributeStage);
 
@@ -47,5 +52,25 @@ export class PipelineBuilderService {
     pipeline.push({ $limit: 15 });
     pipeline.push(await this.projectionBuilder.build());
     return pipeline;
+  }
+  private buildVectorSearch(blueprint: NlpBluePrint): PipelineStage {
+    const { category, business_type, urgency, modifiers } = blueprint.entities;
+
+    const preFilter: Record<string, any> = { isAvailable: true };
+    if (category) preFilter.category = category;
+    if (business_type) preFilter.businessType = business_type;
+
+    const numCandidates = urgency ? 50 : modifiers?.is_top_rated ? 300 : 150;
+
+    return {
+      $vectorSearch: {
+        index: 'vector_index',
+        path: 'embedding',
+        query: blueprint.searchEmbedding,
+        numCandidates,
+        limit: 50,
+        filter: preFilter,
+      },
+    } as any;
   }
 }

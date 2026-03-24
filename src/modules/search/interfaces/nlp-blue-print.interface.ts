@@ -66,6 +66,6 @@ export interface NlpBluePrint {
 
     modifiers: Modifiers;
   };
-
+  searchEmbedding: number[];
   search_vector_query: string;
 }
