@@ -45,7 +45,7 @@ export class BusinessController {
     type: PaginatedBusinessNearMeDto,
   })
   public getNearbyBusiness(@Query() query: NearbyQueryDto): Promise<PaginatedBusinessNearMeDto> {
-    return this.businessService.getNearbyBusiness(query.lat, query.lng, query.radius, query.category, query.page, query.limit);
+    return this.businessService.getNearbyBusiness(query.lat, query.lng, query.radius, query.businessType, query.page, query.limit);
   }
 
   @Roles(Role.USER)
@@ -57,7 +57,7 @@ export class BusinessController {
     type: [BusinessOnMapDto],
   })
   public getNearbyBusinessMapView(@Query() query: MapViewQueryDto): Promise<BusinessOnMapDto[]> {
-    return this.businessService.getNearbyBusinessMapView(query.swLng, query.swLat, query.neLng, query.neLat, query.zoom, query.category);
+    return this.businessService.getNearbyBusinessMapView(query.swLng, query.swLat, query.neLng, query.neLat, query.zoom, query.businessType);
   }
 
   @UseGuards(AuthGuard, RolesGuard)

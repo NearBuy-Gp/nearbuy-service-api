@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import {
   CreateClassSessionDto,
   CreateClinicServiceDto,
@@ -39,22 +39,27 @@ export class ItemService {
     return { message: 'Item Added Successfully', item: newItem };
   }
 
-  // public async addItemsBulk(businessId: string, ownerId: string, items: CreateItemDto[]) {
-  //   if (!items || items.length === 0) {
-  //     throw new BadRequestException('No items to insert');
-  //   }
-  //   const business = await this.validateBusiness(ownerId, businessId);
-  //   const itemsWithBusinessId = items.map((item) => ({
-  //     ...item,
-  //     businessId: business._id,
-  //   }));
-  //   const insertedItems = await this.itemModel.insertMany(itemsWithBusinessId);
-  //   return {
-  //     message: 'Items Added Successfully',
-  //     count: insertedItems.length,
-  //     items: insertedItems,
-  //   };
-  // }
+  public async addItemsBulk(
+    businessId: string,
+    ownerId: string,
+    items: CreateRestaurantItemDto[] | CreateClinicServiceDto[] | CreateClassSessionDto[] | CreatePharmacyProductDto[] | CreateSupermarketProductDto[] | CreateClothingProductDto[],
+  ) {
+    if (!items || items.length === 0) {
+      throw new BadRequestException('No items to insert');
+    }
+    console.log(businessId, ownerId);
+    const business = await this.validateBusiness(ownerId, businessId);
+    const itemsWithBusinessId = items.map((item) => ({
+      ...item,
+      businessId: business._id,
+    }));
+    const insertedItems = await this.itemModel.insertMany(itemsWithBusinessId);
+    return {
+      message: 'Items Added Successfully',
+      count: insertedItems.length,
+      items: insertedItems,
+    };
+  }
   public async deleteItem(ownerId: string, businessId: string, itemId: string) {
     const business = await this.validateBusiness(ownerId, businessId);
     await this.itemModel.findByIdAndDelete({

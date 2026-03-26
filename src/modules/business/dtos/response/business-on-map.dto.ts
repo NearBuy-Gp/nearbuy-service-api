@@ -33,7 +33,8 @@ export class BusinessOnMapDto {
   category: BusinessCategory;
   @ApiProperty({ enum: BusinessType, example: BusinessType.CAFE })
   type: BusinessType;
-
+  @ApiProperty({ example: 'true' })
+  isCluster?: boolean;
   static fromEntity(entity: Business): BusinessOnMapDto {
     const dto = new BusinessOnMapDto();
     dto.id = entity._id.toString();
@@ -42,6 +43,7 @@ export class BusinessOnMapDto {
     dto.status = entity.status;
     dto.rate = entity.rate;
     dto.category = entity.category as BusinessCategory;
+    dto.type = entity.type as BusinessType;
     return dto;
   }
 }

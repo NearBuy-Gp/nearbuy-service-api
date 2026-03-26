@@ -17,6 +17,7 @@ import { PaginatedItemsResponseDto } from '../item/dtos/response/paginated-items
 import { Item } from '../item/schemas/item.schema';
 import { BusinessWithItemsResponseDto } from './dtos/response/business-with-items-response.dto';
 import { BusinessResponseDto } from './dtos/response/business-response.dto';
+import { BusinessType } from './enums/business-type.enum';
 
 @Injectable()
 export class BusinessService {
@@ -32,7 +33,7 @@ export class BusinessService {
     if (coordinates.length !== 2) {
       throw new BadRequestException('Location coordinates must be an array of 2 numbers [longitude, latitude]');
     }
-    const { full_geohash, geohash_country, geohash_region, geohash_city, geohash_district, geohash_neighborhood, geohash_street, geohash_building } = geohash.generateGeohashes(
+    const { full_geohash, geohash_country, geohash_region, geohash_city, geohash_district, geohash_neighborhood, geohash_street, geohash_building } = geohash.generateGeoHashes(
       coordinates[0],
       coordinates[1],
     );
@@ -89,7 +90,7 @@ export class BusinessService {
 
     return updatedBusiness;
   }
-  public async getNearbyBusiness(lat: number, lng: number, radius?: number, category?: BusinessCategory, page: number = 1, limit: number = 5): Promise<PaginatedBusinessNearMeDto> {
+  public async getNearbyBusiness(lat: number, lng: number, radius?: number, businessType?: BusinessType, page: number = 1, limit: number = 5): Promise<PaginatedBusinessNearMeDto> {
     const filter: any = {
       location: {
         $near: {
@@ -102,8 +103,8 @@ export class BusinessService {
       },
     };
 
-    if (category) {
-      filter.category = category;
+    if (businessType) {
+      filter.type = businessType;
     }
     const skip = (page - 1) * limit;
 
@@ -127,7 +128,7 @@ export class BusinessService {
       limit,
     };
   }
-  public async getNearbyBusinessMapView(swLng: number, swLat: number, neLng: number, neLat: number, zoom: number, category?: BusinessCategory): Promise<BusinessOnMapDto[]> {
+  public async getNearbyBusinessMapView(swLng: number, swLat: number, neLng: number, neLat: number, zoom: number, businessType?: BusinessType): Promise<BusinessOnMapDto[]> {
     const filter: any = {
       location: {
         $geoWithin: {
@@ -138,13 +139,12 @@ export class BusinessService {
         },
       },
     };
-    if (category) {
-      filter.category = category;
+    if (businessType) {
+      filter.type = businessType;
     }
 
     const { field } = geohash.getGeohashConfigForZoom(zoom);
-
-    if (zoom >= 9) {
+    if (field === 'geohash_building' || field === 'geohash_street') {
       const business = await this.businessModel.find(filter);
       return business.map((business) => ({
         name: business.name,
@@ -154,33 +154,73 @@ export class BusinessService {
         rate: business.rate,
         type: business.type,
         category: business.category || BusinessCategory.STORE,
+        isCluster: false,
       }));
     }
+
     const ClusteredBusiness = await this.businessModel.aggregate([
       { $match: filter },
-
       {
         $group: {
           _id: `$${field}`,
           sampleBusiness: { $first: '$$ROOT' },
           count: { $sum: 1 },
+          centerLng: { $avg: { $arrayElemAt: ['$location.coordinates', 0] } },
+          centerLat: { $avg: { $arrayElemAt: ['$location.coordinates', 1] } },
         },
       },
-
       {
         $project: {
           _id: 0,
           id: '$sampleBusiness._id',
           name: '$sampleBusiness.name',
-          coordinates: '$sampleBusiness.location.coordinates',
+          coordinates: ['$centerLng', '$centerLat'],
           category: '$sampleBusiness.category',
           status: '$sampleBusiness.status',
           rate: '$sampleBusiness.rate',
           type: '$sampleBusiness.type',
           count: 1,
+          isCluster: { $gt: ['$count', 1] },
         },
       },
     ]);
+    // if (zoom >= 9) {
+    //   const business = await this.businessModel.find(filter);
+    //   return business.map((business) => ({
+    //     name: business.name,
+    //     coordinates: business.location?.coordinates || [],
+    //     id: business._id.toString(),
+    //     status: business.status,
+    //     rate: business.rate,
+    //     type: business.type,
+    //     category: business.category || BusinessCategory.STORE,
+    //   }));
+    // }
+    // const ClusteredBusiness = await this.businessModel.aggregate([
+    //   { $match: filter },
+
+    //   {
+    //     $group: {
+    //       _id: `$${field}`,
+    //       sampleBusiness: { $first: '$$ROOT' },
+    //       count: { $sum: 1 },
+    //     },
+    //   },
+
+    //   {
+    //     $project: {
+    //       _id: 0,
+    //       id: '$sampleBusiness._id',
+    //       name: '$sampleBusiness.name',
+    //       coordinates: '$sampleBusiness.location.coordinates',
+    //       category: '$sampleBusiness.category',
+    //       status: '$sampleBusiness.status',
+    //       rate: '$sampleBusiness.rate',
+    //       type: '$sampleBusiness.type',
+    //       count: 1,
+    //     },
+    //   },
+    // ]);
 
     return ClusteredBusiness;
   }
