@@ -17,6 +17,7 @@ import {
   restaurantItemSchema,
   supermarketProductSchema,
 } from './schemas/item-types.schema';
+import { QueueModule } from '../../common/queue/queue.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import {
         },
       },
     ]),
+    QueueModule,
   ],
   providers: [ItemService],
   controllers: [ItemController],

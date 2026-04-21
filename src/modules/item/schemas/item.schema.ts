@@ -37,6 +37,12 @@ export class Item extends Document {
   })
   type: ItemType;
 
+  @Prop({ type: Boolean, default: true })
+  is_in_stock: boolean;
+
+  @Prop({ type: Date })
+  lastRestockedAt?: Date;
+
   @Prop({ type: Date, default: Date.now })
   createdAt: Date;
 
@@ -54,3 +60,4 @@ export class Item extends Document {
 export const ItemSchema = SchemaFactory.createForClass(Item);
 ItemSchema.index({ businessId: 1, categoryId: 1 });
 ItemSchema.index({ businessId: 1 });
+ItemSchema.index({ is_in_stock: 1 });
