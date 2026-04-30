@@ -2,8 +2,8 @@ import { IsArray, IsEnum, IsNotEmpty, IsOptional, IsString, ValidateIf } from 'c
 import { BusinessCategory } from '../../../business/enums/business-category.enum';
 import { BusinessType } from '../../../business/enums/business-type.enum';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { BusinessTargetAudience } from 'src/modules/business/enums/business-target-audience';
-import { BusinessMainItem } from 'src/modules/business/enums/business-mainitems.enum';
+import { BusinessMainItem } from '../../../business/enums/business-mainitems.enum';
+import { BusinessTargetAudience } from '../../../business/enums/business-target-audience';
 
 export class GenerateBusinessAiDto {
   @ApiProperty({

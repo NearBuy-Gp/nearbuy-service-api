@@ -1,9 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 import { ItemType } from '../enums/item-type.enum';
-import { WorkingHours } from 'src/modules/business/interfaces/working-hours.interface';
-import { BusinessType } from 'src/modules/business/enums/business-type.enum';
-import { BusinessCategory } from 'src/modules/business/enums/business-category.enum';
+import { BusinessCategory } from '../../business/enums/business-category.enum';
+import { BusinessType } from '../../business/enums/business-type.enum';
+import { WorkingHours } from '../../business/interfaces/working-hours.interface';
 
 @Schema({
   timestamps: true,
@@ -96,3 +96,4 @@ ItemSchema.index({ category: 1, businessType: 1 });
 ItemSchema.index({ businessRate: -1 });
 ItemSchema.index({ price: 1 });
 ItemSchema.index({ businessId: 1, isAvailable: 1 });
+ItemSchema.index({ isAvailable: 1 });

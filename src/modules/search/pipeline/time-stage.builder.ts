@@ -29,9 +29,48 @@ export class TimeStageBuilder implements IPipelineStageBuilder {
   }
 
   private workingHoursMatch(day: string, time: string): PipelineStage {
+    // Handles both same-day windows (from <= to) and overnight windows (from > to, e.g. 22:00–02:00).
+    // $elemMatch can't run $expr, so we walk workingHours via $anyElementTrue + $map.
     return {
       $match: {
-        workingHours: { $elemMatch: { day, isClosed: false, from: { $lte: time }, to: { $gte: time } } },
+        $expr: {
+          $anyElementTrue: {
+            $map: {
+              input: { $ifNull: ['$workingHours', []] },
+              as: 'wh',
+              in: {
+                $and: [
+                  { $eq: ['$$wh.day', day] },
+                  { $eq: ['$$wh.isClosed', false] },
+                  {
+                    $or: [
+                      // Same-day window: from <= time <= to
+                      {
+                        $and: [
+                          { $lte: ['$$wh.from', '$$wh.to'] },
+                          { $lte: ['$$wh.from', time] },
+                          { $gte: ['$$wh.to', time] },
+                        ],
+                      },
+                      // Overnight window: from > to, open if time >= from OR time <= to
+                      {
+                        $and: [
+                          { $gt: ['$$wh.from', '$$wh.to'] },
+                          {
+                            $or: [
+                              { $gte: [time, '$$wh.from'] },
+                              { $lte: [time, '$$wh.to'] },
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            },
+          },
+        },
       },
     };
   }

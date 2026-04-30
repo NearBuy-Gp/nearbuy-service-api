@@ -20,7 +20,7 @@ export class ProjectionStageBuilder implements IPipelineStageBuilder {
         images: 1,
         address: 1,
         final_score: 1,
-        vectorSearchScore: { $meta: 'vectorSearchScore' },
+        vectorSearchScore: '$vectorScore',
       },
     };
   }

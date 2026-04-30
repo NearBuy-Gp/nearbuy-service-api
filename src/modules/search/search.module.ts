@@ -16,9 +16,11 @@ import { ProjectionStageBuilder } from './pipeline/projection-stage.builder';
 import { TimeStageBuilder } from './pipeline/time-stage.builder';
 import { SortStageBuilder } from './pipeline/sort-stage.builder';
 import { ScoreStageBuilder } from './pipeline/score-stage.builder';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
+    HttpModule,
     MongooseModule.forFeature([
       { name: Business.name, schema: BusinessSchema },
       { name: User.name, schema: UserSchema },

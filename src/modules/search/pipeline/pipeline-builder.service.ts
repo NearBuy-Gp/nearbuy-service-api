@@ -32,8 +32,15 @@ export class PipelineBuilderService {
 
   async build(blueprint: NlpBluePrint, search: SearchRequestDto): Promise<PipelineStage[]> {
     const pipeline: PipelineStage[] = [];
+    console.log(blueprint);
 
+    if (blueprint.intent === 'OUT_OF_SCOPE') {
+      pipeline.push({ $limit: 15 });
+      pipeline.push(await this.projectionBuilder.build());
+      return pipeline;
+    }
     pipeline.push(this.buildVectorSearch(blueprint));
+    pipeline.push({ $addFields: { vectorScore: { $meta: 'vectorSearchScore' } } });
 
     const geoStage = await this.geoStageBuilder.build(blueprint, search);
     if (geoStage) pipeline.push(geoStage);
@@ -41,7 +48,7 @@ export class PipelineBuilderService {
     const timeStage = await this.timeStageBuilder.build(blueprint);
     if (timeStage) pipeline.push(timeStage);
 
-    const priceRatingStage = await this.priceRatingStageBuilder.build(blueprint);
+    const priceRatingStage = await this.priceRatingStageBuilder.build(blueprint, search);
     if (priceRatingStage) pipeline.push(priceRatingStage);
 
     const attributeStage = await this.attributeStageBuilder.build(blueprint);
@@ -54,19 +61,17 @@ export class PipelineBuilderService {
     return pipeline;
   }
   private buildVectorSearch(blueprint: NlpBluePrint): PipelineStage {
-    const { category, business_type, urgency, modifiers } = blueprint.entities;
+    const { business_type, urgency, modifiers } = blueprint.entities;
 
-    const preFilter: Record<string, any> = { isAvailable: true };
-    if (category) preFilter.category = category;
-    if (business_type) preFilter.businessType = business_type;
-
+    // const preFilter: Record<string, any> = { isAvailable: true };
+    const preFilter: Record<string, any> = {};
+    if (business_type) preFilter.businessType = business_type.toLowerCase();
     const numCandidates = urgency ? 50 : modifiers?.is_top_rated ? 300 : 150;
-
     return {
       $vectorSearch: {
         index: 'vector_index',
         path: 'embedding',
-        query: blueprint.searchEmbedding,
+        queryVector: blueprint.query_vector,
         numCandidates,
         limit: 50,
         filter: preFilter,

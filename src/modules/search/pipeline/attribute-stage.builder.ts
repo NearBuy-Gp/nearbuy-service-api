@@ -15,7 +15,7 @@ export class AttributeStageBuilder implements IPipelineStageBuilder {
     if (entities.membership_duration_months) {
       filter['attributes.validity'] = { $regex: String(entities.membership_duration_months), $options: 'i' };
     }
-    if (entities.quantity) filter['attributes.stock'] = { $gte: entities.quantity };
+    // if (entities.quantity) filter['attributes.stock'] = { $gte: entities.quantity };
 
     return Object.keys(filter).length ? { $match: filter } : null;
   }

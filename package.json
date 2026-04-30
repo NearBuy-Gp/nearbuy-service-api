@@ -22,7 +22,10 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "seed": "ts-node -r tsconfig-paths/register src/common/seed/business-seed.ts",
-    "seed:categories": "ts-node -r tsconfig-paths/register src/common/seed/items-category-seed.ts"
+    "seed:categories": "ts-node -r tsconfig-paths/register src/common/seed/items-category-seed.ts",
+    "seed:combined": "ts-node -r tsconfig-paths/register src/common/seed/combined-seed.ts",
+    "seed:remove": "ts-node -r tsconfig-paths/register src/common/seed/combined-seed.ts remove",
+    "seed:create-vector-index": "ts-node -r tsconfig-paths/register src/common/seed/create-vector-index.ts"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -54,7 +57,7 @@
     "pdfjs-dist": "^5.4.530",
     "pdfreader": "^3.0.8",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1",
+    "rxjs": "^7.8.2",
     "swagger-ui-express": "^5.0.1",
     "tesseract.js": "^7.0.0",
     "xlsx": "^0.18.5"
@@ -62,6 +65,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
+    "@faker-js/faker": "^10.4.0",
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.1",
@@ -69,6 +73,7 @@
     "@types/express": "^5.0.0",
     "@types/jest": "^30.0.0",
     "@types/multer": "^2.0.0",
+    "@types/ngeohash": "^0.6.8",
     "@types/node": "^22.10.7",
     "@types/pdf-parse": "^1.1.5",
     "@types/supertest": "^6.0.2",

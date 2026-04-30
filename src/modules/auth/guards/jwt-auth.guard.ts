@@ -3,10 +3,9 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import STATIC_MESSAGES from 'src/config/staticMessages.json';
-import { User } from 'src/modules/user/schemas/user.schema';
-import { RequestWithUser } from 'src/common/interfaces/request-with-user.interface';
-
+import { RequestWithUser } from '../../../common/interfaces/request-with-user.interface';
+import { User } from '../../user/schemas/user.schema';
+import STATIC_MESSAGES from '../../../config/staticMessages.json';
 @Injectable()
 export class AuthGuard implements CanActivate {
   private readonly logger = new Logger(AuthGuard.name);

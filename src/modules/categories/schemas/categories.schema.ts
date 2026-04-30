@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ItemType } from 'src/modules/item/enums/item-type.enum';
+import { ItemType } from '../../item/enums/item-type.enum';
 
 @Schema({
   timestamps: true,

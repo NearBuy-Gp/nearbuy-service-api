@@ -1,5 +1,6 @@
 // import { faker } from '@faker-js/faker';
-import { Role } from 'src/utils/enums/user-role.enum';
+
+import { Role } from '../../utils/enums/user-role.enum';
 
 export const createFakeUser = () => ({
   name: 'fsdfs',

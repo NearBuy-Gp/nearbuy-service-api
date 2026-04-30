@@ -12,7 +12,7 @@ import { BusinessOnMapDto } from './dtos/response/business-on-map.dto';
 import { BusinessCategory } from './enums/business-category.enum';
 import { BusinessDataDto } from './dtos/response/business-data.dto';
 import { PaginatedBusinessNearMeDto } from './dtos/response/paginated-business-near-me';
-import geohash from 'src/utils/helpers/geohash';
+import geohash from '../../utils/helpers/geohash';
 import { PaginatedItemsResponseDto } from '../item/dtos/response/paginated-items-response.dto';
 import { Item } from '../item/schemas/item.schema';
 import { BusinessWithItemsResponseDto } from './dtos/response/business-with-items-response.dto';

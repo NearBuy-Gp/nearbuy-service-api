@@ -1,7 +1,7 @@
-import { BusinessCategory } from 'src/modules/business/enums/business-category.enum';
-import { BusinessType } from 'src/modules/business/enums/business-type.enum';
+import { BusinessCategory } from '../../business/enums/business-category.enum';
+import { BusinessType } from '../../business/enums/business-type.enum';
 
-export type Intent = 'FIND_BUSINESS' | 'FIND_PRODUCT' | 'FIND_SERVICE' | 'BOOK_APPOINTMENT';
+export type Intent = 'FIND_BUSINESS' | 'FIND_PRODUCT' | 'FIND_SERVICE' | 'BOOK_APPOINTMENT' | 'OUT_OF_SCOPE';
 
 export interface PriceFilter {
   operator: 'lt' | 'gt' | 'range';
@@ -66,6 +66,6 @@ export interface NlpBluePrint {
 
     modifiers: Modifiers;
   };
-  searchEmbedding: number[];
+  query_vector: number[];
   search_vector_query: string;
 }

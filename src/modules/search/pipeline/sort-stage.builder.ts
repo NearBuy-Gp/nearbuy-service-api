@@ -9,14 +9,18 @@ export class SortStageBuilder implements IPipelineStageBuilder {
     const sort = blueprint.entities.sort;
 
     if (sort?.by) {
-      const sortField: Record<string, any> = {
-        price: 'pricing.fee',
-        rate: 'rating.average',
+      const sortField: Record<string, string> = {
+        price: 'price',
+        rating: 'businessRate',
         distance: 'distance',
+        popularity: 'final_score',
       };
 
-      const direction = sort.order === 'asc' ? 1 : -1;
-      return { $sort: { [sortField[sort.by]]: direction } };
+      const field = sortField[sort.by];
+      if (field) {
+        const direction = sort.order === 'asc' ? 1 : -1;
+        return { $sort: { [field]: direction } };
+      }
     }
 
     return { $sort: { final_score: -1 } };

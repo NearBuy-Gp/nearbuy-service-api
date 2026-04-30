@@ -2,11 +2,12 @@ import { Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from 'src/decorators/roles.decorator';
-import { Role } from 'src/utils/enums/user-role.enum';
-import { User } from 'src/common/decorators/user.decorator';
+
+import { User } from '../../common/decorators/user.decorator';
 import { UserService } from './user.service';
 import { BusinessOnMapDto } from '../business/dtos/response/business-on-map.dto';
+import { Roles } from '../../decorators/roles.decorator';
+import { Role } from '../../utils/enums/user-role.enum';
 
 @UseGuards(AuthGuard, RolesGuard)
 @ApiTags('User')

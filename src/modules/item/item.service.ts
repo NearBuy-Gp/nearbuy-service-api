@@ -34,7 +34,7 @@ export class ItemService {
     item: CreateRestaurantItemDto | CreateClinicServiceDto | CreateClassSessionDto | CreatePharmacyProductDto | CreateSupermarketProductDto | CreateClothingProductDto,
   ) {
     const business = await this.validateBusiness(ownerId, businessId);
-    const embeddingText = this.embeddingTextBuilder.build(item, business);
+    const embeddingText = this.embeddingTextBuilder.buildRequestBody(item, business);
     const embedding = await this.embedClient.createEmbedding(embeddingText);
     const newItem = await this.itemModel.create({
       ...item,
@@ -101,6 +101,7 @@ export class ItemService {
     if (!item) {
       throw new NotFoundException('Item not found');
     }
+
     const updatedItem = await this.itemModel.findByIdAndUpdate(item._id, { $set: itemDetails }, { new: true, strict: false });
     if (!updatedItem) {
       throw new NotFoundException('Item not found');

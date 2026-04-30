@@ -3,11 +3,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { FileParsingStrategyFactory } from './factories/file-parsing-strategy.factory';
 import { FileProcessingResult, BatchProcessingResponse } from './interfaces/batch-processing.interface';
-import { Business } from 'src/modules/business/schemas/buisness.schema';
-import { BusinessCategory } from 'src/modules/business/enums/business-category.enum';
-import { BusinessType } from 'src/modules/business/enums/business-type.enum';
 import { NormalizeOutputDto } from './normalizer/dtos/normalizer-output.dto';
 import { NormalizerService } from './normalizer/normalizer.service';
+import { BusinessCategory } from '../business/enums/business-category.enum';
+import { BusinessType } from '../business/enums/business-type.enum';
+import { Business } from '../business/schemas/buisness.schema';
 
 @Injectable()
 export class UploadService {
@@ -96,7 +96,7 @@ export class UploadService {
       });
 
       this.logger.log(`TEST MODE: Normalized ${normalizedItems.length} items`);
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(`Normalization failed: ${error.message}`);
     }
 
@@ -190,7 +190,7 @@ export class UploadService {
       });
 
       this.logger.log(`Normalized ${normalizedItems.length} items`);
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(`Normalization failed: ${error.message}`);
     }
 
