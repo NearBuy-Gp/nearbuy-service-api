@@ -1,12 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { PipelineStage } from 'mongoose';
 import { NlpBluePrint } from '../interfaces/nlp-blue-print.interface';
+import { SearchRequestDto } from '../dtos/search-request.dto';
 import { toTimeString, normalizeTime } from '../utils/time-normalization';
 import { IPipelineStageBuilder } from './pipeline-stage-builder.interface';
 
 @Injectable()
 export class TimeStageBuilder implements IPipelineStageBuilder {
-  async build(blueprint: NlpBluePrint): Promise<PipelineStage | null> {
+  async build(blueprint: NlpBluePrint, search?: SearchRequestDto): Promise<PipelineStage | null> {
+    if (search?.openNow) {
+      const now = new Date();
+      const currentDay = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][now.getDay()];
+      const currentTime = toTimeString(now.getHours(), now.getMinutes());
+      return this.workingHoursMatch(currentDay, currentTime);
+    }
+
     const tc = blueprint.entities.time_constraints;
     if (!tc) return null;
 

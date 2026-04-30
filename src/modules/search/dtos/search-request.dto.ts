@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { ArrayMaxSize, ArrayMinSize, IsArray, IsInt, IsLatitude, IsLongitude, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min, Validate, ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
+import { ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsIn, IsInt, IsLatitude, IsLongitude, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min, Validate, ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
 
 @ValidatorConstraint({ name: 'IsLatLngTuple', async: false })
 class IsLatLngTupleConstraint implements ValidatorConstraintInterface {
@@ -50,4 +50,16 @@ export class SearchRequestDto {
   @Min(1)
   @Max(5)
   ratingMin?: number;
+
+  @ApiPropertyOptional({ example: true, description: 'When true, restrict results to businesses currently open (overrides NLP time constraints).' })
+  @IsOptional()
+  @Type(() => Boolean)
+  @IsBoolean()
+  openNow?: boolean;
+
+  @ApiPropertyOptional({ example: 'cheap', enum: ['cheap', 'expensive'], description: 'Sort by price: "cheap" = ascending, "expensive" = descending. Overrides NLP-extracted sort.' })
+  @IsOptional()
+  @IsString()
+  @IsIn(['cheap', 'expensive'])
+  priceSort?: 'cheap' | 'expensive';
 }

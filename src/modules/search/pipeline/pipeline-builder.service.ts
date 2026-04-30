@@ -36,6 +36,7 @@ export class PipelineBuilderService {
 
     if (blueprint.intent === 'OUT_OF_SCOPE') {
       pipeline.push({ $limit: 15 });
+      pipeline.push(this.buildEnrichmentStage(search));
       pipeline.push(await this.projectionBuilder.build());
       return pipeline;
     }
@@ -45,7 +46,9 @@ export class PipelineBuilderService {
     const geoStage = await this.geoStageBuilder.build(blueprint, search);
     if (geoStage) pipeline.push(geoStage);
 
-    const timeStage = await this.timeStageBuilder.build(blueprint);
+    pipeline.push(this.buildEnrichmentStage(search));
+
+    const timeStage = await this.timeStageBuilder.build(blueprint, search);
     if (timeStage) pipeline.push(timeStage);
 
     const priceRatingStage = await this.priceRatingStageBuilder.build(blueprint, search);
@@ -55,10 +58,92 @@ export class PipelineBuilderService {
     if (attributeStage) pipeline.push(attributeStage);
 
     pipeline.push(await this.scoreStageBuilder.build());
-    pipeline.push(await this.sortStageBuilder.build(blueprint));
+    pipeline.push(await this.sortStageBuilder.build(blueprint, search));
     pipeline.push({ $limit: 15 });
     pipeline.push(await this.projectionBuilder.build());
     return pipeline;
+  }
+
+  // Adds `distance_km` (haversine vs userLocation) and `isOpenNow` (computed from workingHours).
+  private buildEnrichmentStage(search: SearchRequestDto): PipelineStage {
+    const [userLat, userLng] = search.userLocation;
+
+    const now = new Date();
+    const currentDay = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][now.getDay()];
+    const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+    return {
+      $addFields: {
+        distance_km: {
+          $let: {
+            vars: {
+              lat1: { $degreesToRadians: userLat },
+              lat2: { $degreesToRadians: { $arrayElemAt: ['$location.coordinates', 1] } },
+              dLat: { $degreesToRadians: { $subtract: [{ $arrayElemAt: ['$location.coordinates', 1] }, userLat] } },
+              dLng: { $degreesToRadians: { $subtract: [{ $arrayElemAt: ['$location.coordinates', 0] }, userLng] } },
+            },
+            in: {
+              $multiply: [
+                2,
+                6378.1,
+                {
+                  $asin: {
+                    $sqrt: {
+                      $add: [
+                        { $pow: [{ $sin: { $divide: ['$$dLat', 2] } }, 2] },
+                        {
+                          $multiply: [
+                            { $cos: '$$lat1' },
+                            { $cos: '$$lat2' },
+                            { $pow: [{ $sin: { $divide: ['$$dLng', 2] } }, 2] },
+                          ],
+                        },
+                      ],
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        },
+        isOpenNow: {
+          $anyElementTrue: {
+            $map: {
+              input: { $ifNull: ['$workingHours', []] },
+              as: 'wh',
+              in: {
+                $and: [
+                  { $eq: ['$$wh.day', currentDay] },
+                  { $eq: ['$$wh.isClosed', false] },
+                  {
+                    $or: [
+                      {
+                        $and: [
+                          { $lte: ['$$wh.from', '$$wh.to'] },
+                          { $lte: ['$$wh.from', currentTime] },
+                          { $gte: ['$$wh.to', currentTime] },
+                        ],
+                      },
+                      {
+                        $and: [
+                          { $gt: ['$$wh.from', '$$wh.to'] },
+                          {
+                            $or: [
+                              { $gte: [currentTime, '$$wh.from'] },
+                              { $lte: [currentTime, '$$wh.to'] },
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    };
   }
   private buildVectorSearch(blueprint: NlpBluePrint): PipelineStage {
     const { business_type, urgency, modifiers } = blueprint.entities;

@@ -7,20 +7,14 @@ export class ProjectionStageBuilder implements IPipelineStageBuilder {
   async build(): Promise<PipelineStage> {
     return {
       $project: {
-        _id: 1,
-        name: 1,
-        category: 1,
-        businessType: 1,
-        businessName: 1,
-        'location.coordinates': 1,
-        businessRate: 1,
-        price: 1,
-        isAvailable: 1,
+        _id: 0,
+        businessId: '$businessId',
+        name: '$businessName',
+        category: '$businessCategory',
+        rate: '$businessRate',
+        photo: { $arrayElemAt: ['$images', 0] },
         isOpenNow: 1,
-        images: 1,
-        address: 1,
-        final_score: 1,
-        vectorSearchScore: '$vectorScore',
+        distance_km: { $round: ['$distance_km', 2] },
       },
     };
   }

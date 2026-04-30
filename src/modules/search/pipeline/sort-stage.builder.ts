@@ -2,17 +2,22 @@ import { Injectable } from '@nestjs/common';
 import { PipelineStage } from 'mongoose';
 import { IPipelineStageBuilder } from './pipeline-stage-builder.interface';
 import { NlpBluePrint } from '../interfaces/nlp-blue-print.interface';
+import { SearchRequestDto } from '../dtos/search-request.dto';
 
 @Injectable()
 export class SortStageBuilder implements IPipelineStageBuilder {
-  async build(blueprint: NlpBluePrint): Promise<PipelineStage> {
+  async build(blueprint: NlpBluePrint, search?: SearchRequestDto): Promise<PipelineStage> {
+    if (search?.priceSort) {
+      return { $sort: { price: search.priceSort === 'cheap' ? 1 : -1 } };
+    }
+
     const sort = blueprint.entities.sort;
 
     if (sort?.by) {
       const sortField: Record<string, string> = {
         price: 'price',
         rating: 'businessRate',
-        distance: 'distance',
+        distance: 'distance_km',
         popularity: 'final_score',
       };
 
