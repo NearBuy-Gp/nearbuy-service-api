@@ -13,6 +13,7 @@ import { UploadModule } from './modules/upload/upload.module';
 import { NormalizerModule } from './modules/upload/normalizer/normalizer.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
+import { SearchModule } from './modules/search/search.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
     NormalizerModule,
     CategoriesModule,
     CloudinaryModule,
+    SearchModule,
   ],
   controllers: [AppController],
   providers: [AppService],

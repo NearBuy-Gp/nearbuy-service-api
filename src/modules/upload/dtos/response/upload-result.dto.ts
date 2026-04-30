@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Item } from 'src/modules/item/schemas/item.schema';
 
 export class UploadResultDto {
   @ApiProperty({

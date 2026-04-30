@@ -16,7 +16,8 @@ import { UpdateClothingProductDto, UpdateRestaurantItemDto, UpdateSupermarketPro
 import { UpdateClinicServiceDto } from './dtos/requests/update-item.dto';
 import { UpdateClassSessionDto } from './dtos/requests/update-item.dto';
 import { UpdatePharmacyProductDto } from './dtos/requests/update-item.dto';
-
+import { EmbeddingTextBuilder } from '../search/pipeline/embedding-text.builder';
+import { EmbedClientService } from '../search/clients/embed-client.service';
 @Injectable()
 export class ItemService {
   strategyFactory: any;
@@ -24,6 +25,8 @@ export class ItemService {
     @InjectModel(Business.name) private businessModel: Model<Business>,
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Item.name) private itemModel: Model<Item>,
+    private readonly embedClient: EmbedClientService,
+    private readonly embeddingTextBuilder: EmbeddingTextBuilder,
   ) {}
   public async addItemManual(
     businessId: string,
@@ -31,10 +34,18 @@ export class ItemService {
     item: CreateRestaurantItemDto | CreateClinicServiceDto | CreateClassSessionDto | CreatePharmacyProductDto | CreateSupermarketProductDto | CreateClothingProductDto,
   ) {
     const business = await this.validateBusiness(ownerId, businessId);
-
+    const embeddingText = this.embeddingTextBuilder.buildRequestBody(item, business);
+    const embedding = await this.embedClient.createEmbedding(embeddingText);
     const newItem = await this.itemModel.create({
       ...item,
       businessId: business._id,
+      businessName: business.name,
+      businessCategory: business.category,
+      businessType: business.type,
+      businessRate: business.rate ?? null,
+      workingHours: business?.workingHours || [],
+      location: business.location,
+      embedding,
     });
     return { message: 'Item Added Successfully', item: newItem };
   }
@@ -95,6 +106,7 @@ export class ItemService {
     if (!item) {
       throw new NotFoundException('Item not found');
     }
+
     const updatedItem = await this.itemModel.findByIdAndUpdate(item._id, { $set: itemDetails }, { new: true, strict: false });
     if (!updatedItem) {
       throw new NotFoundException('Item not found');
