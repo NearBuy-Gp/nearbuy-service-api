@@ -21,6 +21,7 @@ import {
   UpdateSupermarketProductDto,
 } from './dtos/requests/update-item.dto';
 import { DiscriminatedItemValidationPipe } from './pipes/discriminated-validation.pipe';
+import { DiscriminatedBulkValidationPipe } from './pipes/discriminated-bulk-validation.pipe';
 import { ClassSessionAttributesDto } from './dtos/requests/class-session.dto';
 import { ClinicServiceAttributesDto } from './dtos/requests/clinic-serivce.dto';
 import { ClothingProductAttributesDto } from './dtos/requests/cloths-product.dto';
@@ -87,15 +88,43 @@ export class ItemController {
   ) {
     return await this.itemService.addItemManual(businessId, userId, item);
   }
-
-  // @Roles(Role.OWNER)
-  // @Post('/add-bulk')
-  // @ApiOperation({ summary: 'Add Multiple Items (from upload)' })
-  // @ApiResponse({ status: 200, description: 'Items Added Successfully' })
-  // @ApiBody({ type: [CreateItemDto] })
-  // public async addItemsBulk(@Param('businessId') businessId: string, @User('id') userId: string, @Body() items: CreateItemDto[]) {
-  //   return await this.itemService.addItemsBulk(businessId, userId, items);
-  // }
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.OWNER)
+  @Post('/add-bulk')
+  @ApiOperation({ summary: 'Add Multiple Items (from upload)' })
+  @ApiResponse({ status: 200, description: 'Items Added Successfully' })
+  @ApiBody({
+    schema: {
+      oneOf: [
+        { $ref: getSchemaPath(CreateRestaurantItemDto) },
+        { $ref: getSchemaPath(CreateClinicServiceDto) },
+        { $ref: getSchemaPath(CreateClassSessionDto) },
+        { $ref: getSchemaPath(CreatePharmacyProductDto) },
+        { $ref: getSchemaPath(CreateSupermarketProductDto) },
+        { $ref: getSchemaPath(CreateClothingProductDto) },
+      ],
+      discriminator: {
+        propertyName: 'type',
+        mapping: {
+          RESTAURANT: getSchemaPath(CreateRestaurantItemDto),
+          CLINIC: getSchemaPath(CreateClinicServiceDto),
+          CLASS: getSchemaPath(CreateClassSessionDto),
+          PHARMACY: getSchemaPath(CreatePharmacyProductDto),
+          SUPERMARKET: getSchemaPath(CreateSupermarketProductDto),
+          CLOTHING: getSchemaPath(CreateClothingProductDto),
+        },
+      },
+    },
+    description: 'Item payload varies based on type',
+  })
+  public async addItemsBulk(
+    @Param('businessId') businessId: string,
+    @User('id') userId: string,
+    @Body(new DiscriminatedBulkValidationPipe())
+    items: CreateRestaurantItemDto[] | CreateClinicServiceDto[] | CreateClassSessionDto[] | CreatePharmacyProductDto[] | CreateSupermarketProductDto[] | CreateClothingProductDto[],
+  ) {
+    return await this.itemService.addItemsBulk(businessId, userId, items);
+  }
 
   @Roles(Role.OWNER)
   @UseGuards(AuthGuard, RolesGuard)

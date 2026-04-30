@@ -1,19 +1,14 @@
 import geohash from 'ngeohash';
 
 const GEOGRAPHIC_LEVELS = {
-  COUNTRY: { precision: 2, field: 'geohash_country', size: '~1250km x 625km' },
-  REGION: { precision: 3, field: 'geohash_region', size: '~156km x 156km' },
-  CITY: { precision: 4, field: 'geohash_city', size: '~39km x 19km' },
-  DISTRICT: { precision: 5, field: 'geohash_district', size: '~4.9km x 4.9km' },
-  NEIGHBORHOOD: {
-    precision: 6,
-    field: 'geohash_neighborhood',
-    size: '~1.2km x 0.6km',
-  },
-  STREET: { precision: 7, field: 'geohash_street', size: '~153m x 153m' },
-  BUILDING: { precision: 8, field: 'geohash_building', size: '~38m x 19m' },
+  COUNTRY: { precision: 2, field: 'geohash_country', minZoom: 0, maxZoom: 3 },
+  REGION: { precision: 3, field: 'geohash_region', minZoom: 4, maxZoom: 6 },
+  CITY: { precision: 4, field: 'geohash_city', minZoom: 7, maxZoom: 9 },
+  DISTRICT: { precision: 5, field: 'geohash_district', minZoom: 10, maxZoom: 11 },
+  NEIGHBORHOOD: { precision: 6, field: 'geohash_neighborhood', minZoom: 12, maxZoom: 13 },
+  STREET: { precision: 7, field: 'geohash_street', minZoom: 14, maxZoom: 15 },
+  BUILDING: { precision: 8, field: 'geohash_building', minZoom: 16, maxZoom: 16 },
 };
-
 function generateGeohashes(longitude, latitude) {
   const fullGeohash = geohash.encode(latitude, longitude, 9);
 
@@ -44,12 +39,12 @@ function getGeohashConfigForZoom(zoom) {
   return {
     field: level.field,
     precision: level.precision,
-    size: level.size,
+    size: level.minZoom,
   };
 }
 
 export default {
-  generateGeohashes,
+  generateGeoHashes: generateGeohashes,
   getGeographicLevelForZoom,
   getGeohashConfigForZoom,
   GEOGRAPHIC_LEVELS,

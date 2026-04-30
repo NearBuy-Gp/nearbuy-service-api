@@ -2,6 +2,7 @@ import { Transform, Type } from 'class-transformer';
 import { IsEnum, IsNumber, IsOptional, Max, Min } from 'class-validator';
 import { BusinessCategory } from '../../enums/business-category.enum';
 import { ApiProperty } from '@nestjs/swagger';
+import { BusinessType } from '../../enums/business-type.enum';
 
 export class NearbyQueryDto {
   @ApiProperty({
@@ -39,8 +40,8 @@ export class NearbyQueryDto {
   })
   @Transform(({ value }) => (value === '' ? undefined : value))
   @IsOptional()
-  @IsEnum(BusinessCategory)
-  category?: BusinessCategory;
+  @IsEnum(BusinessType)
+  businessType?: BusinessType;
   @ApiProperty({
     example: 1,
     description: 'Page number',

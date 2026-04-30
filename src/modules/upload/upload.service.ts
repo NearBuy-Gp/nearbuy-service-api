@@ -34,7 +34,7 @@ export class UploadService {
   }
 
   //  Test mode method (no database required)
-  async extractRawBatchTest(files: Express.Multer.File[], businessCategory?: BusinessCategory, businessType?: BusinessType): Promise<BatchProcessingResponse> {
+  async extractRawBatchTest(files: Express.Multer.File[], businessCategory?: BusinessCategory, businessType?: BusinessType): Promise<NormalizeOutputDto[]> {
     if (!files || files.length === 0) {
       throw new BadRequestException('At least one file is required');
     }
@@ -59,60 +59,73 @@ export class UploadService {
       if (result.status === 'fulfilled') {
         const { fileType, data } = result.value;
 
-        fileResults.push({
-          fileName,
-          fileType,
-          success: true,
-          data,
-        });
+        // fileResults.push({
+        //   fileName,
+        //   fileType,
+        //   success: true,
+        //   data,
+        // });
 
         combinedData.push(...data);
         successCount++;
-        totalItems += data.length;
+        // totalItems += data.length;
 
         this.logger.log(`${fileName} (${fileType}): ${data.length} items extracted`);
       } else {
-        fileResults.push({
-          fileName,
-          fileType: 'unknown',
-          success: false,
-          error: result.reason?.message || 'Unknown error',
-        });
+        // fileResults.push({
+        //   fileName,
+        //   fileType: 'unknown',
+        //   success: false,
+        //   error: result.reason?.message || 'Unknown error',
+        // });
+        this.logger.error(`${fileName}: ${result.reason?.message || 'Failed to process'}`);
       }
     });
 
-    // Deduplicate combined data
+    // // Deduplicate combined data
+    // const deduplicatedData = this.deduplicateData(combinedData);
+
+    // // Normalize the data using AI
+    // let normalizedItems: NormalizeOutputDto[] = [];
+
+    // try {
+    //   normalizedItems = await this.normalizerService.normalize({
+    //     rawData: deduplicatedData,
+    //     businessCategory,
+    //     businessType,
+    //     businessId: 'test-business-id', // --> Dummy ID 3shan el test
+    //   });
+
+    //   this.logger.log(`TEST MODE: Normalized ${normalizedItems.length} items`);
+    // } catch (error) {
+    //   this.logger.error(`Normalization failed: ${error.message}`);
+    // }
+
+    // return {
+    //   businessId: 'test-business-id',
+    //   totalFiles: files.length,
+    //   successfulFiles: successCount,
+    //   failedFiles: files.length - successCount,
+    //   fileResults,
+    //   combinedData: deduplicatedData,
+    //   normalizedItems,
+    // };
+    // Deduplicate
     const deduplicatedData = this.deduplicateData(combinedData);
-
-    // Normalize the data using AI
-    let normalizedItems: NormalizeOutputDto[] = [];
-
-    try {
-      normalizedItems = await this.normalizerService.normalize({
-        rawData: deduplicatedData,
-        businessCategory,
-        businessType,
-        businessId: 'test-business-id', // --> Dummy ID 3shan el test
-      });
-
-      this.logger.log(`TEST MODE: Normalized ${normalizedItems.length} items`);
-    } catch (error: any) {
-      this.logger.error(`Normalization failed: ${error.message}`);
-    }
-
-    return {
+    // Normalize
+    const normalizedItems = await this.normalizerService.normalize({
+      rawData: deduplicatedData,
+      businessCategory,
+      businessType,
       businessId: 'test-business-id',
-      totalFiles: files.length,
-      successfulFiles: successCount,
-      failedFiles: files.length - successCount,
-      fileResults,
-      combinedData: deduplicatedData,
-      normalizedItems,
-    };
+    });
+    this.logger.log(`TEST MODE: Successfully normalized ${normalizedItems.length} items from ${successCount}/${files.length} files`);
+
+    return normalizedItems;
   }
 
   // Original method with real business ID
-  async extractRawBatch(businessId: string, files: Express.Multer.File[]): Promise<BatchProcessingResponse> {
+  async extractRawBatch(businessId: string, files: Express.Multer.File[]): Promise<NormalizeOutputDto[]> {
     if (!files || files.length === 0) {
       throw new BadRequestException('At least one file is required');
     }
@@ -140,10 +153,9 @@ export class UploadService {
     const results = await Promise.allSettled(files.map((file) => this.processSingleFile(file)));
 
     // Collect results
-    const fileResults: FileProcessingResult[] = [];
+
     const combinedData: any[] = [];
     let successCount = 0;
-    let totalItems = 0;
 
     results.forEach((result, index) => {
       const fileName = files[index].originalname;
@@ -151,58 +163,72 @@ export class UploadService {
       if (result.status === 'fulfilled') {
         const { fileType, data } = result.value;
 
-        fileResults.push({
-          fileName,
-          fileType,
-          success: true,
-          data,
-        });
+        // fileResults.push({
+        //   fileName,
+        //   fileType,
+        //   success: true,
+        //   data,
+        // });
 
         combinedData.push(...data);
         successCount++;
-        totalItems += data.length;
+        // totalItems += data.length;
 
         this.logger.log(`${fileName} (${fileType}): ${data.length} items extracted`);
       } else {
-        fileResults.push({
-          fileName,
-          fileType: 'unknown',
-          success: false,
-          error: result.reason?.message || 'Unknown error',
-        });
+        // fileResults.push({
+        //   fileName,
+        //   fileType: 'unknown',
+        //   success: false,
+        //   error: result.reason?.message || 'Unknown error',
+        // });
 
         this.logger.error(`${fileName}: ${result.reason?.message || 'Failed to process'}`);
       }
     });
 
-    // Deduplicate combined data
+    // // Deduplicate combined data
+    // const deduplicatedData = this.deduplicateData(combinedData);
+
+    // // Normalize
+    // let normalizedItems: NormalizeOutputDto[] = [];
+
+    // try {
+    //   normalizedItems = await this.normalizerService.normalize({
+    //     rawData: deduplicatedData,
+    //     businessCategory: business.category,
+    //     businessType: business.type,
+    //     businessId: business._id.toString(),
+    //   });
+
+    //   this.logger.log(`Normalized ${normalizedItems.length} items`);
+    // } catch (error) {
+    //   this.logger.error(`Normalization failed: ${error.message}`);
+    // }
+
+    // return {
+    //   businessId,
+    //   totalFiles: files.length,
+    //   successfulFiles: successCount,
+    //   failedFiles: files.length - successCount,
+    //   fileResults,
+    //   combinedData: deduplicatedData,
+    //   normalizedItems,
+    // };
+    // Deduplicate
     const deduplicatedData = this.deduplicateData(combinedData);
 
     // Normalize
-    let normalizedItems: NormalizeOutputDto[] = [];
+    const normalizedItems = await this.normalizerService.normalize({
+      rawData: deduplicatedData,
+      businessCategory: business.category,
+      businessType: business.type,
+      businessId: business._id.toString(),
+    });
 
-    try {
-      normalizedItems = await this.normalizerService.normalize({
-        rawData: deduplicatedData,
-        businessCategory: business.category,
-        businessType: business.type,
-        businessId: business._id.toString(),
-      });
+    this.logger.log(`Successfully normalized ${normalizedItems.length} items from ${successCount}/${files.length} files`);
 
-      this.logger.log(`Normalized ${normalizedItems.length} items`);
-    } catch (error: any) {
-      this.logger.error(`Normalization failed: ${error.message}`);
-    }
-
-    return {
-      businessId,
-      totalFiles: files.length,
-      successfulFiles: successCount,
-      failedFiles: files.length - successCount,
-      fileResults,
-      combinedData: deduplicatedData,
-      normalizedItems,
-    };
+    return normalizedItems;
   }
 
   private async processSingleFile(file: Express.Multer.File): Promise<{

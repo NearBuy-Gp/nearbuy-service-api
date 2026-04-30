@@ -1,5 +1,5 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
+import { v2 as cloudinary, UploadApiResponse ,UploadApiErrorResponse} from 'cloudinary';
 import { Readable } from 'stream';
 
 @Injectable()
@@ -15,7 +15,7 @@ export class CloudinaryService {
             { fetch_format: 'auto' }, // webp for browsers that support it
           ],
         },
-        (error, result: UploadApiResponse) => {
+        (error: UploadApiErrorResponse | undefined, result?: UploadApiResponse) => {
           if (error || !result) return reject(new BadRequestException('Image upload failed'));
           resolve(result.secure_url);
         },

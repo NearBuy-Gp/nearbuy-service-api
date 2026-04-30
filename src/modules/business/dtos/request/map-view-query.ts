@@ -2,6 +2,7 @@ import { Type } from 'class-transformer';
 import { IsEnum, IsNumber, IsOptional } from 'class-validator';
 import { BusinessCategory } from '../../enums/business-category.enum';
 import { ApiProperty } from '@nestjs/swagger';
+import { BusinessType } from '../../enums/business-type.enum';
 
 export class MapViewQueryDto {
   @ApiProperty({
@@ -46,8 +47,8 @@ export class MapViewQueryDto {
     required: false,
   })
   @IsOptional()
-  @IsEnum(BusinessCategory)
-  category?: BusinessCategory;
+  @IsEnum(BusinessType)
+  businessType?: BusinessType;
 
   @ApiProperty({
     example: 12,
