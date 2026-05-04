@@ -1,6 +1,6 @@
-import { ClothesCategory } from 'src/modules/item/enums/clothes-category.enum';
-import { ItemType } from 'src/modules/item/enums/item-type.enum';
-import { RestaurantItemType } from 'src/modules/item/enums/resturant-item-type';
+import { ClothesCategory } from '../../item/enums/clothes-category.enum';
+import { ItemType } from '../../item/enums/item-type.enum';
+import { RestaurantItemType } from '../../item/enums/resturant-item-type';
 
 export const ITEM_CATEGORY_SEED: Record<
   ItemType,

@@ -2,14 +2,14 @@ import { NestFactory } from '@nestjs/core';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Types } from 'mongoose';
-import { AppModule } from 'src/app.module';
-import { BusinessCategory } from 'src/modules/business/enums/business-category.enum';
-import { BusinessFacility } from 'src/modules/business/enums/business-facilities.enum';
-import { BusinessMainItem } from 'src/modules/business/enums/business-mainitems.enum';
-import { BusinessStatus } from 'src/modules/business/enums/business-status.enum';
-import { BusinessTargetAudience } from 'src/modules/business/enums/business-target-audience';
-import { BusinessType } from 'src/modules/business/enums/business-type.enum';
-import { Business } from 'src/modules/business/schemas/buisness.schema';
+import { AppModule } from '../../app.module';
+import { BusinessCategory } from '../../modules/business/enums/business-category.enum';
+import { BusinessFacility } from '../../modules/business/enums/business-facilities.enum';
+import { BusinessMainItem } from '../../modules/business/enums/business-mainitems.enum';
+import { BusinessStatus } from '../../modules/business/enums/business-status.enum';
+import { BusinessTargetAudience } from '../../modules/business/enums/business-target-audience';
+import { BusinessType } from '../../modules/business/enums/business-type.enum';
+import { Business } from '../../modules/business/schemas/buisness.schema';
 
 // Helper function to generate random coordinates within radius
 function generateRandomCoordinates(centerLat: number, centerLng: number, radiusInMeters: number): [number, number] {

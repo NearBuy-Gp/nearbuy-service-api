@@ -2,10 +2,10 @@
 import { Controller, Post, Param, UploadedFile, UploadedFiles, UseInterceptors, Body, Query } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor, AnyFilesInterceptor } from '@nestjs/platform-express';
 import { UploadService } from './upload.service';
-import { BatchProcessingResponse } from './interfaces/batch-processing.interface';
 import { BusinessCategory } from '../business/enums/business-category.enum';
 import { BusinessType } from '../business/enums/business-type.enum';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { NormalizeOutputDto } from './normalizer/dtos/normalizer-output.dto';  
 
 @Controller(':businessId/item/upload')
 export class UploadController {
@@ -28,6 +28,7 @@ export class UploadController {
   @ApiResponse({
     status: 200,
     description: 'Successfully Extracted Items from uploded files.',
+    type: [NormalizeOutputDto], 
   })
   @UseInterceptors(AnyFilesInterceptor())
   async uploadRawBatch(
@@ -36,13 +37,10 @@ export class UploadController {
     @Query('testMode') testMode?: string, //Add test  flag
     @Query('businessCategory') businessCategory?: BusinessCategory, //For test
     @Query('businessType') businessType?: BusinessType, //For test
-  ): Promise<BatchProcessingResponse> {
-    // If test mode, use query params instead of DB
+  ):Promise<NormalizeOutputDto[]> {  
     if (testMode === 'true') {
       return this.uploadService.extractRawBatchTest(files, businessCategory, businessType);
     }
-
-    // Normal mode with real business ID
     return this.uploadService.extractRawBatch(businessId, files);
   }
 }

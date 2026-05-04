@@ -19,6 +19,8 @@ import { UpdatePharmacyProductDto } from './dtos/requests/update-item.dto';
 import { Queue } from 'bullmq/dist/esm/classes/queue';
 import { InjectQueue } from '@nestjs/bullmq';
 
+import { EmbeddingTextBuilder } from '../search/pipeline/embedding-text.builder';
+import { EmbedClientService } from '../search/clients/embed-client.service';
 @Injectable()
 export class ItemService {
   strategyFactory: any;
@@ -27,6 +29,8 @@ export class ItemService {
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Item.name) private itemModel: Model<Item>,
     @InjectQueue('notifications') private notificationQueue: Queue,
+    private readonly embedClient: EmbedClientService,
+    private readonly embeddingTextBuilder: EmbeddingTextBuilder,
   ) {}
   public async addItemManual(
     businessId: string,
@@ -34,10 +38,18 @@ export class ItemService {
     item: CreateRestaurantItemDto | CreateClinicServiceDto | CreateClassSessionDto | CreatePharmacyProductDto | CreateSupermarketProductDto | CreateClothingProductDto,
   ) {
     const business = await this.validateBusiness(ownerId, businessId);
-
+    const embeddingText = this.embeddingTextBuilder.buildRequestBody(item, business);
+    const embedding = await this.embedClient.createEmbedding(embeddingText);
     const newItem = await this.itemModel.create({
       ...item,
       businessId: business._id,
+      businessName: business.name,
+      businessCategory: business.category,
+      businessType: business.type,
+      businessRate: business.rate ?? null,
+      workingHours: business?.workingHours || [],
+      location: business.location,
+      embedding,
     });
     return { message: 'Item Added Successfully', item: newItem };
   }

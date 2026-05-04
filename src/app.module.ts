@@ -17,6 +17,7 @@ import { NotificationModule } from './modules/notification/notification.module';
 import { QueueModule } from './common/queue/queue.module';
 import { FirebaseModule } from './modules/firebase/firebase/firebase.module';
 import { EventListenerModule } from './modules/notification/event-listener/event-listener/event-listener.module';
+import { SearchModule } from './modules/search/search.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { EventListenerModule } from './modules/notification/event-listener/event
     QueueModule,
     FirebaseModule,
     EventListenerModule,
+    SearchModule,
   ],
   controllers: [AppController],
   providers: [AppService],

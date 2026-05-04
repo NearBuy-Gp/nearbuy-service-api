@@ -1,9 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { AppModule } from 'src/app.module';
-import { Category } from 'src/modules/categories/schemas/categories.schema';
-import { ITEM_CATEGORY_SEED } from 'src/modules/categories/types/item-filter-category.schema';
+import { AppModule } from '../../app.module';
+import { Category } from '../../modules/categories/schemas/categories.schema';
+import { ITEM_CATEGORY_SEED } from '../../modules/categories/types/item-filter-category.schema';
 
 async function seedCategories() {
   const app = await NestFactory.createApplicationContext(AppModule);

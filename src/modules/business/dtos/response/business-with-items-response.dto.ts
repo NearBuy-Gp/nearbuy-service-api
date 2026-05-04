@@ -5,9 +5,10 @@ import { BusinessStatus } from '../../enums/business-status.enum';
 import { LocationDto } from '../request/business-location.dto';
 import { SocialDto } from '../request/business-social-links.dto';
 import { WorkingHoursDto } from '../request/business-working-hours.dto';
-import { Item } from 'src/modules/item/schemas/item.schema';
-import { PaginatedItemsResponseDto } from 'src/modules/item/dtos/response/paginated-items-response.dto';
-
+import { BusinessTargetAudience } from '../../enums/business-target-audience';
+import { BusinessMainItem } from '../../enums/business-mainitems.enum';
+import { PaginatedItemsResponseDto } from '../../../item/dtos/response/paginated-items-response.dto';
+import { Item } from '../../../item/schemas/item.schema';
 export class BusinessWithItemsResponseDto {
   @ApiProperty({
     example: '66c3dcaef3b3a6c94c8d91ab',

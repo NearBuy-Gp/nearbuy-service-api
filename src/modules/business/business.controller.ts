@@ -4,6 +4,7 @@ import { AuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { BusinessService } from './business.service';
 import { Roles } from '../../decorators/roles.decorator';
+import { Role } from '../../utils/enums/user-role.enum';
 import { BusinessRegistrationDto } from './dtos/request/business-registration.dto';
 import { ParseObjectIdPipe } from '@nestjs/mongoose';
 import { UpdateBusinessDto } from './dtos/request/business-update-request.dto';
@@ -16,7 +17,6 @@ import { PaginatedBusinessNearMeDto } from './dtos/response/paginated-business-n
 import { PaginatedItemsResponseDto } from '../item/dtos/response/paginated-items-response.dto';
 import { BusinessWithItemsResponseDto } from './dtos/response/business-with-items-response.dto';
 import { BusinessResponseDto } from './dtos/response/business-response.dto';
-import { Role } from '../../utils/enums/user-role.enum';
 
 @ApiTags('Business')
 @Controller('business')

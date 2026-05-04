@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { BusinessCategory } from 'src/modules/business/enums/business-category.enum';
+import { BusinessCategory } from '../../../business/enums/business-category.enum';
 export class UploadFileDto {
   @ApiProperty({
     type: 'string',
