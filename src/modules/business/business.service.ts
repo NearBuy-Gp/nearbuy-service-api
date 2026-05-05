@@ -18,6 +18,8 @@ import { Item } from '../item/schemas/item.schema';
 import { BusinessWithItemsResponseDto } from './dtos/response/business-with-items-response.dto';
 import { BusinessResponseDto } from './dtos/response/business-response.dto';
 import { BusinessType } from './enums/business-type.enum';
+import {BusinessRateDto} from './dtos/request/business-rate.dto';
+
 
 @Injectable()
 export class BusinessService {
@@ -241,33 +243,71 @@ export class BusinessService {
     const business = await this.validateBusiness(ownerId, businessId);
     return BusinessResponseDto.fromEntity(business);
   }
-  // public async rateBusiness(businessId: string, businessRateDto: BusinessRateDto): Promise<MessageResponseDto> {
-  //   const business = await this.businessModel.findById(businessId);
-  //   if (!business) {
-  //     throw new NotFoundException('Business not found');
-  //   }
-  //   const totalRatings = business.rate * business.numberOfRatings;
-  //   business.numberOfRatings += 1;
-  //   business.rate = (totalRatings + businessRateDto.rate) / business.numberOfRatings;
-  //   await business.save();
-  //   return { message: 'Business rated successfully' };
-  // }
-  // public async unRateBusiness(businessId: string, previousRate: number): Promise<MessageResponseDto> {
-  //   const business = await this.businessModel.findById(businessId);
-  //   if (!business) {
-  //     throw new NotFoundException('Business not found');
-  //   }
-  //   if (business.numberOfRatings <= 1) {
-  //     business.rate = 0;
-  //     business.numberOfRatings = 0;
-  //   } else {
-  //     const totalRatings = business.rate * business.numberOfRatings;
-  //     business.numberOfRatings -= 1;
-  //     business.rate = (totalRatings - previousRate) / business.numberOfRatings;
-  //   }
-  //   await business.save();
-  //   return { message: 'Business unrated successfully' };
-  // }
+  public async rateBusiness(
+  businessId: string,
+  dto: BusinessRateDto,
+  userId: string,
+) {
+  const business = await this.businessModel.findById(businessId);
+
+  if (!business) {
+    throw new NotFoundException('Business not found');
+  }
+
+  const existingRating = business.ratings.find(
+    (r) => r.userId.toString() === userId,
+  );
+
+  if (existingRating) {
+    // update
+    existingRating.rate = dto.rate;
+  } else {
+    // add new
+    business.ratings.push({
+      userId,
+      rate: dto.rate,
+    });
+  }
+
+  const total = business.ratings.reduce((sum, r) => sum + r.rate, 0);
+
+  business.numberOfRatings = business.ratings.length;
+  business.rate = total / business.numberOfRatings;
+
+  await business.save();
+  return {
+  message: 'Business rated successfully',
+  rate: business.rate,
+  numberOfRatings: business.numberOfRatings,
+};
+}
+
+
+ public async unRateBusiness(businessId: string, userId: string) {
+  const business = await this.businessModel.findById(businessId);
+
+  if (!business) {
+    throw new NotFoundException('Business not found');
+  }
+
+  business.ratings = business.ratings.filter(
+    (r) => r.userId.toString() !== userId,
+  );
+
+  if (business.ratings.length === 0) {
+    business.rate = 0;
+    business.numberOfRatings = 0;
+  } else {
+    const total = business.ratings.reduce((sum, r) => sum + r.rate, 0);
+    business.numberOfRatings = business.ratings.length;
+    business.rate = total / business.numberOfRatings;
+  }
+
+  await business.save();
+
+  return { message: 'Business unrated successfully' };
+}
+
   private async validateOwner(ownerId: string) {
     const owner = await this.userModel.findById(ownerId);
     if (!owner) {

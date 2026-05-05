@@ -5,6 +5,7 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { BusinessOnMapDto } from '../business/dtos/response/business-on-map.dto';
 import { MessageResponseDto } from '../auth/dtos/message-response.dto';
+import { UpdateUserDto } from './dtos/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -43,4 +44,61 @@ export class UserService {
 
     return businesses.map((business) => BusinessOnMapDto.fromEntity(business));
   }
+
+
+
+  public async getProfile(userId: string) {
+  const user = await this.userModel
+    .findById(userId)
+    .populate('bookmarkedBusinesses');
+
+  if (!user) {
+    throw new BadRequestException('User not found');
+  }
+
+  return {
+    id: (user._id as any).toString(),
+    userName: user.userName,
+    email: user.email,
+    //photo: user.photo || null,
+
+    bookmarked: user.bookmarkedBusinesses.map((b: any) => ({
+      id: (b._id as any).toString(),
+      name: b.name,
+    })),
+  };
+}
+
+
+public async updateProfile(userId: string, dto: UpdateUserDto) {
+  const user = await this.userModel.findById(userId);
+
+  if (!user) {
+    throw new BadRequestException('User not found');
+  }
+
+  if (dto.userName !== undefined) user.userName = dto.userName;
+  if (dto.email !== undefined) user.email = dto.email;
+  //if (dto.photo !== undefined) user.photo = dto.photo;
+
+  await user.save();
+
+  return {
+    message: 'Profile updated successfully',
+  };
+}
+
+
+
+public async deleteProfile(userId: string) {
+  const user = await this.userModel.findByIdAndDelete(userId);
+
+  if (!user) {
+    throw new BadRequestException('User not found');
+  }
+
+  return {
+    message: 'User deleted successfully',
+  };
+}
 }

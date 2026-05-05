@@ -101,11 +101,22 @@ export class Business extends Document {
   })
   status: BusinessStatus;
 
-  @Prop({ type: Number, default: 0, max: 5, min: 0 })
-  rate: number;
+ @Prop({
+  type: [
+    {
+      userId: { type: MongooseSchema.Types.ObjectId, ref: 'User' },
+      rate: { type: Number, min: 0, max: 5 },
+    },
+  ],
+  default: [],
+})
+ratings: { userId: string; rate: number }[];
 
-  @Prop({ type: Number, default: 0 })
-  numberOfRatings: number;
+@Prop({ type: Number, default: 0, max: 5, min: 0 })
+rate: number;
+
+@Prop({ type: Number, default: 0 })
+numberOfRatings: number;
 
   @Prop({
     type: [String],
