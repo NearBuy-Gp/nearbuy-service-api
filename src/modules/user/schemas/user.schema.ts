@@ -15,8 +15,11 @@ export class User extends Document {
   @Prop({ required: true })
   password: string;
 
-  @Prop({ required: true, enum: Role, default: Role.USER })
+  @Prop({ type: String, required: true, enum: Role, default: Role.USER })
   role: Role;
+
+  @Prop({ type: String, required: false, default: null })
+  fcmToken: string | null;
 
   @Prop({
     type: [MongooseSchema.Types.ObjectId],

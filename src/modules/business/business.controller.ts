@@ -131,7 +131,7 @@ export class BusinessController {
   // @Patch('/:id/user/rate')
   // @ApiOperation({ summary: 'Rate Business' })
   // @ApiResponse({
-  //   status: 200,
+  //   status: 200,g
   //   description: 'Business rated successfully',
   //   type: MessageResponseDto,
   // })
@@ -153,4 +153,5 @@ export class BusinessController {
   // public unRateBusiness(@Param('id', ParseObjectIdPipe) businessId: string, @Body('previousRate') previousRate: number): Promise<MessageResponseDto> {
   //   return this.businessService.unRateBusiness(businessId, previousRate);
   // }
+  //get rate
 }

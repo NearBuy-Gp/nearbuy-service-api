@@ -43,4 +43,13 @@ export class UserService {
 
     return businesses.map((business) => BusinessOnMapDto.fromEntity(business));
   }
+  
+  public async getFcmToken(userId: string): Promise<string | null> {
+    const user = await this.userModel.findById(userId).select('fcmToken').lean();
+    return user?.fcmToken ?? null;
+  }
+
+  public async clearFcmToken(userId: string): Promise<void> {
+    await this.userModel.findByIdAndUpdate(userId, { $set: { fcmToken: null } });
+  }
 }
