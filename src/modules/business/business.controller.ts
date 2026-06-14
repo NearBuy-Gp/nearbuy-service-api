@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags ,ApiParam } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { BusinessService } from './business.service';
@@ -17,6 +17,9 @@ import { PaginatedBusinessNearMeDto } from './dtos/response/paginated-business-n
 import { PaginatedItemsResponseDto } from '../item/dtos/response/paginated-items-response.dto';
 import { BusinessWithItemsResponseDto } from './dtos/response/business-with-items-response.dto';
 import { BusinessResponseDto } from './dtos/response/business-response.dto';
+import {BusinessRateDto} from './dtos/request/business-rate.dto';
+
+
 
 @ApiTags('Business')
 @Controller('business')
@@ -126,32 +129,75 @@ export class BusinessController {
     return this.businessService.updateBusiness(userId, businessId, updateBusinessDto);
   }
 
-  // @UseGuards(AuthGuard, RolesGuard)
-  // @Roles(Role.USER)
-  // @Patch('/:id/user/rate')
-  // @ApiOperation({ summary: 'Rate Business' })
-  // @ApiResponse({
-  //   status: 200,g
-  //   description: 'Business rated successfully',
-  //   type: MessageResponseDto,
-  // })
-  // @ApiBody({ type: BusinessRateDto })
-  // public rateBusiness(@Param('id', ParseObjectIdPipe) businessId: string, @Body() businessRateDto: BusinessRateDto): Promise<MessageResponseDto> {
-  //   return this.businessService.rateBusiness(businessId, businessRateDto);
-  // }
+@UseGuards(AuthGuard, RolesGuard)
+@Roles(Role.USER)
+@Patch('/:id/user/rate')
 
-  // @UseGuards(AuthGuard, RolesGuard)
-  // @Roles(Role.USER)
-  // @Patch('/:id/user/unrate')
-  // @ApiOperation({ summary: 'Unrate Business' })
-  // @ApiResponse({
-  //   status: 200,
-  //   description: 'Business unrated successfully',
-  //   type: MessageResponseDto,
-  // })
-  // @ApiBody({ schema: { properties: { previousRate: { type: 'number', example: 4 } } } })
-  // public unRateBusiness(@Param('id', ParseObjectIdPipe) businessId: string, @Body('previousRate') previousRate: number): Promise<MessageResponseDto> {
-  //   return this.businessService.unRateBusiness(businessId, previousRate);
-  // }
-  //get rate
+@ApiOperation({ summary: 'Rate a business' })
+
+@ApiParam({
+  name: 'id',
+  type: String,
+  description: 'Business ID',
+})
+
+@ApiBody({ type: BusinessRateDto })
+
+@ApiResponse({
+  status: 200,
+  description: 'Business rated successfully',
+  schema: {
+    example: {
+      message: 'Business rated successfully',
+      rate: 4.3,
+      numberOfRatings: 10,
+      myRate: 5,
+    },
+  },
+})
+
+@ApiResponse({ status: 404, description: 'Business not found' })
+@ApiResponse({ status: 401, description: 'Unauthorized' })
+
+public rateBusiness(
+  @Param('id', ParseObjectIdPipe) businessId: string,
+  @Body() dto: BusinessRateDto,
+  @User('id') userId: string,
+) {
+  return this.businessService.rateBusiness(businessId, dto, userId);
+}
+
+@UseGuards(AuthGuard, RolesGuard)
+@Roles(Role.USER)
+@Patch('/:id/user/unrate')
+
+@ApiOperation({ summary: 'Remove user rating from business' })
+
+@ApiParam({
+  name: 'id',
+  type: String,
+  description: 'Business ID',
+})
+
+@ApiResponse({
+  status: 200,
+  description: 'Business unrated successfully',
+  schema: {
+    example: {
+      message: 'Business unrated successfully',
+      rate: 4.1,
+      numberOfRatings: 9,
+    },
+  },
+})
+
+@ApiResponse({ status: 404, description: 'Business not found' })
+@ApiResponse({ status: 401, description: 'Unauthorized' })
+
+public unRateBusiness(
+  @Param('id', ParseObjectIdPipe) businessId: string,
+  @User('id') userId: string,
+) {
+  return this.businessService.unRateBusiness(businessId, userId);
+}
 }
