@@ -62,4 +62,8 @@ export class SearchRequestDto {
   @IsString()
   @IsIn(['cheap', 'expensive'])
   priceSort?: 'cheap' | 'expensive';
+
+  @IsOptional() @IsString() userId?: string;
+  @IsOptional() @IsNumber() lat?: number;
+  @IsOptional() @IsNumber() lng?: number;
 }

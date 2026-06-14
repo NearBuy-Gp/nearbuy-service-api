@@ -1,7 +1,6 @@
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ChangeStream } from 'mongodb';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { BusinessStatus } from '../../../business/enums/business-status.enum';
@@ -12,8 +11,8 @@ import { Item } from '../../../item/schemas/item.schema';
 export class EventListenerService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(EventListenerService.name);
 
-  private restockStream: ChangeStream;
-  private openStream: ChangeStream;
+  private restockStream: any;
+private openStream: any;
 
   constructor(
     @InjectModel(Item.name) private itemModel: Model<Item>,

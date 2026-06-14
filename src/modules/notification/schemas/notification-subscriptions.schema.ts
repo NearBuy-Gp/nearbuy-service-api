@@ -3,6 +3,8 @@ import { Document, Types } from 'mongoose';
 import { BusinessCategory } from '../../business/enums/business-category.enum';
 import { BusinessType } from '../../business/enums/business-type.enum';
 
+export type NotificationSubscriptionDocument = NotificationSubscription & Document;
+
 export enum NotificationType {
   RESTOCK = 'RESTOCK',
   BUSINESS_OPEN = 'BUSINESS_OPEN',
@@ -46,7 +48,7 @@ export class NotificationSubscription extends Document {
     },
     required: false,
   })
-  searchIntent: {
+  searchIntent?: {
     businessType: BusinessType;
     businessCategory: BusinessCategory;
     searchVector: number[];
@@ -59,7 +61,7 @@ export class NotificationSubscription extends Document {
     };
   };
 
-  @Prop({ type: Types.ObjectId, ref: 'UserInterest', required: true })
+  @Prop({ type: Types.ObjectId, ref: 'UserInterest', required: false })
   interestRef: Types.ObjectId;
 
   // State
@@ -92,3 +94,20 @@ export class NotificationSubscription extends Document {
 }
 
 export const NotificationSubscriptionSchema = SchemaFactory.createForClass(NotificationSubscription);
+// Fast lookup in processor: findOne by userId + type + interestRef
+NotificationSubscriptionSchema.index(
+  { userId: 1, type: 1, interestRef: 1 },
+  { sparse: true },
+);
+
+// Fast upsert in search side-effect: findOneAndUpdate by userId + type + businessType
+NotificationSubscriptionSchema.index(
+  { userId: 1, type: 1, 'searchIntent.businessType': 1 },
+  { sparse: true },
+);
+
+// TTL index — auto-expire dead subscriptions
+NotificationSubscriptionSchema.index(
+  { expiresAt: 1 },
+  { expireAfterSeconds: 0, sparse: true },
+);

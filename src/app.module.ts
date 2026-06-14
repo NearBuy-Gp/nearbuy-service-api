@@ -18,6 +18,7 @@ import { QueueModule } from './common/queue/queue.module';
 import { FirebaseModule } from './modules/firebase/firebase/firebase.module';
 import { EventListenerModule } from './modules/notification/event-listener/event-listener/event-listener.module';
 import { SearchModule } from './modules/search/search.module';
+import { BullModule } from '@nestjs/bullmq';
 
 @Module({
   imports: [
@@ -41,6 +42,16 @@ import { SearchModule } from './modules/search/search.module';
     FirebaseModule,
     EventListenerModule,
     SearchModule,
+    BullModule.forRoot({
+    connection: {
+      host: process.env.REDIS_HOST ?? 'localhost',
+      port: parseInt(process.env.REDIS_PORT ?? '6379'),
+      password: process.env.REDIS_PASSWORD,
+      tls: process.env.REDIS_HOST?.includes('railway.app')
+        ? {}
+        : undefined,
+    },
+}),
   ],
   controllers: [AppController],
   providers: [AppService],

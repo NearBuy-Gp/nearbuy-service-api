@@ -16,7 +16,7 @@ import { UpdateClothingProductDto, UpdateRestaurantItemDto, UpdateSupermarketPro
 import { UpdateClinicServiceDto } from './dtos/requests/update-item.dto';
 import { UpdateClassSessionDto } from './dtos/requests/update-item.dto';
 import { UpdatePharmacyProductDto } from './dtos/requests/update-item.dto';
-import { Queue } from 'bullmq/dist/esm/classes/queue';
+import { Queue } from 'bullmq';
 import { InjectQueue } from '@nestjs/bullmq';
 
 import { EmbeddingTextBuilder } from '../search/pipeline/embedding-text.builder';
