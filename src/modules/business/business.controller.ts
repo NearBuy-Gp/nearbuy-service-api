@@ -3,12 +3,12 @@ import { ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags ,ApiParam } from 
 import { AuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { BusinessService } from './business.service';
-import { Roles } from 'src/decorators/roles.decorator';
-import { Role } from 'src/utils/enums/user-role.enum';
+import { Roles } from '../../decorators/roles.decorator';
+import { Role } from '../../utils/enums/user-role.enum';
 import { BusinessRegistrationDto } from './dtos/request/business-registration.dto';
 import { ParseObjectIdPipe } from '@nestjs/mongoose';
 import { UpdateBusinessDto } from './dtos/request/business-update-request.dto';
-import { User } from 'src/common/decorators/user.decorator';
+import { User } from '../../common/decorators/user.decorator';
 import { BusinessOnMapDto } from './dtos/response/business-on-map.dto';
 import { NearbyQueryDto } from './dtos/request/nearby-query.dto';
 import { MapViewQueryDto } from './dtos/request/map-view-query';
@@ -129,7 +129,7 @@ export class BusinessController {
     return this.businessService.updateBusiness(userId, businessId, updateBusinessDto);
   }
 
-  @UseGuards(AuthGuard, RolesGuard)
+@UseGuards(AuthGuard, RolesGuard)
 @Roles(Role.USER)
 @Patch('/:id/user/rate')
 

@@ -3,10 +3,10 @@ import { NormalizerStrategy } from '../normalizer.interface';
 import { NormalizeInputDto } from '../dtos/normalizer-input.dto';
 import { NormalizeOutputDto } from '../dtos/normalizer-output.dto';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { BusinessCategory } from 'src/modules/business/enums/business-category.enum';
-import { BusinessType } from 'src/modules/business/enums/business-type.enum';
-import { ItemType } from 'src/modules/item/enums/item-type.enum';
-import { ITEM_CATEGORY_SEED } from 'src/modules/categories/types/item-filter-category.schema';
+import { BusinessCategory } from '../../../business/enums/business-category.enum';
+import { BusinessType } from '../../../business/enums/business-type.enum';
+import { ITEM_CATEGORY_SEED } from '../../../categories/types/item-filter-category.schema';
+import { ItemType } from '../../../item/enums/item-type.enum';
 
 @Injectable()
 export class AiNormalizerStrategy implements NormalizerStrategy {
@@ -56,7 +56,7 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
         if (i + this.BATCH_SIZE < rawData.length) {
           await new Promise((resolve) => setTimeout(resolve, 1000));
         }
-      } catch (error) {
+      } catch (error: any) {
         this.logger.error(`Batch ${batchNumber} failed: ${error.message}. Continuing with next batch...`);
       }
     }
@@ -104,7 +104,7 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
       }));
 
       return validatedItems;
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error('Batch normalization failed:', error.message);
 
       this.logger.error('Error details:', error.stack);

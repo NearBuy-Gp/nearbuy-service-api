@@ -6,9 +6,9 @@ import { BusinessType } from '../../enums/business-type.enum';
 import { LocationDto } from './business-location.dto';
 import { SocialDto } from './business-social-links.dto';
 import { WorkingHoursDto } from './business-working-hours.dto';
-import { BusinessFacility } from 'src/modules/business/enums/business-facilities.enum';
-import { BusinessMainItem } from 'src/modules/business/enums/business-mainitems.enum';
 import { BusinessTargetAudience } from '../../enums/business-target-audience';
+import { BusinessFacility } from '../../enums/business-facilities.enum';
+import { BusinessMainItem } from '../../enums/business-mainitems.enum';
 
 export class BusinessRegistrationDto {
   @ApiProperty({ example: 'Gold’s Gym' })

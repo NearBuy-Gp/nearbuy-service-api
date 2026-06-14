@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsOptional, IsString } from 'class-validator';
-import { WeekDays } from 'src/utils/enums/week-days.enum';
+import { WeekDays } from '../../../../utils/enums/week-days.enum';
 
 export class WorkingHoursDto {
   @ApiProperty({

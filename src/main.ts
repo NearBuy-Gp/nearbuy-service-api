@@ -2,7 +2,18 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import STATIC_MESSAGES from './config/staticMessages.json';
-import { ValidationPipe } from '@nestjs/common';
+import { BadRequestException, Logger, ValidationPipe } from '@nestjs/common';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+
+const processLogger = new Logger('Process');
+
+process.on('unhandledRejection', (reason) => {
+  processLogger.error('Unhandled promise rejection', reason instanceof Error ? reason.stack : String(reason));
+});
+
+process.on('uncaughtException', (error) => {
+  processLogger.error('Uncaught exception', error.stack ?? error.message);
+});
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, { cors: true });
@@ -13,8 +24,15 @@ async function bootstrap(): Promise<void> {
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
+      stopAtFirstError: false,
+      exceptionFactory: (errors) => {
+        const messages = errors.flatMap((err) => Object.values(err.constraints ?? { invalid: `Invalid value for "${err.property}".` }));
+        return new BadRequestException(messages);
+      },
     }),
   );
+
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   const corsOrigins = process.env.CORS_ORIGIN ? JSON.parse(process.env.CORS_ORIGIN) : ['http://localhost:3000'];
 
@@ -38,4 +56,7 @@ async function bootstrap(): Promise<void> {
   await app.listen(process.env.PORT ?? 3000);
 }
 
-void bootstrap();
+void bootstrap().catch((error) => {
+  processLogger.error('Failed to bootstrap application', error instanceof Error ? error.stack : String(error));
+  process.exit(1);
+});

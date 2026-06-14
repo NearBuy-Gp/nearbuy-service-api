@@ -12,7 +12,7 @@ import { BusinessOnMapDto } from './dtos/response/business-on-map.dto';
 import { BusinessCategory } from './enums/business-category.enum';
 import { BusinessDataDto } from './dtos/response/business-data.dto';
 import { PaginatedBusinessNearMeDto } from './dtos/response/paginated-business-near-me';
-import geohash from 'src/utils/helpers/geohash';
+import geohash from '../../utils/helpers/geohash';
 import { PaginatedItemsResponseDto } from '../item/dtos/response/paginated-items-response.dto';
 import { Item } from '../item/schemas/item.schema';
 import { BusinessWithItemsResponseDto } from './dtos/response/business-with-items-response.dto';
@@ -89,7 +89,16 @@ export class BusinessService {
     if (!updatedBusiness) {
       throw new NotFoundException('Business not found');
     }
+    const itemUpdate: Partial<Item> = {};
+    if (business.workingHours !== undefined) {
+      itemUpdate.workingHours = business.workingHours;
+    }
+    if (business.location !== undefined)
+      itemUpdate.location = business.location.coordinates ? { type: 'Point', coordinates: [business.location.coordinates[0], business.location.coordinates[1]] } : undefined;
 
+    if (Object.keys(itemUpdate).length > 0) {
+      await this.itemModel.updateMany({ businessId: validatedBusiness._id }, { $set: itemUpdate });
+    }
     return updatedBusiness;
   }
   public async getNearbyBusiness(lat: number, lng: number, radius?: number, businessType?: BusinessType, page: number = 1, limit: number = 5): Promise<PaginatedBusinessNearMeDto> {
