@@ -14,6 +14,9 @@ import { NormalizerModule } from './modules/upload/normalizer/normalizer.module'
 import { CategoriesModule } from './modules/categories/categories.module';
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 import { SearchModule } from './modules/search/search.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
+
+
 
 @Module({
   imports: [
@@ -23,6 +26,7 @@ import { SearchModule } from './modules/search/search.module';
     }),
     MongooseModule.forRootAsync(mongoConfig()),
     AuthModule,
+    AnalyticsModule,
     UserModule,
     BusinessModule,
     UploadModule,

@@ -5,6 +5,8 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { BusinessOnMapDto } from '../business/dtos/response/business-on-map.dto';
 import { MessageResponseDto } from '../auth/dtos/message-response.dto';
+import { UpdateUserProfileDto } from './dtos/update-profile.dto';
+
 
 @Injectable()
 export class UserService {
@@ -42,5 +44,14 @@ export class UserService {
     const businesses = await this.businessModel.find({ _id: { $in: bookmarkedBusinessesIds } }).exec();
 
     return businesses.map((business) => BusinessOnMapDto.fromEntity(business));
-  }
+  } 
+
+
+  async updateProfile(userId: string, dto: UpdateUserProfileDto) {
+  return this.userModel.findByIdAndUpdate(
+    userId,
+    { $set: dto },
+    { new: true }
+  ).select('age userType interests');
+}
 }
