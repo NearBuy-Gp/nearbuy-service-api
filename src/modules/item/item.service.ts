@@ -16,6 +16,9 @@ import { UpdateClothingProductDto, UpdateRestaurantItemDto, UpdateSupermarketPro
 import { UpdateClinicServiceDto } from './dtos/requests/update-item.dto';
 import { UpdateClassSessionDto } from './dtos/requests/update-item.dto';
 import { UpdatePharmacyProductDto } from './dtos/requests/update-item.dto';
+import { Queue } from 'bullmq';
+import { InjectQueue } from '@nestjs/bullmq';
+
 import { EmbeddingTextBuilder } from '../search/pipeline/embedding-text.builder';
 import { EmbedClientService } from '../search/clients/embed-client.service';
 @Injectable()
@@ -25,6 +28,7 @@ export class ItemService {
     @InjectModel(Business.name) private businessModel: Model<Business>,
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Item.name) private itemModel: Model<Item>,
+    @InjectQueue('notifications') private notificationQueue: Queue,
     private readonly embedClient: EmbedClientService,
     private readonly embeddingTextBuilder: EmbeddingTextBuilder,
   ) {}
@@ -58,7 +62,6 @@ export class ItemService {
     if (!items || items.length === 0) {
       throw new BadRequestException('No items to insert');
     }
-    console.log(businessId, ownerId);
     const business = await this.validateBusiness(ownerId, businessId);
     const itemsWithBusinessId = items.map((item) => ({
       ...item,
@@ -106,6 +109,16 @@ export class ItemService {
     if (!item) {
       throw new NotFoundException('Item not found');
     }
+    // if (itemDetails.isAvailable === true) {
+    //   await this.notificationQueue.add(
+    //     'RESTOCK',
+    //     { businessId, itemId },
+    //     {
+    //       attempts: 3,
+    //       backoff: { type: 'exponential', delay: 5000 },
+    //     },
+    //   );
+    // }
 
     const updatedItem = await this.itemModel.findByIdAndUpdate(item._id, { $set: itemDetails }, { new: true, strict: false });
     if (!updatedItem) {

@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { SearchService } from './search.service';
 import { SearchController } from './search.controller';
 import { MongooseModule } from '@nestjs/mongoose';
+import { BullModule } from '@nestjs/bullmq';
 import { Business, BusinessSchema } from '../business/schemas/buisness.schema';
 import { User, UserSchema } from '../user/schemas/user.schema';
 import { Item, ItemSchema } from '../item/schemas/item.schema';
@@ -17,6 +18,8 @@ import { TimeStageBuilder } from './pipeline/time-stage.builder';
 import { SortStageBuilder } from './pipeline/sort-stage.builder';
 import { ScoreStageBuilder } from './pipeline/score-stage.builder';
 import { HttpModule } from '@nestjs/axios';
+import {NotificationSubscription,NotificationSubscriptionSchema} from '../notification/schemas/notification-subscriptions.schema';
+import { InterestModule } from '../notification/interest/interest.module';
 
 @Module({
   imports: [
@@ -25,7 +28,10 @@ import { HttpModule } from '@nestjs/axios';
       { name: Business.name, schema: BusinessSchema },
       { name: User.name, schema: UserSchema },
       { name: Item.name, schema: ItemSchema },
+      { name: NotificationSubscription.name, schema: NotificationSubscriptionSchema },
     ]),
+    BullModule.registerQueue({ name: 'notifications' }),
+    InterestModule,
   ],
   providers: [
     SearchService,

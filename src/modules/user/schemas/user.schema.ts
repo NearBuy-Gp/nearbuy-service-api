@@ -15,7 +15,7 @@ export class User extends Document {
   @Prop({ required: true })
   password: string;
 
-  @Prop({ required: true, enum: Role, default: Role.USER })
+  @Prop({ type: String, required: true, enum: Role, default: Role.USER })
   role: Role;
 
 
@@ -27,6 +27,8 @@ export class User extends Document {
 
    @Prop({ type: [String], enum: ['Food', 'Shopping', 'Electronics', 'Fashion', 'Entertainment', 'Sports', 'Services', 'Healthcare'], default: [] })
    interests?: string[];
+  @Prop({ type: String, required: false, default: null })
+  fcmToken: string | null;
 
   @Prop({
     type: [MongooseSchema.Types.ObjectId],

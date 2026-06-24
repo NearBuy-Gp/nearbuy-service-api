@@ -101,11 +101,22 @@ export class Business extends Document {
   })
   status: BusinessStatus;
 
-  @Prop({ type: Number, default: 0, max: 5, min: 0 })
-  rate: number;
+ @Prop({
+  type: [
+    {
+      userId: { type: MongooseSchema.Types.ObjectId, ref: 'User' },
+      rate: { type: Number, min: 0, max: 5 },
+    },
+  ],
+  default: [],
+})
+ratings: { userId: string; rate: number }[];
 
-  @Prop({ type: Number, default: 0 })
-  numberOfRatings: number;
+@Prop({ type: Number, default: 0, max: 5, min: 0 })
+rate: number;
+
+@Prop({ type: Number, default: 0 })
+numberOfRatings: number;
 
   @Prop({
     type: [String],
@@ -172,6 +183,11 @@ export class Business extends Document {
   })
   ownerId: MongooseSchema.Types.ObjectId;
 
+  @Prop({ type: Boolean, default: false })
+  is_open_now: boolean;
+
+  @Prop({ type: Date })
+  lastOpenedAt?: Date;
   @Prop({ type: MongooseSchema.Types.Mixed, default: {} })
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   attributes?: Record<string, any>;
@@ -188,3 +204,4 @@ BusinessSchema.index({ geohash_neighborhood: 1 });
 BusinessSchema.index({ geohash_street: 1 });
 BusinessSchema.index({ geohash_building: 1 });
 BusinessSchema.index({ ownerId: 1 });
+BusinessSchema.index({ is_open_now: 1 });

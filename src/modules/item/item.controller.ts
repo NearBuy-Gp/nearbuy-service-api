@@ -3,6 +3,7 @@ import { ItemService } from './item.service';
 import { ApiBody, ApiExtraModels, ApiOperation, ApiResponse, ApiTags, getSchemaPath } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { Role } from '../../utils/enums/user-role.enum';
 import {
   CreateClassSessionDto,
   CreateClinicServiceDto,
@@ -30,7 +31,6 @@ import { RestaurantItemAttributesDto } from './dtos/requests/resturant-item.dto'
 import { SupermarketProductAttributesDto } from './dtos/requests/supermarket-porduct.dto';
 import { Item } from './schemas/item.schema';
 import { Roles } from '../../decorators/roles.decorator';
-import { Role } from '../../utils/enums/user-role.enum';
 
 @ApiTags('Item')
 @ApiExtraModels(

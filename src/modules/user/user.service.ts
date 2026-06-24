@@ -7,6 +7,7 @@ import { BusinessOnMapDto } from '../business/dtos/response/business-on-map.dto'
 import { MessageResponseDto } from '../auth/dtos/message-response.dto';
 import { UpdateUserProfileDto } from './dtos/update-profile.dto';
 
+import { UpdateUserDto } from './dtos/update-user.dto';
 
 @Injectable()
 export class UserService {

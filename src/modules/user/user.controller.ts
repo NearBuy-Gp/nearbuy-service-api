@@ -1,11 +1,13 @@
 import { Controller, Get, Param, Post, UseGuards ,Patch,Body} from '@nestjs/common';
 import { AuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags, ApiBody } from '@nestjs/swagger';
 import { RolesGuard } from '../auth/guards/roles.guard';
 
 import { User } from '../../common/decorators/user.decorator';
 import { UserService } from './user.service';
 import { BusinessOnMapDto } from '../business/dtos/response/business-on-map.dto';
+import { UpdateUserDto } from './dtos/update-user.dto';
+import { UserProfileDto } from './dtos/user-profile.dto';
 import { Roles } from '../../decorators/roles.decorator';
 import { Role } from '../../utils/enums/user-role.enum';
 import { UpdateUserProfileDto } from './dtos/update-profile.dto';

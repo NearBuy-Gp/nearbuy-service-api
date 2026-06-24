@@ -17,6 +17,7 @@ import {
   restaurantItemSchema,
   supermarketProductSchema,
 } from './schemas/item-types.schema';
+import { QueueModule } from '../../common/queue/queue.module';
 import { NlpClientService } from '../search/clients/nlp-client.service';
 import { EmbedClientService } from '../search/clients/embed-client.service';
 import { EmbeddingTextBuilder } from '../search/pipeline/embedding-text.builder';
@@ -59,6 +60,7 @@ import { HttpModule } from '@nestjs/axios';
         },
       },
     ]),
+    QueueModule,
   ],
   providers: [ItemService, NlpClientService, EmbedClientService, EmbeddingTextBuilder],
   controllers: [ItemController],

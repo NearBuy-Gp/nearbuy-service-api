@@ -25,5 +25,6 @@ import { Business, BusinessSchema } from '../business/schemas/buisness.schema';
     MongooseModule.forFeature([{ name: Business.name, schema: BusinessSchema }]),
   ],
   controllers: [UserController],
+  exports: [UserService]
 })
 export class UserModule {}
