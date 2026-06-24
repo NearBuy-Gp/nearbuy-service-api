@@ -25,7 +25,11 @@
     "seed:categories": "ts-node -r tsconfig-paths/register src/common/seed/items-category-seed.ts",
     "seed:combined": "ts-node -r tsconfig-paths/register src/common/seed/combined-seed.ts",
     "seed:remove": "ts-node -r tsconfig-paths/register src/common/seed/combined-seed.ts remove",
-    "seed:create-vector-index": "ts-node -r tsconfig-paths/register src/common/seed/create-vector-index.ts"
+    "seed:create-vector-index": "ts-node -r tsconfig-paths/register src/common/seed/create-vector-index.ts",
+    "seed:v2": "ts-node -r tsconfig-paths/register src/common/seed/v2/orchestrator.ts",
+    "seed:v2:fresh": "ts-node -r tsconfig-paths/register src/common/seed/v2/orchestrator.ts --fresh",
+    "seed:v2:no-ai": "ts-node -r tsconfig-paths/register src/common/seed/v2/orchestrator.ts --no-ai",
+    "seed:v2:dry": "ts-node -r tsconfig-paths/register src/common/seed/v2/orchestrator.ts --dry-run"
   },
   "overrides": {
     "multer": "$multer",
