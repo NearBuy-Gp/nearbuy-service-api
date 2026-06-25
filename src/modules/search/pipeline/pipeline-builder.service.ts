@@ -151,14 +151,22 @@ export class PipelineBuilderService {
     // const preFilter: Record<string, any> = { isAvailable: true };
     const preFilter: Record<string, any> = {};
     if (business_type) preFilter.businessType = business_type.toLowerCase();
-    const numCandidates = urgency ? 50 : modifiers?.is_top_rated ? 300 : 150;
+
+    // $vectorSearch MUST be the first stage and returns a fixed top-K ranked by
+    // embedding similarity ALONE — it has no knowledge of the geo/time/price filters
+    // that run after it. Those downstream $match stages can decimate a small candidate
+    // set down to zero (e.g. "near me" filtering 50 global matches to a 10km circle).
+    // Overfetch here so the post-filters have enough survivors; the final $limit: 15
+    // caps the response regardless, so a larger limit only costs compute, not result size.
+    const limit = 200;
+    const numCandidates = Math.max(limit, urgency ? 300 : modifiers?.is_top_rated ? 600 : 400);
     return {
       $vectorSearch: {
         index: 'vector_index',
         path: 'embedding',
         queryVector: blueprint.query_vector,
         numCandidates,
-        limit: 50,
+        limit,
         filter: preFilter,
       },
     } as any;
