@@ -1,1 +1,32 @@
-import { Controller, Get, Redirect } from '@nestjs/common';\nimport { AppService } from './app.service';\nimport { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';\n\n@ApiTags('example')\n@Controller()\nexport class AppController {\n  constructor(private readonly appService: AppService) {}\n\n  @Get()\n  @Redirect('/api/docs')\n  @ApiOperation({ summary: 'Redirect to API documentation' })\n  @ApiResponse({ status: 302, description: 'Redirect to Swagger docs' })\n  root() {\n    return { url: '/api/docs' };\n  }\n\n  @Get('api')\n  @Redirect('/api/docs')\n  @ApiOperation({ summary: 'Redirect to API documentation' })\n  @ApiResponse({ status: 302, description: 'Redirect to Swagger docs' })\n  apiRoot() {\n    return { url: '/api/docs' };\n  }\n\n  @Get('health')\n  @ApiOperation({ summary: 'Health check' })\n  @ApiResponse({ status: 200, description: 'Service is healthy' })\n  health(): { status: string } {\n    return { status: 'ok' };\n  }\n}\n
+import { Controller, Get, Redirect } from '@nestjs/common';
+import { AppService } from './app.service';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+
+@ApiTags('example')
+@Controller()
+export class AppController {
+  constructor(private readonly appService: AppService) {}
+
+  @Get()
+  @Redirect('/api/docs')
+  @ApiOperation({ summary: 'Redirect to API documentation' })
+  @ApiResponse({ status: 302, description: 'Redirect to Swagger docs' })
+  root() {
+    return { url: '/api/docs' };
+  }
+
+  @Get('api')
+  @Redirect('/api/docs')
+  @ApiOperation({ summary: 'Redirect to API documentation' })
+  @ApiResponse({ status: 302, description: 'Redirect to Swagger docs' })
+  apiRoot() {
+    return { url: '/api/docs' };
+  }
+
+  @Get('health')
+  @ApiOperation({ summary: 'Health check' })
+  @ApiResponse({ status: 200, description: 'Service is healthy' })
+  health(): { status: string } {
+    return { status: 'ok' };
+  }
+}

@@ -55,4 +55,13 @@ export class UserService {
     { new: true }
   ).select('age userType interests');
 }
+
+  async getFcmToken(userId: string): Promise<string | null> {
+    const user = await this.userModel.findById(userId).select('fcmToken');
+    return user?.fcmToken ?? null;
+  }
+
+  async clearFcmToken(userId: string): Promise<void> {
+    await this.userModel.updateOne({ _id: userId }, { $unset: { fcmToken: 1 } });
+  }
 }
