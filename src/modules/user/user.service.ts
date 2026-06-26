@@ -5,8 +5,6 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { BusinessOnMapDto } from '../business/dtos/response/business-on-map.dto';
 import { MessageResponseDto } from '../auth/dtos/message-response.dto';
-import { UpdateUserProfileDto } from './dtos/update-profile.dto';
-
 import { UpdateUserDto } from './dtos/update-user.dto';
 
 @Injectable()
@@ -45,23 +43,71 @@ export class UserService {
     const businesses = await this.businessModel.find({ _id: { $in: bookmarkedBusinessesIds } }).exec();
 
     return businesses.map((business) => BusinessOnMapDto.fromEntity(business));
-  } 
+  }
 
 
-  async updateProfile(userId: string, dto: UpdateUserProfileDto) {
-  return this.userModel.findByIdAndUpdate(
-    userId,
-    { $set: dto },
-    { new: true }
-  ).select('age userType interests');
+
+  public async getProfile(userId: string) {
+  const user = await this.userModel
+    .findById(userId)
+    .populate('bookmarkedBusinesses');
+
+  if (!user) {
+    throw new BadRequestException('User not found');
+  }
+
+  return {
+    id: (user._id as any).toString(),
+    userName: user.userName,
+    email: user.email,
+    //photo: user.photo || null,
+
+    bookmarked: user.bookmarkedBusinesses.map((b: any) => ({
+      id: (b._id as any).toString(),
+      name: b.name,
+    })),
+  };
 }
 
-  async getFcmToken(userId: string): Promise<string | null> {
-    const user = await this.userModel.findById(userId).select('fcmToken');
+
+public async updateProfile(userId: string, dto: UpdateUserDto) {
+  const user = await this.userModel.findById(userId);
+
+  if (!user) {
+    throw new BadRequestException('User not found');
+  }
+
+  if (dto.userName !== undefined) user.userName = dto.userName;
+  if (dto.email !== undefined) user.email = dto.email;
+  //if (dto.photo !== undefined) user.photo = dto.photo;
+
+  await user.save();
+
+  return {
+    message: 'Profile updated successfully',
+  };
+}
+
+
+
+public async deleteProfile(userId: string) {
+  const user = await this.userModel.findByIdAndDelete(userId);
+
+  if (!user) {
+    throw new BadRequestException('User not found');
+  }
+
+  return {
+    message: 'User deleted successfully',
+  };
+}
+  
+  public async getFcmToken(userId: string): Promise<string | null> {
+    const user = await this.userModel.findById(userId).select('fcmToken').lean();
     return user?.fcmToken ?? null;
   }
 
-  async clearFcmToken(userId: string): Promise<void> {
-    await this.userModel.updateOne({ _id: userId }, { $unset: { fcmToken: 1 } });
+  public async clearFcmToken(userId: string): Promise<void> {
+    await this.userModel.findByIdAndUpdate(userId, { $set: { fcmToken: null } });
   }
 }
