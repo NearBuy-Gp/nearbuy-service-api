@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Post, UseGuards ,Patch,Body} from '@nestjs/common';
 import { AuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ApiOperation, ApiResponse, ApiTags, ApiBody } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags, ApiBody, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { RolesGuard } from '../auth/guards/roles.guard';
 
 import { User } from '../../common/decorators/user.decorator';
@@ -15,11 +15,13 @@ import { UpdateUserProfileDto } from './dtos/update-profile.dto';
 
 @UseGuards(AuthGuard, RolesGuard)
 @ApiTags('User')
+@ApiBearerAuth()
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
   @Roles(Role.USER)
   @ApiOperation({ summary: 'Book mark a business' })
+  @ApiParam({ name: 'businessId', description: 'ID of the business to bookmark' })
   @ApiResponse({ status: 200, description: 'Business bookmarked successfully' })
   @Post('/book-mark/business/:businessId')
   public async saveBusiness(@Param('businessId') businessId: string, @User('id') userId: string) {
@@ -35,6 +37,7 @@ export class UserController {
 
   @Roles(Role.USER)
 @ApiOperation({ summary: 'Update audience profile for better targeting' })
+@ApiBody({ type: UpdateUserProfileDto })
 @ApiResponse({ status: 200, description: 'Audience profile updated successfully' })
 @Patch('/audience-profile')
 public async updateAudienceProfile(
