@@ -72,15 +72,10 @@ export class BusinessService {
 
     const [items, total] = await Promise.all([this.itemModel.find(filter).skip(skip).limit(limit).lean<Item[]>().exec(), this.itemModel.countDocuments(filter).exec()]);
 
-    return {
-      ...BusinessWithItemsResponseDto.fromEntity(business),
-      itemsPaginated: PaginatedItemsResponseDto.fromEntity({
-        items,
-        total,
-        page,
-        limit,
-      }),
-    };
+    return BusinessWithItemsResponseDto.fromEntity(
+      business,
+      PaginatedItemsResponseDto.fromEntity({ items, total, page, limit }),
+    );
   }
   public async updateBusiness(ownerId: string, businessId: string, business: UpdateBusinessDto): Promise<Business> {
     const validatedBusiness = await this.validateBusiness(ownerId, businessId);
@@ -241,12 +236,7 @@ export class BusinessService {
 
     const [items, total] = await Promise.all([this.itemModel.find({ businessId }).skip(skip).limit(limit).lean<Item[]>().exec(), this.itemModel.countDocuments({ businessId }).exec()]);
 
-    return {
-      items,
-      total,
-      page,
-      limit,
-    };
+    return PaginatedItemsResponseDto.fromEntity({ items, total, page, limit });
   }
   public async getBusinessByIdOwner(businessId: string, ownerId: string): Promise<BusinessResponseDto> {
     const business = await this.validateBusiness(ownerId, businessId);

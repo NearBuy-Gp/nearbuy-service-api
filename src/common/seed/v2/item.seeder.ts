@@ -22,11 +22,53 @@ import { retry } from './concurrency';
 const SIZES = Object.values(SizeEnum);
 const MENU_CATS = Object.values(RestaurantItemCategory);
 
-function buildAttributes(itemType: ItemType): Record<string, unknown> | undefined {
+// Keyword → RestaurantItemCategory rules so a restaurant item's menuCategory
+// reflects what it actually is (e.g. "Margherita Pizza" → Pizza) instead of a
+// random enum value. First match wins; falls back to a random valid category.
+const MENU_CATEGORY_RULES: [RegExp, RestaurantItemCategory][] = [
+  [/\bpizza\b/i, RestaurantItemCategory.PIZZA],
+  [/\bburger/i, RestaurantItemCategory.BURGERS],
+  [/shawarma/i, RestaurantItemCategory.SHAWARMA],
+  [/sandwich|sub\b|wrap|panini/i, RestaurantItemCategory.SANDWICHES],
+  [/fried chicken|wings?|nuggets?|broasted/i, RestaurantItemCategory.FRIED_CHICKEN],
+  [/pasta|spaghetti|lasagn|linguine|penne|fettuccine|mac and cheese/i, RestaurantItemCategory.PASTA],
+  [/grill|kebab|kofta|bbq|steak|tikka|skewer/i, RestaurantItemCategory.GRILLS],
+  [/salad/i, RestaurantItemCategory.SALADS],
+  [/fries|appetizer|nachos|onion ring|dip|sides?\b|mozzarella stick|spring roll/i, RestaurantItemCategory.SIDES_AND_APPETIZERS],
+  [/cake|dessert|ice ?cream|brownie|tiramisu|cheesecake|gelato|tart|macaron|pudding|panna ?cotta|waffle|crepe|baklava|kunafa/i, RestaurantItemCategory.DESSERTS],
+  [/coffee|latte|espresso|cappuccino|\btea\b|juice|shake|smoothie|drink|americano|mocha|frappe|matcha|soda|cola|lemonade|water/i, RestaurantItemCategory.DRINKS],
+  [/meal|combo|platter|rice|chicken|beef|fish|seafood|salmon|shrimp|curry|soup/i, RestaurantItemCategory.MEALS],
+];
+
+function pickMenuCategory(name: string): RestaurantItemCategory {
+  for (const [re, cat] of MENU_CATEGORY_RULES) {
+    if (re.test(name)) return cat;
+  }
+  return faker.helpers.arrayElement(MENU_CATS);
+}
+
+/**
+ * Map the catalog item's (AI- or faker-assigned) category NAME to a real DB
+ * Category for this itemType. Tries exact key/name, then substring, and finally
+ * a random valid category so an item is always linked to a type-correct one.
+ */
+function matchCategory(name: string | undefined, categories: CategoryRef[]): CategoryRef | undefined {
+  if (categories.length === 0) return undefined;
+  if (name) {
+    const n = name.trim().toLowerCase();
+    const exact = categories.find((c) => c.name.toLowerCase() === n || c.key.toLowerCase() === n);
+    if (exact) return exact;
+    const partial = categories.find((c) => c.name.toLowerCase().includes(n) || n.includes(c.name.toLowerCase()));
+    if (partial) return partial;
+  }
+  return faker.helpers.arrayElement(categories);
+}
+
+function buildAttributes(itemType: ItemType, entry: CatalogItem): Record<string, unknown> | undefined {
   switch (itemType) {
     case ItemType.RESTAURANT:
       return {
-        menuCategory: faker.helpers.arrayElement(MENU_CATS),
+        menuCategory: pickMenuCategory(entry.name),
         sizes: faker.helpers.arrayElement(SIZES),
         tags: faker.helpers.arrayElements(['popular', 'spicy', 'vegan', 'new', 'chef-special', 'gluten-free'], faker.number.int({ min: 1, max: 3 })),
       };
@@ -93,9 +135,17 @@ export async function createItemsForBusiness(
 ): Promise<SeededItem[]> {
   const seeded: SeededItem[] = [];
 
+  // Type-specific `attributes` only exist on the per-type discriminator schemas,
+  // NOT on the base Item schema. Writing through the base model silently strips
+  // them, so resolve the discriminator model for this itemType and write through
+  // it (SERVICE has no discriminator → base model). This is what actually
+  // persists menuCategory/doctorName/brand/etc.
+  const writeModel = (itemModel.discriminators?.[itemType] as Model<Item> | undefined) ?? itemModel;
+  const usesDiscriminator = writeModel !== itemModel;
+
   for (const entry of catalog) {
-    const attributes = buildAttributes(itemType);
-    const category = categories.length > 0 ? faker.helpers.arrayElement(categories) : undefined;
+    const attributes = buildAttributes(itemType, entry);
+    const category = matchCategory(entry.category, categories);
     const price = jitterPrice(entry.price);
     const inStock = faker.datatype.boolean(0.85);
 
@@ -104,7 +154,6 @@ export async function createItemsForBusiness(
       price,
       images: [faker.image.url({ width: 800, height: 800 })],
       isAvailable: faker.datatype.boolean(0.9),
-      type: itemType,
       is_in_stock: inStock,
       lastRestockedAt: faker.date.recent({ days: 30 }),
       businessName: business.name,
@@ -114,10 +163,13 @@ export async function createItemsForBusiness(
       businessRate: business.rate,
       workingHours: business.workingHours,
     };
+    // The discriminator model sets `type` itself (and rejects $set on the
+    // discriminator key); the base model needs it set explicitly.
+    if (!usesDiscriminator) set.type = itemType;
     if (category) set.categoryId = category._id;
     if (attributes) set.attributes = attributes;
 
-    const doc = await itemModel.findOneAndUpdate(
+    const doc = await writeModel.findOneAndUpdate(
       { businessId: business._id, name: entry.name },
       { $set: set, $setOnInsert: { businessId: business._id, name: entry.name } },
       { upsert: true, new: true, setDefaultsOnInsert: true },

@@ -13,6 +13,8 @@ export interface CatalogItem {
   name: string;
   description: string;
   price: number;
+  /** DB category NAME this item belongs to (mapped to a categoryId by the seeder). */
+  category?: string;
 }
 
 export interface CatalogBundle {
@@ -103,4 +105,45 @@ export function fakerBundle(type: BusinessType, category: BusinessCategory, item
     business: fakerBusinessContent(type, category),
     items: fakerCatalog(type, itemType, count),
   };
+}
+
+/**
+ * Generate `count` items with GUARANTEED-UNIQUE names. Unlike `fakerCatalog`,
+ * this never repeats a name (the curated pool is consumed once, then it draws
+ * from the per-itemType generic generator, and finally disambiguates any
+ * residual collision with a realistic qualifier). Used to build a single large
+ * pool that the seeder partitions into disjoint per-business slices, so the same
+ * item name never lands in two businesses / locations.
+ */
+export function fakerUniqueItems(type: BusinessType, itemType: ItemType, count: number, categoryNames: string[] = []): CatalogItem[] {
+  const out: CatalogItem[] = [];
+  const seen = new Set<string>();
+  const pool = ITEM_POOLS[type];
+  let poolIdx = 0;
+
+  while (out.length < count) {
+    let item: CatalogItem;
+    if (pool && poolIdx < pool.names.length) {
+      const [min, max] = pool.price;
+      const name = pool.names[poolIdx++];
+      item = { name, description: `${name} — ${faker.commerce.productDescription()}`, price: faker.number.int({ min, max }) };
+    } else {
+      item = genericItem(itemType);
+    }
+
+    // Disambiguate collisions with a realistic qualifier rather than dropping.
+    let attempts = 0;
+    while (seen.has(item.name.toLowerCase()) && attempts < 5) {
+      item = { ...item, name: `${item.name} ${faker.commerce.productAdjective()}` };
+      attempts += 1;
+    }
+    const key = item.name.toLowerCase();
+    if (seen.has(key)) continue; // give up on this one, draw again
+    seen.add(key);
+    // No AI here to classify, so assign a valid category at random (the seeder
+    // still maps it to the matching categoryId for this itemType).
+    if (categoryNames.length) item.category = faker.helpers.arrayElement(categoryNames);
+    out.push(item);
+  }
+  return out;
 }

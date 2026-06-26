@@ -89,10 +89,14 @@ async function main() {
     } else {
       for (const type of ALL_BUSINESS_TYPES) {
         const entry = plan[type];
-        const bundle = await ai.getBundle(type, entry.category, entry.itemType, cfg.itemsPerBusiness);
         const categories = categoriesByType.get(entry.itemType) ?? [];
+        // One disjoint, unique item slice (and distinct business name) per
+        // instance — so the same item never repeats across branches/locations.
+        // Pass the real DB category names so the AI classifies each item into one.
+        const bundles = await ai.getInstanceBundles(type, entry.category, entry.itemType, cfg.itemsPerBusiness, cfg.countPerType, categories.map((c) => c.name));
 
         for (let i = 0; i < cfg.countPerType; i++) {
+          const bundle = bundles[i];
           const center = centers[(businessCount + i) % centers.length].coordinates;
           const ownerId = await upsertOwner(userModel, type, i);
           const business = await upsertBusiness(businessModel, { ownerId, type, category: entry.category, index: i, center, content: bundle.business });

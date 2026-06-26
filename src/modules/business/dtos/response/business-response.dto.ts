@@ -1,86 +1,132 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BusinessCategory } from '../../enums/business-category.enum';
 import { BusinessType } from '../../enums/business-type.enum';
+import { BusinessStatus } from '../../enums/business-status.enum';
+import { BusinessFacility } from '../../enums/business-facilities.enum';
+import { BusinessMainItem } from '../../enums/business-mainitems.enum';
+import { BusinessTargetAudience } from '../../enums/business-target-audience';
 import { LocationDto } from '../request/business-location.dto';
 import { SocialDto } from '../request/business-social-links.dto';
 import { WorkingHoursDto } from '../request/business-working-hours.dto';
 import { Business } from '../../schemas/buisness.schema';
 
+/**
+ * Canonical business shape. Every business-returning endpoint serializes the
+ * SAME set of fields with the SAME empty-value conventions so the frontend has
+ * a single contract regardless of which endpoint it calls:
+ *   - optional scalars  -> `null` when absent
+ *   - objects           -> `{}` when absent
+ *   - arrays            -> `[]` when absent
+ *
+ * `BusinessWithItemsResponseDto` extends this and only adds paginated items.
+ */
 export class BusinessResponseDto {
-  @ApiProperty({ example: 'Gold’s Gym' })
+  @ApiProperty({ example: '66c3dcaef3b3a6c94c8d91ab', description: 'Business MongoDB ID' })
+  _id: string;
+
+  @ApiProperty({ example: "Gold's Gym" })
   name: string;
 
-  @ApiPropertyOptional()
-  description?: string;
+  @ApiPropertyOptional({ nullable: true })
+  description?: string | null;
 
-  @ApiPropertyOptional({ type: [String] })
-  tags?: string[];
+  @ApiProperty({ type: [String] })
+  tags: string[];
 
   @ApiProperty({ enum: BusinessType })
   type: BusinessType;
 
-  @ApiPropertyOptional({ enum: BusinessCategory })
-  category?: BusinessCategory;
+  @ApiPropertyOptional({ enum: BusinessCategory, nullable: true })
+  category?: BusinessCategory | null;
 
-  @ApiPropertyOptional()
-  subcategory?: string;
+  @ApiPropertyOptional({ nullable: true })
+  subcategory?: string | null;
 
-  @ApiPropertyOptional()
-  phone?: string;
+  @ApiPropertyOptional({ nullable: true })
+  phone?: string | null;
 
-  @ApiPropertyOptional()
-  email?: string;
+  @ApiPropertyOptional({ nullable: true })
+  email?: string | null;
 
-  @ApiPropertyOptional()
-  website?: string;
+  @ApiPropertyOptional({ nullable: true })
+  website?: string | null;
 
-  @ApiPropertyOptional({ type: SocialDto })
-  social?: SocialDto;
+  @ApiProperty({ type: SocialDto })
+  social: SocialDto;
 
   @ApiProperty({ example: 'Nasr City, Cairo' })
   address: string;
 
-  @ApiProperty({
-    type: LocationDto,
-    description: 'GeoJSON Point with coordinates [lng, lat]',
-  })
+  @ApiProperty({ type: LocationDto, description: 'GeoJSON Point with coordinates [lng, lat]' })
   location: LocationDto;
 
-  @ApiPropertyOptional({ type: [WorkingHoursDto] })
-  workingHours?: WorkingHoursDto[];
+  @ApiProperty({ type: [WorkingHoursDto], description: 'Working hours — the single source of truth (not duplicated on items)' })
+  workingHours: WorkingHoursDto[];
 
-  @ApiPropertyOptional({ type: [String] })
-  images?: string[];
+  @ApiProperty({ type: [String] })
+  images: string[];
 
-  @ApiPropertyOptional({ type: [String] })
-  facilities?: string[];
+  @ApiProperty({ enum: BusinessStatus })
+  status: BusinessStatus;
 
-  @ApiProperty({
-    example: '66c3dcaef3b3a6c94c8d91ab',
-    description: 'Business MongoDB ID',
-  })
-  _id: string;
+  @ApiProperty({ enum: BusinessFacility, isArray: true })
+  facilities: BusinessFacility[];
+
+  @ApiProperty({ enum: BusinessTargetAudience, isArray: true })
+  targetAudience: BusinessTargetAudience[];
+
+  @ApiProperty({ enum: BusinessMainItem, isArray: true })
+  mainItems: BusinessMainItem[];
+
+  @ApiProperty({ type: [String] })
+  mainItemsOthers: string[];
+
+  @ApiProperty({ type: [String] })
+  targetAudienceOther: string[];
+
+  @ApiProperty({ example: false })
+  is_open_now: boolean;
+
   @ApiProperty({ example: 4.5 })
   rate: number;
-  static fromEntity(entity: Business): BusinessResponseDto {
-    const dto = new BusinessResponseDto();
+
+  @ApiProperty({ example: 12 })
+  numberOfRatings: number;
+
+  @ApiProperty({ example: { hasDelivery: true }, description: 'Free-form business-level metadata' })
+  attributes: Record<string, any>;
+
+  /** Maps a business document onto the canonical shape with consistent empty-values. */
+  protected static assign<T extends BusinessResponseDto>(dto: T, entity: Business | any): T {
+    dto._id = entity._id?.toString();
     dto.name = entity.name;
-    dto.description = entity.description || '';
-    dto.tags = entity.tags;
+    dto.description = entity.description ?? null;
+    dto.tags = entity.tags ?? [];
     dto.type = entity.type;
-    dto.category = entity.category;
-    dto.subcategory = entity.subcategory || '';
-    dto.phone = entity.phone || '';
-    dto.email = entity.email || '';
-    dto.website = entity.website || '';
-    dto.social = entity.social || {};
+    dto.category = entity.category ?? null;
+    dto.subcategory = entity.subcategory ?? null;
+    dto.phone = entity.phone ?? null;
+    dto.email = entity.email ?? null;
+    dto.website = entity.website ?? null;
+    dto.social = entity.social ?? {};
     dto.address = entity.address;
-    dto.location = entity.location;
-    dto.workingHours = entity.workingHours || [];
-    dto.images = entity.images || [];
-    dto.facilities = entity.facilities || [];
-    dto._id = entity._id.toString();
-    dto.rate = entity.rate;
+    dto.location = entity.location ?? null;
+    dto.workingHours = entity.workingHours ?? [];
+    dto.images = entity.images ?? [];
+    dto.status = entity.status ?? null;
+    dto.facilities = entity.facilities ?? [];
+    dto.targetAudience = entity.targetAudience ?? [];
+    dto.mainItems = entity.mainItems ?? [];
+    dto.mainItemsOthers = entity.mainItemsOthers ?? [];
+    dto.targetAudienceOther = entity.targetAudienceOther ?? [];
+    dto.is_open_now = entity.is_open_now ?? false;
+    dto.rate = entity.rate ?? 0;
+    dto.numberOfRatings = entity.numberOfRatings ?? 0;
+    dto.attributes = entity.attributes ?? {};
     return dto;
+  }
+
+  static fromEntity(entity: Business | any): BusinessResponseDto {
+    return BusinessResponseDto.assign(new BusinessResponseDto(), entity);
   }
 }
