@@ -25,7 +25,15 @@
     "seed:categories": "ts-node -r tsconfig-paths/register src/common/seed/items-category-seed.ts",
     "seed:combined": "ts-node -r tsconfig-paths/register src/common/seed/combined-seed.ts",
     "seed:remove": "ts-node -r tsconfig-paths/register src/common/seed/combined-seed.ts remove",
-    "seed:create-vector-index": "ts-node -r tsconfig-paths/register src/common/seed/create-vector-index.ts"
+    "seed:create-vector-index": "ts-node -r tsconfig-paths/register src/common/seed/create-vector-index.ts",
+    "seed:v2": "ts-node -r tsconfig-paths/register src/common/seed/v2/orchestrator.ts",
+    "seed:v2:fresh": "ts-node -r tsconfig-paths/register src/common/seed/v2/orchestrator.ts --fresh",
+    "seed:v2:no-ai": "ts-node -r tsconfig-paths/register src/common/seed/v2/orchestrator.ts --no-ai",
+    "seed:v2:dry": "ts-node -r tsconfig-paths/register src/common/seed/v2/orchestrator.ts --dry-run"
+  },
+  "overrides": {
+    "multer": "$multer",
+    "js-yaml": "^4.2.0"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -55,7 +63,7 @@
     "mongodb": "^7.2.0",
     "mongoose": "^8.19.1",
     "mqlight": "^2.0.2019041500",
-    "multer": "^2.0.2",
+    "multer": "^2.2.0",
     "ngeohash": "^0.6.3",
     "nodemon": "^3.1.10",
     "openai": "^6.15.0",

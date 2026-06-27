@@ -18,6 +18,9 @@ import { QueueModule } from './common/queue/queue.module';
 import { FirebaseModule } from './modules/firebase/firebase/firebase.module';
 import { EventListenerModule } from './modules/notification/event-listener/event-listener/event-listener.module';
 import { SearchModule } from './modules/search/search.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
+
+
 import { BullModule } from '@nestjs/bullmq';
 
 @Module({
@@ -28,6 +31,7 @@ import { BullModule } from '@nestjs/bullmq';
     }),
     MongooseModule.forRootAsync(mongoConfig()),
     AuthModule,
+    AnalyticsModule,
     UserModule,
     BusinessModule,
     UploadModule,

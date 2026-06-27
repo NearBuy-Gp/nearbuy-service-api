@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Item } from '../../schemas/item.schema';
+import { ItemResponseDto } from './item.response.dto';
 
 export class PaginatedItemsResponseDto {
   @ApiProperty({
-    type: [Item],
-    description: 'Array of items',
+    type: [ItemResponseDto],
+    description: 'Array of items with unified, type-documented shape',
   })
-  items: Item[];
+  items: ItemResponseDto[];
 
   @ApiProperty({
     example: 50,
@@ -28,7 +28,7 @@ export class PaginatedItemsResponseDto {
 
   static fromEntity(entity: any): PaginatedItemsResponseDto {
     const dto = new PaginatedItemsResponseDto();
-    dto.items = entity.items;
+    dto.items = (entity.items ?? []).map((item: any) => ItemResponseDto.fromEntity(item));
     dto.total = entity.total;
     dto.page = entity.page;
     dto.limit = entity.limit;
