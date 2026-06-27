@@ -35,6 +35,7 @@ export class Item extends Document {
   businessId: MongooseSchema.Types.ObjectId;
 
   @Prop({
+    type: String,
     required: true,
     enum: ItemType,
   })

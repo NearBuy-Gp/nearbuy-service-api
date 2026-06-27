@@ -43,6 +43,17 @@ describe('IntelligenceService.evaluate()', () => {
 
     service = module.get<IntelligenceService>(IntelligenceService);
     jest.clearAllMocks();
+
+    // Pin the clock to a fixed daytime instant so the quiet-hours gate
+    // (08:00–22:00 Africa/Cairo) is deterministic regardless of when the suite
+    // runs. 12:00 UTC is ~14:00–15:00 Cairo, well within business hours, so the
+    // C4 (ALREADY_CONVERTED) and C5 (SNOOZED) gates can be exercised.
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date('2026-06-23T12:00:00Z'));
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   it('should block when score < 3', async () => {

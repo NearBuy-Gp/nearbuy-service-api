@@ -7,10 +7,11 @@ import { CreateEmbeddingResponse } from '../interfaces/create-embedding.response
 import * as https from 'https';
 import { AxiosError } from 'axios';
 
+const EXPECTED_EMBEDDING_DIMENSIONS = 384;
+
 @Injectable()
 export class EmbedClientService {
   private readonly embedUrl: string;
-  private useFallback: boolean = false;
 
   constructor(
     private readonly httpService: HttpService,
@@ -53,8 +54,12 @@ export class EmbedClientService {
 
     const vector = response.data.embedding_vector;
 
-    if (response.data.dimensions !== 384) {
-      throw new InternalServerErrorException(`Embedding returned ${vector.length} dimensions, expected 384`);
+    // Validate the actual returned vector, not just the self-reported `dimensions`
+    // field, so a malformed/short vector can never reach the index.
+    if (!Array.isArray(vector) || vector.length !== EXPECTED_EMBEDDING_DIMENSIONS) {
+      throw new InternalServerErrorException(
+        `Embedding returned ${Array.isArray(vector) ? vector.length : 'a non-array'} dimensions, expected ${EXPECTED_EMBEDDING_DIMENSIONS}`,
+      );
     }
 
     return vector;

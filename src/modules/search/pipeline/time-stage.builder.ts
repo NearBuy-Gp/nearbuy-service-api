@@ -2,27 +2,25 @@ import { Injectable } from '@nestjs/common';
 import { PipelineStage } from 'mongoose';
 import { NlpBluePrint } from '../interfaces/nlp-blue-print.interface';
 import { SearchRequestDto } from '../dtos/search-request.dto';
-import { toTimeString, normalizeTime } from '../utils/time-normalization';
+import { normalizeTime } from '../utils/time-normalization';
 import { IPipelineStageBuilder } from './pipeline-stage-builder.interface';
 
 @Injectable()
 export class TimeStageBuilder implements IPipelineStageBuilder {
   async build(blueprint: NlpBluePrint, search?: SearchRequestDto): Promise<PipelineStage | null> {
+    // "Open right now" reuses the `isOpenNow` field already computed once by the
+    // enrichment $addFields stage (which always runs before this stage in the
+    // pipeline). Matching on the precomputed boolean avoids re-running the
+    // identical $anyElementTrue/$map expression a second time.
     if (search?.openNow) {
-      const now = new Date();
-      const currentDay = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][now.getDay()];
-      const currentTime = toTimeString(now.getHours(), now.getMinutes());
-      return this.workingHoursMatch(currentDay, currentTime);
+      return { $match: { isOpenNow: true } };
     }
 
     const tc = blueprint.entities.time_constraints;
     if (!tc) return null;
 
     if (tc.is_now) {
-      const now = new Date();
-      const currentDay = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][now.getDay()];
-      const currentTime = toTimeString(now.getHours(), now.getMinutes());
-      return this.workingHoursMatch(currentDay, currentTime);
+      return { $match: { isOpenNow: true } };
     }
 
     if (tc.day_of_week && tc.target_time) {
