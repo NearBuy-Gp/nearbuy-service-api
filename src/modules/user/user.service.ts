@@ -5,7 +5,10 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { BusinessOnMapDto } from '../business/dtos/response/business-on-map.dto';
 import { MessageResponseDto } from '../auth/dtos/message-response.dto';
+import { UpdateUserProfileDto } from './dtos/update-Audience.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
+
+
 
 @Injectable()
 export class UserService {
@@ -43,11 +46,18 @@ export class UserService {
     const businesses = await this.businessModel.find({ _id: { $in: bookmarkedBusinessesIds } }).exec();
 
     return businesses.map((business) => BusinessOnMapDto.fromEntity(business));
-  }
+  } 
 
 
+  async addAudienceData(userId: string, dto: UpdateUserProfileDto) {
+  return this.userModel.findByIdAndUpdate(
+    userId,
+    { $set: dto },
+    { new: true }
+  ).select('age userType interests');
+}
 
-  public async getProfile(userId: string) {
+public async getProfile(userId: string) {
   const user = await this.userModel
     .findById(userId)
     .populate('bookmarkedBusinesses');
@@ -101,8 +111,10 @@ public async deleteProfile(userId: string) {
     message: 'User deleted successfully',
   };
 }
-  
-  public async getFcmToken(userId: string): Promise<string | null> {
+
+
+
+ public async getFcmToken(userId: string): Promise<string | null> {
     const user = await this.userModel.findById(userId).select('fcmToken').lean();
     return user?.fcmToken ?? null;
   }
