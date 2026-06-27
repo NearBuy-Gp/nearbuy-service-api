@@ -20,7 +20,8 @@ export class NotificationService {
     });
 
     if (existing) {
-      return existing.updateOne({ isActive: true, snoozedUntil: null }, { new: true });
+      existing.set({ isActive: true, snoozedUntil: null });
+      return existing.save();
     }
 
     return this.subModel.create({
