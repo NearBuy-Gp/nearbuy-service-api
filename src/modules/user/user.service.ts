@@ -75,6 +75,7 @@ public async getProfile(userId: string) {
     bookmarked: user.bookmarkedBusinesses.map((b: any) => ({
       id: (b._id as any).toString(),
       name: b.name,
+      category: b.category,
     })),
   };
 }
