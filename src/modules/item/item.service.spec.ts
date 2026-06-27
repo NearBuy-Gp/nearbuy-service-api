@@ -3,12 +3,14 @@ import { Test, TestingModule } from '@nestjs/testing';
 // "getModelToken" is a helper that NestJS uses internally to name its models.
 // We need it so we can say "replace the real Business model with our fake one".
 import { getModelToken } from '@nestjs/mongoose';
+import { getQueueToken } from '@nestjs/bullmq';
 import { BadRequestException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { ItemService } from './item.service';
 import { Business } from '../business/schemas/buisness.schema';
 import { User } from '../user/schemas/user.schema';
 import { Item } from './schemas/item.schema';
-import { describe, beforeEach, it } from 'node:test';
+import { EmbedClientService } from '../search/clients/embed-client.service';
+import { EmbeddingTextBuilder } from '../search/pipeline/embedding-text.builder';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // describe() — a container/folder for related tests
@@ -23,6 +25,12 @@ describe('ItemService', () => {
   let mockBusinessModel: any;
   let mockUserModel: any;
   let mockItemModel: any;
+
+  // ItemService also depends on the notifications queue and the search-module
+  // embedding collaborators. We stub each so DI can resolve the constructor.
+  let mockNotificationQueue: any;
+  let mockEmbedClient: any;
+  let mockEmbeddingTextBuilder: any;
 
   // ───────────────────────────────────────────────────────────────────────────
   // beforeEach() runs BEFORE every single "it()" test below.
@@ -53,6 +61,10 @@ describe('ItemService', () => {
       deleteMany: jest.fn(),
     };
 
+    mockNotificationQueue = { add: jest.fn() };
+    mockEmbedClient = { createEmbedding: jest.fn() };
+    mockEmbeddingTextBuilder = { buildRequestBody: jest.fn() };
+
     // Test.createTestingModule() builds a stripped-down NestJS module.
     // Think of it like AppModule but only with the pieces this service needs.
     const module: TestingModule = await Test.createTestingModule({
@@ -78,6 +90,20 @@ describe('ItemService', () => {
         {
           provide: getModelToken(Item.name),
           useValue: mockItemModel,
+        },
+
+        // Non-model dependencies of ItemService.
+        {
+          provide: getQueueToken('notifications'),
+          useValue: mockNotificationQueue,
+        },
+        {
+          provide: EmbedClientService,
+          useValue: mockEmbedClient,
+        },
+        {
+          provide: EmbeddingTextBuilder,
+          useValue: mockEmbeddingTextBuilder,
         },
       ],
     }).compile(); // .compile() finalises the module — must be awaited.
@@ -105,51 +131,70 @@ describe('ItemService', () => {
   describe('addItemManual', () => {
     it('should create an item and return the success message', async () => {
       // ── ARRANGE ────────────────────────────────────────────────────────────
-      // Build the fake data our mocks will return.
+      // Build the fake data our mocks will return. The business carries the
+      // denormalised fields the service copies onto the new item.
+      const fakeBusiness = {
+        _id: 'biz-001',
+        name: 'Tony Pizzeria',
+        category: 'restaurant',
+        type: 'fast_food',
+        rate: 4.5,
+        workingHours: [{ day: 'monday', from: '09:00', to: '22:00', isClosed: false }],
+        location: { type: 'Point', coordinates: [31.2, 30.0] },
+      };
 
-      // This is what the fake DB would return when we look up a business.
-      const fakeBusiness = { _id: 'biz-001' };
+      // addItemManual builds an embedding-text payload, then asks the embed
+      // client to turn it into a vector — both are stubbed here.
+      const fakeEmbeddingText = { name: 'Burger', businessName: 'Tony Pizzeria' };
+      const fakeEmbedding = [0.1, 0.2, 0.3];
 
       // This is what the fake DB returns after creating an item.
       const fakeCreatedItem = { _id: 'item-001', name: 'Burger', price: 15 };
 
-      // mockResolvedValue() means: when this jest.fn() is called,
-      // resolve the promise and return this value.
-      // We use it because findOne and create are async (they return Promises).
       mockBusinessModel.findOne.mockResolvedValue(fakeBusiness);
+      mockEmbeddingTextBuilder.buildRequestBody.mockReturnValue(fakeEmbeddingText);
+      mockEmbedClient.createEmbedding.mockResolvedValue(fakeEmbedding);
       mockItemModel.create.mockResolvedValue(fakeCreatedItem);
 
       // ── ACT ────────────────────────────────────────────────────────────────
-      // Call the real method with test arguments.
       const result = await service.addItemManual(
         'biz-001', // businessId
         'owner-001', // ownerId
         { name: 'Burger', price: 15 } as any, // item DTO
-        // "as any" avoids TypeScript complaining about which exact DTO type
       );
 
       // ── ASSERT ─────────────────────────────────────────────────────────────
-      // Check the return value is exactly what the service promises.
-      // toEqual() does a deep comparison — checks every nested property.
       expect(result).toEqual({
         message: 'Item Added Successfully',
         item: fakeCreatedItem,
       });
 
-      // Check that validateBusiness() called findOne with the right arguments.
-      // This proves the service is actually querying with our IDs, not guessing.
+      // validateBusiness() looked the business up by id + owner.
       expect(mockBusinessModel.findOne).toHaveBeenCalledWith({
         _id: 'biz-001',
         ownerId: 'owner-001',
       });
 
-      // Check that create() was called with the item data AND businessId merged in.
-      // This is the core logic of addItemManual — spreading item + adding businessId.
-      expect(mockItemModel.create).toHaveBeenCalledWith({
-        name: 'Burger',
-        price: 15,
-        businessId: 'biz-001', // ← this is added by the service, not passed in
-      });
+      // The embedding pipeline ran with the resolved business and item.
+      expect(mockEmbeddingTextBuilder.buildRequestBody).toHaveBeenCalledWith({ name: 'Burger', price: 15 }, fakeBusiness);
+      expect(mockEmbedClient.createEmbedding).toHaveBeenCalledWith(fakeEmbeddingText);
+
+      // create() received the item spread PLUS the denormalised business fields
+      // and the generated embedding.
+      expect(mockItemModel.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'Burger',
+          price: 15,
+          businessId: 'biz-001',
+          businessName: 'Tony Pizzeria',
+          businessCategory: 'restaurant',
+          businessType: 'fast_food',
+          businessRate: 4.5,
+          workingHours: fakeBusiness.workingHours,
+          location: fakeBusiness.location,
+          embedding: fakeEmbedding,
+        }),
+      );
     });
 
     it('should throw UnauthorizedException when business is not found', async () => {

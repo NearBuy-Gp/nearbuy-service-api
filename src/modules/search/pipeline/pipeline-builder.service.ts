@@ -9,6 +9,7 @@ import { ProjectionStageBuilder } from './projection-stage.builder';
 import { PriceRatingStageBuilder } from './price-rating-stage.builder';
 import { ScoreStageBuilder } from './score-stage.builder';
 import { AttributeStageBuilder } from './attribute-stage.builder';
+import { getDayName, toTimeString } from '../utils/time-normalization';
 
 // 1 Vector Search
 // 2 Geo search (look at it)
@@ -32,7 +33,6 @@ export class PipelineBuilderService {
 
   async build(blueprint: NlpBluePrint, search: SearchRequestDto): Promise<PipelineStage[]> {
     const pipeline: PipelineStage[] = [];
-    console.log(blueprint);
 
     if (blueprint.intent === 'OUT_OF_SCOPE') {
       pipeline.push({ $limit: 15 });
@@ -40,7 +40,11 @@ export class PipelineBuilderService {
       pipeline.push(await this.projectionBuilder.build());
       return pipeline;
     }
-    pipeline.push(this.buildVectorSearch(blueprint));
+
+    // Count the aggressive downstream $match stages that will run after the ANN
+    // search so we can widen vector recall proportionally (see buildVectorSearch).
+    const activeFilters = this.countActiveFilters(blueprint, search);
+    pipeline.push(this.buildVectorSearch(blueprint, activeFilters));
     pipeline.push({ $addFields: { vectorScore: { $meta: 'vectorSearchScore' } } });
 
     const geoStage = await this.geoStageBuilder.build(blueprint, search);
@@ -69,8 +73,8 @@ export class PipelineBuilderService {
     const [userLat, userLng] = search.userLocation;
 
     const now = new Date();
-    const currentDay = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][now.getDay()];
-    const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const currentDay = getDayName(now);
+    const currentTime = toTimeString(now.getHours(), now.getMinutes());
 
     return {
       $addFields: {
@@ -145,11 +149,11 @@ export class PipelineBuilderService {
       },
     };
   }
-  private buildVectorSearch(blueprint: NlpBluePrint): PipelineStage {
+  private buildVectorSearch(blueprint: NlpBluePrint, activeFilters = 0): PipelineStage {
     const { business_type, urgency, modifiers } = blueprint.entities;
 
     // const preFilter: Record<string, any> = { isAvailable: true };
-    const preFilter: Record<string, any> = {};
+    const preFilter: Record<string, unknown> = {};
     if (business_type) preFilter.businessType = business_type.toLowerCase();
 
     // $vectorSearch MUST be the first stage and returns a fixed top-K ranked by
@@ -169,6 +173,37 @@ export class PipelineBuilderService {
         limit,
         filter: preFilter,
       },
-    } as any;
+    } as unknown as PipelineStage;
+  }
+
+  // Counts the aggressive downstream $match stages that will actually run for
+  // this request, mirroring each stage builder's own activation conditions.
+  // Used purely to size vector recall — performs no I/O (no geocoding).
+  private countActiveFilters(blueprint: NlpBluePrint, search: SearchRequestDto): number {
+    const e = blueprint.entities;
+    let count = 0;
+
+    // Geo: named location or "near me" with a usable user location.
+    if ((e.locations?.length ?? 0) > 0 || (e.near_me && search.userLocation?.length === 2)) count++;
+
+    // Time: explicit openNow override or any NLP time constraint.
+    const tc = e.time_constraints;
+    if (search.openNow || tc?.is_now || tc?.day_of_week) count++;
+
+    // Price / rating: DTO overrides or NLP-extracted filters.
+    if (
+      search.priceMin != null ||
+      search.priceMax != null ||
+      search.ratingMin != null ||
+      e.price_filter ||
+      e.rating_min != null
+    ) {
+      count++;
+    }
+
+    // Custom item attributes.
+    if (e.size || e.color || e.brand || e.membership_duration_months) count++;
+
+    return count;
   }
 }

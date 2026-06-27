@@ -1,5 +1,11 @@
 import { BadRequestException } from '@nestjs/common';
 
+// Lower-cased day names indexed to match JS `Date.getDay()` (0 = Sunday).
+// Shared so the working-hours logic uses a single source of truth.
+export const DAY_NAMES = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
+
+export const getDayName = (date: Date = new Date()): string => DAY_NAMES[date.getDay()];
+
 export const toTimeString = (hours: number, minutes: number): string => {
   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
 };
