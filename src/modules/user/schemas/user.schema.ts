@@ -30,6 +30,9 @@ export class User extends Document {
   @Prop({ type: String, required: false, default: null })
   fcmToken: string | null;
 
+ @Prop({ type: String, required: false, default: null })
+  fcmToken: string | null;
+
   @Prop({
     type: [MongooseSchema.Types.ObjectId],
     ref: 'Business',
