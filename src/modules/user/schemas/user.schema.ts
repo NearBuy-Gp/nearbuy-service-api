@@ -27,10 +27,8 @@ export class User extends Document {
 
    @Prop({ type: [String], enum: ['Food', 'Shopping', 'Electronics', 'Fashion', 'Entertainment', 'Sports', 'Services', 'Healthcare'], default: [] })
    interests?: string[];
+   
   @Prop({ type: String, required: false, default: null })
-  fcmToken: string | null;
-
- @Prop({ type: String, required: false, default: null })
   fcmToken: string | null;
 
   @Prop({
