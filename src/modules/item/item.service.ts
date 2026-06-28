@@ -63,11 +63,24 @@ export class ItemService {
       throw new BadRequestException('No items to insert');
     }
     const business = await this.validateBusiness(ownerId, businessId);
-    const itemsWithBusinessId = items.map((item) => ({
-      ...item,
-      businessId: business._id,
-    }));
-    const insertedItems = await this.itemModel.insertMany(itemsWithBusinessId);
+    const itemsToInsert = await Promise.all(
+      items.map(async (item: CreateRestaurantItemDto | CreateClinicServiceDto | CreateClassSessionDto | CreatePharmacyProductDto | CreateSupermarketProductDto | CreateClothingProductDto) => {
+        const embeddingText = this.embeddingTextBuilder.buildRequestBody(item, business);
+        const embedding = await this.embedClient.createEmbedding(embeddingText);
+        return {
+          ...item,
+          businessId: business._id,
+          businessName: business.name,
+          businessCategory: business.category,
+          businessType: business.type,
+          businessRate: business.rate ?? null,
+          workingHours: business?.workingHours || [],
+          location: business.location,
+          embedding,
+        };
+      }),
+    );
+    const insertedItems = await this.itemModel.insertMany(itemsToInsert);
     return {
       message: 'Items Added Successfully',
       count: insertedItems.length,
