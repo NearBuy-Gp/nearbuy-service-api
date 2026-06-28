@@ -1,4 +1,4 @@
-import { IsArray, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, IsUrl, ValidateIf, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, IsUrl, ValidateIf, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BusinessCategory } from '../../enums/business-category.enum';
@@ -138,4 +138,13 @@ export class BusinessRegistrationDto {
   @IsOptional()
   @IsString()
   whatsappNumber?: string;
+
+  @ApiPropertyOptional({
+    example: true,
+    default: true,
+    description: 'Manual open/closed switch. Defaults to open (true); set false to mark the business closed.',
+  })
+  @IsOptional()
+  @IsBoolean()
+  is_open_now?: boolean;
 }

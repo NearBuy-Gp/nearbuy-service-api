@@ -9,6 +9,7 @@ import { LocationDto } from '../request/business-location.dto';
 import { SocialDto } from '../request/business-social-links.dto';
 import { WorkingHoursDto } from '../request/business-working-hours.dto';
 import { Business } from '../../schemas/buisness.schema';
+import { computeIsOpenNow } from '../../helpers/working-hours.helper';
 
 /**
  * Canonical business shape. Every business-returning endpoint serializes the
@@ -84,7 +85,7 @@ export class BusinessResponseDto {
   @ApiProperty({ type: [String] })
   targetAudienceOther: string[];
 
-  @ApiProperty({ example: false })
+  @ApiProperty({ example: true })
   is_open_now: boolean;
 
   @ApiProperty({ example: 4.5 })
@@ -119,7 +120,7 @@ export class BusinessResponseDto {
     dto.mainItems = entity.mainItems ?? [];
     dto.mainItemsOthers = entity.mainItemsOthers ?? [];
     dto.targetAudienceOther = entity.targetAudienceOther ?? [];
-    dto.is_open_now = entity.is_open_now ?? false;
+    dto.is_open_now = computeIsOpenNow(entity.workingHours);
     dto.rate = entity.rate ?? 0;
     dto.numberOfRatings = entity.numberOfRatings ?? 0;
     dto.attributes = entity.attributes ?? {};

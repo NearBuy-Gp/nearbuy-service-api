@@ -35,6 +35,8 @@ export class BusinessOnMapDto {
   type: BusinessType;
   @ApiProperty({ example: 'true' })
   isCluster?: boolean;
+  @ApiProperty({ example: true, required: false, description: "Open/closed derived from today's working hours. Absent for clusters." })
+  is_open_now?: boolean;
   static fromEntity(entity: Business): BusinessOnMapDto {
     const dto = new BusinessOnMapDto();
     dto.id = entity._id.toString();

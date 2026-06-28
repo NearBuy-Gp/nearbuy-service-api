@@ -19,6 +19,7 @@ import { BusinessWithItemsResponseDto } from './dtos/response/business-with-item
 import { BusinessResponseDto } from './dtos/response/business-response.dto';
 import { BusinessType } from './enums/business-type.enum';
 import {BusinessRateDto} from './dtos/request/business-rate.dto';
+import { computeIsOpenNow } from './helpers/working-hours.helper';
 
 
 @Injectable()
@@ -47,6 +48,7 @@ export class BusinessService {
       },
       ownerId: owner._id,
       status: BusinessStatus.OPEN,
+      is_open_now: computeIsOpenNow(createBusinessDto.workingHours),
       geohash_country,
       geohash_region,
       geohash_city,
@@ -79,7 +81,12 @@ export class BusinessService {
   }
   public async updateBusiness(ownerId: string, businessId: string, business: UpdateBusinessDto): Promise<Business> {
     const validatedBusiness = await this.validateBusiness(ownerId, businessId);
-    const updatedBusiness = await this.businessModel.findByIdAndUpdate({ _id: validatedBusiness._id }, { $set: business }, { new: true });
+    const update: Record<string, unknown> = { ...business };
+    // When the schedule changes, keep the stored open/closed flag in sync with today's hours.
+    if (business.workingHours !== undefined) {
+      update.is_open_now = computeIsOpenNow(business.workingHours);
+    }
+    const updatedBusiness = await this.businessModel.findByIdAndUpdate({ _id: validatedBusiness._id }, { $set: update }, { new: true });
 
     if (!updatedBusiness) {
       throw new NotFoundException('Business not found');
@@ -122,6 +129,7 @@ export class BusinessService {
         image: business.images?.[0] || '',
         id: business._id.toString(),
         status: business.status,
+        is_open_now: computeIsOpenNow(business.workingHours),
         rate: business.rate,
         category: business.category || BusinessCategory.STORE,
         address: business.address || '',
@@ -161,6 +169,7 @@ export class BusinessService {
         type: business.type,
         category: business.category || BusinessCategory.STORE,
         isCluster: false,
+        is_open_now: computeIsOpenNow(business.workingHours),
       }));
     }
 

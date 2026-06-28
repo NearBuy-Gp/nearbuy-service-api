@@ -7,6 +7,7 @@ import { BusinessMainItem } from '../../enums/business-mainitems.enum';
 import { Types } from 'mongoose';
 import { Business } from '../../schemas/buisness.schema';
 import { BusinessTargetAudience } from '../../enums/business-target-audience';
+import { computeIsOpenNow } from '../../helpers/working-hours.helper';
 
 export class BusinessDataDto {
   @ApiProperty({ example: 'fsdfgsfdgfsdgdsfg' })
@@ -68,6 +69,9 @@ export class BusinessDataDto {
   @ApiProperty({ enum: BusinessStatus, example: BusinessStatus.OPEN })
   status: BusinessStatus;
 
+  @ApiProperty({ example: true, description: 'Manual open/closed switch. Defaults to open (true).' })
+  is_open_now: boolean;
+
   @ApiProperty({
     enum: BusinessTargetAudience,
     example: BusinessTargetAudience.FAMILY,
@@ -127,6 +131,7 @@ export class BusinessDataDto {
     dto.location = business.location;
     dto.images = business.images || [];
     dto.status = business.status;
+    dto.is_open_now = computeIsOpenNow(business.workingHours);
     dto.targetAudience = business.targetAudience;
     dto.mainItems = business.mainItems;
     dto.facilities = business.facilities || [];

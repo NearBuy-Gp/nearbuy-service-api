@@ -183,7 +183,7 @@ numberOfRatings: number;
   })
   ownerId: MongooseSchema.Types.ObjectId;
 
-  @Prop({ type: Boolean, default: false })
+  @Prop({ type: Boolean, default: true })
   is_open_now: boolean;
 
   @Prop({ type: Date })

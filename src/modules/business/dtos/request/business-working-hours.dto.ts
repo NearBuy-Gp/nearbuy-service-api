@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsEnum, IsOptional, IsString } from 'class-validator';
 import { WeekDays } from '../../../../utils/enums/week-days.enum';
 
 export class WorkingHoursDto {
@@ -20,7 +20,8 @@ export class WorkingHoursDto {
   @IsString()
   to?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ default: false, description: 'Whether the business is closed on this day. Defaults to open (false).' })
   @IsOptional()
-  isClosed?: boolean;
+  @IsBoolean()
+  isClosed?: boolean = false;
 }

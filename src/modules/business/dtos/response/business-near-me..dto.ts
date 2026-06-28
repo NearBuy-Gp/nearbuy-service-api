@@ -17,6 +17,8 @@ export class BusinessNearMeDto {
   id: string;
   @ApiProperty({ example: BusinessStatus.OPEN })
   status: BusinessStatus;
+  @ApiProperty({ example: true, description: "Open/closed derived from today's working hours" })
+  is_open_now: boolean;
   @ApiProperty({ example: '4.2' })
   rate: number;
   @ApiProperty({
