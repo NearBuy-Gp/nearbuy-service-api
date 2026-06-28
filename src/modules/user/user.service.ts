@@ -115,6 +115,16 @@ public async deleteProfile(userId: string) {
 
 
 
+ public async setFcmToken(userId: string, token: string): Promise<MessageResponseDto> {
+    const user = await this.userModel.findByIdAndUpdate(userId, { $set: { fcmToken: token } });
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+    return {
+      message: 'FCM token registered successfully',
+    };
+  }
+
  public async getFcmToken(userId: string): Promise<string | null> {
     const user = await this.userModel.findById(userId).select('fcmToken').lean();
     return user?.fcmToken ?? null;

@@ -11,6 +11,7 @@ import { Role } from '../../utils/enums/user-role.enum';
 import { UpdateUserProfileDto } from './dtos/update-Audience.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { UserProfileDto } from './dtos/user-profile.dto';
+import { SetFcmTokenDto } from './dtos/set-fcm-token.dto';
 
 @UseGuards(AuthGuard, RolesGuard)
 @ApiTags('User')
@@ -108,6 +109,33 @@ public async deleteProfile(
   @User('id') userId: string,
 ) {
   return this.userService.deleteProfile(userId);
+}
+
+
+@Roles(Role.USER)
+@Post('/fcm-token')
+@ApiOperation({ summary: 'Register or update the user\'s FCM device token' })
+@ApiBody({ type: SetFcmTokenDto })
+@ApiResponse({ status: 201, description: 'FCM token registered successfully' })
+@ApiResponse({ status: 401, description: 'Unauthorized' })
+public async setFcmToken(
+  @User('id') userId: string,
+  @Body() dto: SetFcmTokenDto,
+) {
+  return this.userService.setFcmToken(userId, dto.token);
+}
+
+
+@Roles(Role.USER)
+@Delete('/fcm-token')
+@ApiOperation({ summary: 'Clear the user\'s FCM device token (e.g. on logout)' })
+@ApiResponse({ status: 200, description: 'FCM token cleared successfully' })
+@ApiResponse({ status: 401, description: 'Unauthorized' })
+public async clearFcmToken(
+  @User('id') userId: string,
+) {
+  await this.userService.clearFcmToken(userId);
+  return { message: 'FCM token cleared successfully' };
 }
 
 }
