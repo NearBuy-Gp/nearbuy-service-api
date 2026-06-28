@@ -105,8 +105,9 @@ export class AiCatalogGenerator {
     for (let i = 0; i < instances; i++) {
       const slice = pool.slice(i * itemsPerBusiness, i * itemsPerBusiness + itemsPerBusiness);
       bundles.push({
-        // Fresh business content per instance → distinct business names too.
-        business: fakerBusinessContent(type, category),
+        // Fresh business content per instance → distinct names; the index lets
+        // a slice of each type adopt a real CSV brand (Carrefour, El Ezaby, …).
+        business: fakerBusinessContent(type, category, i),
         items: slice,
       });
     }
@@ -168,16 +169,20 @@ export class AiCatalogGenerator {
 
   private buildPrompt(type: BusinessType, category: BusinessCategory, count: number, categoryNames: string[]): string {
     const lines = [
-      `Generate ${count} realistic products or services offered across several DIFFERENT branches of "${type.replace(/_/g, ' ')}" businesses (each a ${category}) located in different areas.`,
-      `Return ONLY a JSON array. Each element: {"name": string, "description": string (one sentence), "price": number (USD, realistic)${categoryNames.length ? ', "category": string' : ''}}.`,
+      `Generate ${count} realistic products or services offered across several DIFFERENT branches of "${type.replace(/_/g, ' ')}" businesses (each a ${category}) located in different districts of Cairo, EGYPT.`,
+      `Return ONLY a JSON array. Each element: {"name": string, "description": string (one sentence), "price": number${categoryNames.length ? ', "category": string' : ''}}.`,
+      'LOCALIZATION (critical): this is for an Egyptian marketplace. Use authentic items an everyday Egyptian shopper actually encounters in local commercial areas — e.g. koshary, hawawshi, baladi bread, kunafa, El Arosa tea, Juhayna milk, Panadol Extra, Vodafone/WE devices — NOT generic Western placeholders.',
+      'SCRIPT (critical): the app does NOT render Arabic. Use ONLY Latin script. Write Egyptian item names transliterated (Franco-Arabic), e.g. "Koshary", "Hawawshi", "Shai bel Na3na3", optionally with a short English clarifier in parentheses. NEVER output Arabic letters.',
+      'DESCRIPTION: one English sentence (Egyptian terms may be transliterated). Keep it Latin-script only.',
+      `PRICE: a realistic number in EGYPTIAN POUNDS (EGP), reflecting 2025-2026 street pricing (e.g. a falafel sandwich ~25, a shawarma ~85, a doctor visit ~350, a flagship phone ~60000). Do NOT use US dollars.`,
       'Use real, specific, recognizable item names — not placeholders.',
       `CRITICAL: all ${count} names must be DISTINCT from each other — no repeats, no two items sharing the same name. They should be on-theme for this business type and may be similar in category, but each name must be unique.`,
     ];
     if (categoryNames.length) {
       lines.push(`Set "category" to EXACTLY one value from this list, choosing the best fit for each item: [${categoryNames.join(', ')}]. Do not invent other categories.`);
-      lines.push(`Example: [{"name":"Margherita Pizza","description":"Wood-fired pizza with mozzarella and basil.","price":11,"category":"${categoryNames[0]}"}]`);
+      lines.push(`Example: [{"name":"Koshary (Family Size)","description":"Classic Egyptian koshary with rice, pasta, lentils and crispy onions.","price":70,"category":"${categoryNames[0]}"}]`);
     } else {
-      lines.push('Example: [{"name":"Margherita Pizza","description":"Wood-fired pizza with mozzarella and basil.","price":11}]');
+      lines.push('Example: [{"name":"Koshary (Family Size)","description":"Classic Egyptian koshary with rice, pasta, lentils and crispy onions.","price":70}]');
     }
     return lines.join('\n');
   }

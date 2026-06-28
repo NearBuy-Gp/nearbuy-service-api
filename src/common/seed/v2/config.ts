@@ -32,7 +32,19 @@ export interface SeederConfig {
   embeddings: boolean;
 }
 
-const DEFAULT_LOCATIONS = ['Nasr City, Cairo'];
+// Spread businesses across the Cairo/Giza districts the search training set
+// queries most, so geospatial ("near me", "in Maadi", "tagamoa") search is
+// testable by default. Override/extend with repeatable --location flags.
+const DEFAULT_LOCATIONS = [
+  'Nasr City, Cairo',
+  'Maadi, Cairo',
+  'New Cairo, Cairo',
+  'Heliopolis, Cairo',
+  'Mohandessin, Giza',
+  '6th of October City, Giza',
+  'Zamalek, Cairo',
+  'Sheikh Zayed, Giza',
+];
 
 function readFlagValue(argv: string[], flag: string): string[] {
   const values: string[] = [];

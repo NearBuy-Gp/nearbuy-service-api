@@ -13,6 +13,7 @@ import { BusinessTargetAudience } from '../../../modules/business/enums/business
 import { WeekDays } from '../../../utils/enums/week-days.enum';
 import { faker, pickSome, SEED_TAG, BUSINESS_PREFIX } from './rng';
 import { buildGeohashes, scatterPoint } from './geo.seeder';
+import { cairoAddress, egyptianPhone } from './egypt';
 
 const ALL_FACILITIES = Object.values(BusinessFacility);
 const ALL_MAIN_ITEMS = Object.values(BusinessMainItem);
@@ -91,12 +92,12 @@ export async function upsertBusiness(
         type,
         tags: content.tags,
         subcategory: type.replace(/_/g, ' '),
-        phone: faker.phone.number({ style: 'international' }),
+        phone: egyptianPhone(),
         email: faker.internet.email({ provider: 'nearbuy.seed' }).toLowerCase(),
         website: `https://${slug}.example.com`,
-        whatsappNumber: faker.phone.number({ style: 'international' }),
+        whatsappNumber: egyptianPhone(),
         social: socialLinks(slug),
-        address: `${faker.location.streetAddress()}, ${faker.location.city()}`,
+        address: cairoAddress(),
         location: { type: 'Point', coordinates },
         workingHours: workingHours(),
         images: [faker.image.url({ width: 1200, height: 800 }), faker.image.url({ width: 1200, height: 800 })],
