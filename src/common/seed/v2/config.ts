@@ -44,6 +44,7 @@ const DEFAULT_LOCATIONS = [
   '6th of October City, Giza',
   'Zamalek, Cairo',
   'Sheikh Zayed, Giza',
+  'Abbassia, Cairo',
 ];
 
 function readFlagValue(argv: string[], flag: string): string[] {
