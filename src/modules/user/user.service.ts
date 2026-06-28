@@ -60,7 +60,7 @@ export class UserService {
 public async getProfile(userId: string) {
   const user = await this.userModel
     .findById(userId)
-    .populate('bookmarkedBusinesses');
+    .populate('bookmarkedBusinesses', 'name category images')
 
   if (!user) {
     throw new BadRequestException('User not found');
@@ -76,6 +76,7 @@ public async getProfile(userId: string) {
       id: (b._id as any).toString(),
       name: b.name,
       category: b.category,
+      images: b.images || [],
     })),
   };
 }
