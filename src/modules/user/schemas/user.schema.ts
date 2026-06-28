@@ -29,6 +29,9 @@ export class User extends Document {
    interests?: string[];
    
   @Prop({ type: String, required: false, default: null })
+  phoneNumber?: string | null;
+
+  @Prop({ type: String, required: false, default: null })
   fcmToken: string | null;
 
   @Prop({
