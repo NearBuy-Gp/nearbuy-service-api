@@ -79,3 +79,12 @@ export const pharmacyProductSchema = new Schema({
     stock: { type: Number },
   },
 });
+
+export const electronicsProductSchema = new Schema({
+  attributes: {
+    brand: { type: String },
+    model: { type: String },
+    warranty: { type: String },
+    stock: { type: Number },
+  },
+});

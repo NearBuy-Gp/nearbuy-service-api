@@ -12,6 +12,7 @@ import {
   classSessionSchema,
   clinicServiceSchema,
   clothingProductSchema,
+  electronicsProductSchema,
   gymMembershipSchema,
   pharmacyProductSchema,
   restaurantItemSchema,
@@ -55,6 +56,7 @@ import { HttpModule } from '@nestjs/axios';
           schema.discriminator(ItemType.SUPER_MARKET_PRODUCT, supermarketProductSchema);
           schema.discriminator(ItemType.CLOTHING_PRODUCT, clothingProductSchema);
           schema.discriminator(ItemType.PHARMACY_PRODUCT, pharmacyProductSchema);
+          schema.discriminator(ItemType.ELECTRONICS_PRODUCT, electronicsProductSchema);
 
           return schema;
         },

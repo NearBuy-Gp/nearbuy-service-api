@@ -37,7 +37,13 @@ export interface ClothingAttributes {
   colorsAvailable?: string[];
 }
 
-export type ItemAttributes = RestaurantAttributes | ClinicAttributes | ClassSessionAttributes | PharmacyAttributes | SupermarketAttributes | ClothingAttributes;
+export interface ElectronicsAttributes {
+  brand?: string;
+  model?: string;
+  warranty?: string;
+}
+
+export type ItemAttributes = RestaurantAttributes | ClinicAttributes | ClassSessionAttributes | PharmacyAttributes | SupermarketAttributes | ClothingAttributes | ElectronicsAttributes;
 
 export interface BusinessDto {
   name: string;

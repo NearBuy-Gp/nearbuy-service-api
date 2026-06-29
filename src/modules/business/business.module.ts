@@ -15,6 +15,7 @@ import {
   supermarketProductSchema,
   clothingProductSchema,
   pharmacyProductSchema,
+  electronicsProductSchema,
 } from '../item/schemas/item-types.schema';
 import { Item, ItemSchema } from '../item/schemas/item.schema';
 
@@ -45,6 +46,7 @@ import { Item, ItemSchema } from '../item/schemas/item.schema';
           schema.discriminator(ItemType.SUPER_MARKET_PRODUCT, supermarketProductSchema);
           schema.discriminator(ItemType.CLOTHING_PRODUCT, clothingProductSchema);
           schema.discriminator(ItemType.PHARMACY_PRODUCT, pharmacyProductSchema);
+          schema.discriminator(ItemType.ELECTRONICS_PRODUCT, electronicsProductSchema);
 
           return schema;
         },

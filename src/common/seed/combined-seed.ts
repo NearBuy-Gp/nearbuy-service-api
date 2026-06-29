@@ -208,7 +208,7 @@ const FAKE_DATA = {
 };
 
 const BUSINESS_CONFIGS = [
-  { type: BusinessType.ELECTRONICS, category: BusinessCategory.STORE, itemType: ItemType.SUPER_MARKET_PRODUCT },
+  { type: BusinessType.ELECTRONICS, category: BusinessCategory.STORE, itemType: ItemType.ELECTRONICS_PRODUCT },
   { type: BusinessType.CLOTHING, category: BusinessCategory.STORE, itemType: ItemType.CLOTHING_PRODUCT },
   { type: BusinessType.SUPERMARKET, category: BusinessCategory.STORE, itemType: ItemType.SUPER_MARKET_PRODUCT },
   { type: BusinessType.PHARMACY, category: BusinessCategory.STORE, itemType: ItemType.PHARMACY_PRODUCT },
@@ -294,14 +294,14 @@ function generateItemAttributes(itemType: ItemType, businessType: BusinessType, 
         validity: `${faker.number.int({ min: 1, max: 12 })} months`,
         benefits: ['Gym access', 'Locker', 'Shower'],
       };
+    case ItemType.ELECTRONICS_PRODUCT:
+      return {
+        brand: faker.helpers.arrayElement(['Apple', 'Samsung', 'Sony', 'LG', 'Dell']),
+        model: faker.commerce.productName(),
+        warranty: `${faker.number.int({ min: 1, max: 2 })} year`,
+        stock: faker.number.int({ min: 10, max: 100 }),
+      };
     case ItemType.SUPER_MARKET_PRODUCT:
-      if (businessType === BusinessType.ELECTRONICS) {
-        return {
-          brand: faker.helpers.arrayElement(['Apple', 'Samsung', 'Sony', 'LG', 'Dell']),
-          warranty: `${faker.number.int({ min: 1, max: 2 })} year`,
-          stock: faker.number.int({ min: 10, max: 100 }),
-        };
-      }
       return {
         brand: faker.company.name(),
         weight: `${faker.number.int({ min: 100, max: 2000 })}g`,

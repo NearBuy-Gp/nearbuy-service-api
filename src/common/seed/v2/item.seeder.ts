@@ -108,6 +108,13 @@ function buildAttributes(itemType: ItemType, entry: CatalogItem): Record<string,
         brand: faker.company.name(),
         stock: faker.number.int({ min: 0, max: 80 }),
       };
+    case ItemType.ELECTRONICS_PRODUCT:
+      return {
+        brand: faker.helpers.arrayElement(['Apple', 'Samsung', 'Sony', 'LG', 'Dell', 'HP', 'Lenovo', 'Xiaomi']),
+        model: faker.commerce.productName(),
+        warranty: faker.helpers.arrayElement(['6 months', '1 year', '2 years', '3 years']),
+        stock: faker.number.int({ min: 0, max: 120 }),
+      };
     case ItemType.SERVICE:
     default:
       return undefined; // SERVICE has no discriminator; base doc only.

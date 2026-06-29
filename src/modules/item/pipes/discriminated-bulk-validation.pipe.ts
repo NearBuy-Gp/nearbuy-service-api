@@ -6,6 +6,7 @@ import {
   CreateClassSessionDto,
   CreateClinicServiceDto,
   CreateClothingProductDto,
+  CreateElectronicsProductDto,
   CreatePharmacyProductDto,
   CreateRestaurantItemDto,
   CreateSupermarketProductDto,
@@ -20,6 +21,7 @@ export class DiscriminatedBulkValidationPipe implements PipeTransform {
     [ItemType.PHARMACY_PRODUCT]: CreatePharmacyProductDto,
     [ItemType.SUPER_MARKET_PRODUCT]: CreateSupermarketProductDto,
     [ItemType.CLOTHING_PRODUCT]: CreateClothingProductDto,
+    [ItemType.ELECTRONICS_PRODUCT]: CreateElectronicsProductDto,
   };
 
   async transform(value: any) {
@@ -31,7 +33,7 @@ export class DiscriminatedBulkValidationPipe implements PipeTransform {
       throw new BadRequestException('At least one item is required');
     }
 
-    const validatedItems: (CreateRestaurantItemDto | CreateClinicServiceDto | CreateClassSessionDto | CreatePharmacyProductDto | CreateSupermarketProductDto | CreateClothingProductDto)[] = [];
+    const validatedItems: (CreateRestaurantItemDto | CreateClinicServiceDto | CreateClassSessionDto | CreatePharmacyProductDto | CreateSupermarketProductDto | CreateClothingProductDto | CreateElectronicsProductDto)[] = [];
     const bulkErrors: any[] = [];
 
     for (let index = 0; index < value.length; index++) {
@@ -89,7 +91,7 @@ export class DiscriminatedBulkValidationPipe implements PipeTransform {
         });
       } else {
         validatedItems.push(
-          dtoInstance as unknown as CreateRestaurantItemDto | CreateClinicServiceDto | CreateClassSessionDto | CreatePharmacyProductDto | CreateSupermarketProductDto | CreateClothingProductDto,
+          dtoInstance as unknown as CreateRestaurantItemDto | CreateClinicServiceDto | CreateClassSessionDto | CreatePharmacyProductDto | CreateSupermarketProductDto | CreateClothingProductDto | CreateElectronicsProductDto,
         );
       }
     }
