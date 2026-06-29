@@ -8,6 +8,7 @@ import { PharmacyProductAttributesDto } from './pharmacy-product.dto';
 import { RestaurantItemAttributesDto } from './resturant-item.dto';
 import { SupermarketProductAttributesDto } from './supermarket-porduct.dto';
 import { ClothingProductAttributesDto } from './cloths-product.dto';
+import { ElectronicsProductAttributesDto } from './electronics-product.dto';
 
 @ApiExtraModels(RestaurantItemAttributesDto, ClinicServiceAttributesDto, ClassSessionAttributesDto, PharmacyProductAttributesDto)
 export class CreateRestaurantItemDto extends CreateItemBaseDto {
@@ -46,4 +47,10 @@ export class CreateClothingProductDto extends CreateItemBaseDto {
   @ValidateNested()
   @Type(() => ClothingProductAttributesDto)
   attributes: ClothingProductAttributesDto;
+}
+export class CreateElectronicsProductDto extends CreateItemBaseDto {
+  @ApiProperty({ type: ElectronicsProductAttributesDto })
+  @ValidateNested()
+  @Type(() => ElectronicsProductAttributesDto)
+  attributes: ElectronicsProductAttributesDto;
 }

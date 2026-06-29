@@ -78,6 +78,18 @@ export const ITEM_CATEGORY_SEED: Record<
     { key: ClothesCategory.KIDS, name: 'Kids' },
     { key: ClothesCategory.UNISEX, name: 'Unisex' },
   ],
+
+  [ItemType.ELECTRONICS_PRODUCT]: [
+    { key: 'MOBILE_PHONES', name: 'Mobile Phones' },
+    { key: 'LAPTOPS_COMPUTERS', name: 'Laptops & Computers' },
+    { key: 'TVS_AUDIO', name: 'TVs & Audio' },
+    { key: 'CAMERAS', name: 'Cameras' },
+    { key: 'HOME_APPLIANCES', name: 'Home Appliances' },
+    { key: 'GAMING', name: 'Gaming' },
+    { key: 'WEARABLES', name: 'Wearables' },
+    { key: 'ACCESSORIES', name: 'Accessories' },
+  ],
+
   [ItemType.MENU_ITEM]: [],
   [ItemType.PRODUCT]: [],
 };

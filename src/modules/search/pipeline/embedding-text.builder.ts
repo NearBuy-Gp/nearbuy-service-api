@@ -7,6 +7,7 @@ import {
   CreatePharmacyProductDto,
   CreateSupermarketProductDto,
   CreateClothingProductDto,
+  CreateElectronicsProductDto,
 } from '../../item/dtos/requests/create-item.dto';
 import {
   SemanticSearchItemRequestDto,
@@ -16,10 +17,18 @@ import {
   PharmacyAttributes,
   SupermarketAttributes,
   ClothingAttributes,
+  ElectronicsAttributes,
 } from '../interfaces/semantic-search-request.interface';
 import { ItemType } from '../../item/enums/item-type.enum';
 
-type CreateItemDto = CreateRestaurantItemDto | CreateClinicServiceDto | CreateClassSessionDto | CreatePharmacyProductDto | CreateSupermarketProductDto | CreateClothingProductDto;
+type CreateItemDto =
+  | CreateRestaurantItemDto
+  | CreateClinicServiceDto
+  | CreateClassSessionDto
+  | CreatePharmacyProductDto
+  | CreateSupermarketProductDto
+  | CreateClothingProductDto
+  | CreateElectronicsProductDto;
 
 @Injectable()
 export class EmbeddingTextBuilder {
@@ -70,6 +79,10 @@ export class EmbeddingTextBuilder {
       case ItemType.SUPER_MARKET_PRODUCT:
         parts.push(a.brand ?? '');
         break;
+      case ItemType.ELECTRONICS_PRODUCT:
+        parts.push(a.brand ?? '');
+        parts.push(a.model ?? '');
+        break;
     }
 
     return parts.filter(Boolean).join(' ').toLowerCase().trim();
@@ -83,6 +96,7 @@ export class EmbeddingTextBuilder {
     if (item instanceof CreatePharmacyProductDto) return ItemType.PHARMACY_PRODUCT;
     if (item instanceof CreateSupermarketProductDto) return ItemType.SUPER_MARKET_PRODUCT;
     if (item instanceof CreateClothingProductDto) return ItemType.CLOTHING_PRODUCT;
+    if (item instanceof CreateElectronicsProductDto) return ItemType.ELECTRONICS_PRODUCT;
 
     // Fallback: plain object with a `type` field (used by seed scripts)
     const rawType = (item as any).type;
@@ -101,6 +115,7 @@ export class EmbeddingTextBuilder {
     if (item instanceof CreatePharmacyProductDto) return this.buildPharmacyAttributes(item);
     if (item instanceof CreateSupermarketProductDto) return this.buildSupermarketAttributes(item);
     if (item instanceof CreateClothingProductDto) return this.buildClothingAttributes(item);
+    if (item instanceof CreateElectronicsProductDto) return this.buildElectronicsAttributes(item);
 
     // Fallback: plain object — dispatch by resolved type
     const type = this.resolveItemType(item);
@@ -138,6 +153,13 @@ export class EmbeddingTextBuilder {
           ...(a.brand && { brand: a.brand }),
           ...(a.weight && { weight: a.weight }),
         } as SupermarketAttributes;
+
+      case ItemType.ELECTRONICS_PRODUCT:
+        return {
+          ...(a.brand && { brand: a.brand }),
+          ...(a.model && { model: a.model }),
+          ...(a.warranty && { warranty: a.warranty }),
+        } as ElectronicsAttributes;
 
       case ItemType.CLOTHING_PRODUCT:
         return {
@@ -207,6 +229,16 @@ export class EmbeddingTextBuilder {
       ...(a.material && { material: a.material }),
       ...(a.sizes && { sizes: a.sizes }),
       ...(a.colorsAvailable?.length && { colorsAvailable: a.colorsAvailable }),
+    };
+  }
+
+  private buildElectronicsAttributes(item: CreateElectronicsProductDto): ElectronicsAttributes {
+    const a = item.attributes;
+    if (!a) return {};
+    return {
+      ...(a.brand && { brand: a.brand }),
+      ...(a.model && { model: a.model }),
+      ...(a.warranty && { warranty: a.warranty }),
     };
   }
 }

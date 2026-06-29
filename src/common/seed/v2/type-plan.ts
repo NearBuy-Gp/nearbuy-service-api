@@ -8,8 +8,8 @@
  *
  * Only ItemTypes that are safe for seeding are used here:
  *   RESTAURANT, CLINIC, CLASS_SESSION, SUPER_MARKET_PRODUCT, PHARMACY_PRODUCT,
- *   CLOTHING_PRODUCT (all have registered discriminators + seed categories),
- *   and SERVICE (no discriminator → base doc, no typed attributes).
+ *   CLOTHING_PRODUCT, ELECTRONICS_PRODUCT (all have registered discriminators +
+ *   seed categories), and SERVICE (no discriminator → base doc, no typed attributes).
  * MENU_ITEM / PRODUCT (no seed categories) and MEMBERSHIP (no embed-builder
  * support) are intentionally avoided.
  */
@@ -46,7 +46,7 @@ const ORPHAN_ASSIGNMENT: Record<string, { category: BusinessCategory; itemType: 
 
 /** ItemType for each of the 19 validly-mapped types. */
 const VALID_ITEM_TYPE: Record<string, ItemType> = {
-  [BusinessType.ELECTRONICS]: ItemType.SUPER_MARKET_PRODUCT,
+  [BusinessType.ELECTRONICS]: ItemType.ELECTRONICS_PRODUCT,
   [BusinessType.CLOTHING]: ItemType.CLOTHING_PRODUCT,
   [BusinessType.SUPERMARKET]: ItemType.SUPER_MARKET_PRODUCT,
   [BusinessType.PHARMACY]: ItemType.PHARMACY_PRODUCT,

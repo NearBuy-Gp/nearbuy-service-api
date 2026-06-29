@@ -7,5 +7,6 @@ export class NormalizeOutputDto {
   isAvailable: boolean;
   businessId: string;
   type: ItemType;
+  category?: string;
   attributes: any;
 }

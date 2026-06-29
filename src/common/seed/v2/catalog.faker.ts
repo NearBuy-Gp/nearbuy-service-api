@@ -728,6 +728,10 @@ function genericItem(itemType: ItemType): CatalogItem {
       const e = faker.helpers.arrayElement(SUPERMARKET_ITEMS);
       return { name: e.name, description: e.desc, price: e.price };
     }
+    case ItemType.ELECTRONICS_PRODUCT: {
+      const e = faker.helpers.arrayElement(ELECTRONICS_ITEMS);
+      return { name: e.name, description: e.desc, price: e.price };
+    }
     case ItemType.SERVICE:
     default: {
       const svc = faker.helpers.arrayElement([

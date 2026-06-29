@@ -7,6 +7,10 @@ import { BusinessCategory } from '../../../business/enums/business-category.enum
 import { BusinessType } from '../../../business/enums/business-type.enum';
 import { ITEM_CATEGORY_SEED } from '../../../categories/types/item-filter-category.schema';
 import { ItemType } from '../../../item/enums/item-type.enum';
+import { RestaurantItemCategory } from '../../../item/enums/resturant-category';
+
+// Static menu categories used for restaurant items (matches the item schema enum, excluding the "Others" fallback).
+const RESTAURANT_MENU_CATEGORIES = Object.values(RestaurantItemCategory).filter((category) => category !== RestaurantItemCategory.OTHERS);
 
 @Injectable()
 export class AiNormalizerStrategy implements NormalizerStrategy {
@@ -100,6 +104,7 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
         isAvailable: item.isAvailable ?? true,
         businessId,
         type: itemType,
+        category: item.category || undefined,
         attributes: item.attributes || {},
       }));
 
@@ -118,17 +123,25 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
 
     // Get available categories
     const availableCategories = ITEM_CATEGORY_SEED[itemType] || [];
-    const categoryKeys = availableCategories.map((cat) => cat.key);
     const categoryNames = availableCategories.map((cat) => cat.name);
+
+    // Top-level business category, shared by every business type and sourced from the seeded categories.
+    const categoryDescriptor = {
+      type: 'string',
+      enum: categoryNames.length > 0 ? categoryNames : ['General'],
+      description: `Top-level business category of the item. Must be exactly one of: ${categoryNames.join(', ')}`,
+      required: true,
+    };
 
     // Restaurant schemas
     if (category === BusinessCategory.RESTAURANT) {
       return {
+        category: categoryDescriptor,
         attributes: {
           menuCategory: {
             type: 'string',
-            enum: categoryNames.length > 0 ? categoryNames : ['General'],
-            description: `Category of the menu item. Available categories: ${categoryNames.join(', ')}`,
+            enum: RESTAURANT_MENU_CATEGORIES,
+            description: `Menu category of the item. Must be exactly one of: ${RESTAURANT_MENU_CATEGORIES.join(', ')}`,
             required: true,
           },
           sizes: {
@@ -151,13 +164,8 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
       // Supermarket
       if (type === BusinessType.SUPERMARKET) {
         return {
+          category: categoryDescriptor,
           attributes: {
-            category: {
-              type: 'string',
-              enum: categoryNames.length > 0 ? categoryNames : ['General'],
-              description: `Product category. Available categories: ${categoryNames.join(', ')}`,
-              required: true,
-            },
             brand: { type: 'string', required: false },
             weight: {
               type: 'string',
@@ -172,14 +180,11 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
       // Electronics
       if (type === BusinessType.ELECTRONICS) {
         return {
+          category: categoryDescriptor,
           attributes: {
-            category: {
-              type: 'string',
-              enum: categoryNames.length > 0 ? categoryNames : ['General'],
-              description: `Electronics category. Available categories: ${categoryNames.join(', ')}`,
-              required: true,
-            },
             brand: { type: 'string', required: false },
+            model: { type: 'string', description: 'Product model (e.g., iPhone 15 Pro)', required: false },
+            warranty: { type: 'string', description: 'Warranty period (e.g., 1 year)', required: false },
             stock: { type: 'number', required: false },
           },
         };
@@ -188,13 +193,8 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
       // Clothing
       if (type === BusinessType.CLOTHING) {
         return {
+          category: categoryDescriptor,
           attributes: {
-            category: {
-              type: 'string',
-              enum: categoryNames.length > 0 ? categoryNames : ['General'],
-              description: `Clothing category. Available categories: ${categoryNames.join(', ')}`,
-              required: true,
-            },
             sizesAvailable: {
               type: 'array of strings',
               description: 'XS, S, M, L, XL, XXL',
@@ -215,13 +215,8 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
       // Pharmacy
       if (type === BusinessType.PHARMACY) {
         return {
+          category: categoryDescriptor,
           attributes: {
-            category: {
-              type: 'string',
-              enum: categoryNames.length > 0 ? categoryNames : ['General'],
-              description: `Pharmacy product category. Available categories: ${categoryNames.join(', ')}`,
-              required: true,
-            },
             brand: { type: 'string', required: false },
             activeIngredients: {
               type: 'array of strings',
@@ -247,13 +242,8 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
     // Clinic schemas
     if (category === BusinessCategory.CLINIC) {
       return {
+        category: categoryDescriptor,
         attributes: {
-          serviceCategory: {
-            type: 'string',
-            enum: categoryNames.length > 0 ? categoryNames : ['General'],
-            description: `Service category. Available categories: ${categoryNames.join(', ')}`,
-            required: false,
-          },
           doctorName: {
             type: 'string',
             description: 'Name of the doctor providing the service',
@@ -277,13 +267,8 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
     if (category === BusinessCategory.GYM) {
       if ([BusinessType.CROSSFIT, BusinessType.PILATES].includes(type)) {
         return {
+          category: categoryDescriptor,
           attributes: {
-            sessionCategory: {
-              type: 'string',
-              enum: categoryNames.length > 0 ? categoryNames : ['General'],
-              description: `Class category. Available categories: ${categoryNames.join(', ')}`,
-              required: false,
-            },
             trainerName: {
               type: 'string',
               description: 'Name of the trainer',
@@ -316,13 +301,8 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
 
       if (type === BusinessType.BODYBUILDING) {
         return {
+          category: categoryDescriptor,
           attributes: {
-            membershipCategory: {
-              type: 'string',
-              enum: categoryNames.length > 0 ? categoryNames : ['General'],
-              description: `Membership category. Available categories: ${categoryNames.join(', ')}`,
-              required: false,
-            },
             accessLevel: {
               type: 'string',
               description: 'Access level (basic, premium, VIP)',
@@ -346,13 +326,8 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
     // Service schemas
     if (category === BusinessCategory.SERVICE) {
       return {
+        category: categoryDescriptor,
         attributes: {
-          serviceCategory: {
-            type: 'string',
-            enum: categoryNames.length > 0 ? categoryNames : ['General'],
-            description: `Service category. Available categories: ${categoryNames.join(', ')}`,
-            required: false,
-          },
           duration: {
             type: 'string',
             description: 'Service duration (e.g., 2 hours)',
@@ -374,13 +349,8 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
 
     // Default schema
     return {
+      category: categoryDescriptor,
       attributes: {
-        category: {
-          type: 'string',
-          enum: categoryNames.length > 0 ? categoryNames : ['General'],
-          description: `Item category. Available categories: ${categoryNames.join(', ')}`,
-          required: false,
-        },
         additionalInfo: { type: 'string', required: false },
       },
     };
@@ -392,6 +362,7 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
       [`${BusinessCategory.STORE}-${BusinessType.SUPERMARKET}`]: ItemType.SUPER_MARKET_PRODUCT,
       [`${BusinessCategory.STORE}-${BusinessType.PHARMACY}`]: ItemType.PHARMACY_PRODUCT,
       [`${BusinessCategory.STORE}-${BusinessType.CLOTHING}`]: ItemType.CLOTHING_PRODUCT,
+      [`${BusinessCategory.STORE}-${BusinessType.ELECTRONICS}`]: ItemType.ELECTRONICS_PRODUCT,
       [`${BusinessCategory.STORE}`]: ItemType.PRODUCT,
       [`${BusinessCategory.CLINIC}`]: ItemType.CLINIC,
       [`${BusinessCategory.GYM}-${BusinessType.CROSSFIT}`]: ItemType.CLASS_SESSION,
@@ -406,6 +377,7 @@ export class AiNormalizerStrategy implements NormalizerStrategy {
 
   private buildPrompt(rawData: any[], category: BusinessCategory, type: BusinessType, schema: any, itemType: ItemType): string {
     const schemaStr = JSON.stringify(schema.attributes, null, 2);
+    const categoryLine = schema.category ? `  "category": ${JSON.stringify(schema.category, null, 2)},\n` : '';
 
     return `You are an expert data normalizer for a ${category} business of type "${type}".
 
@@ -421,7 +393,7 @@ Each item must have this structure:
   "description": "string (OPTIONAL - detailed description, CLEAN AND READABLE)",
   "price": number (REQUIRED - extract from text, convert to number, use 0 if not found),
   "type": "${itemType}" (ALWAYS use this exact value),
-  "attributes": ${schemaStr}
+${categoryLine}  "attributes": ${schemaStr}
 }
 
 CRITICAL RULES:
@@ -440,11 +412,11 @@ CRITICAL RULES:
    - Make descriptions readable and clean
    - Example: "250 grams\\nchicken breast\\nwith sauce" → "250 grams chicken breast with sauce"
 
-5. **Intelligent inference**: Make smart guesses for attributes based on context:
-   - For restaurants: Infer menuCategory from item name
-   - For stores: Infer category from product type
+5. **Intelligent inference**: Make smart guesses for the top-level "category" and attributes based on context:
+   - The top-level "category" is REQUIRED for every item and must be inferred from the item name/description
+   - For restaurants: also infer attributes.menuCategory from the item name
    - Use common sense to fill in missing attributes
-   - IMPORTANT: Categories must match EXACTLY one of the enum values provided in the schema
+   - IMPORTANT: The top-level "category" (and attributes.menuCategory for restaurants) must match EXACTLY one of the enum values provided in the schema
 
 6. **Required vs Optional**: 
    - "name" and "price" are ALWAYS required
@@ -473,6 +445,7 @@ IMPORTANT: Return ONLY a valid JSON array. No explanations, no markdown, just th
     const firstCategory = availableCategories[0]?.name || 'General';
 
     if (category === BusinessCategory.RESTAURANT) {
+      const topCategory = availableCategories.find((c) => c.key === 'FOOD')?.name || firstCategory;
       return `
 Input: { "name": "SRIRACHA HONEY", "price": 195, "description": "250 grams\\nchicken breast\\nwith sauce" }
 Output: {
@@ -480,8 +453,9 @@ Output: {
   "description": "250 grams chicken breast with sauce",
   "price": 195,
   "type": "${itemType}",
+  "category": "${topCategory}",
   "attributes": {
-    "menuCategory": "${availableCategories.find((c) => c.key === 'FOOD')?.name || firstCategory}",
+    "menuCategory": "${RestaurantItemCategory.GRILLS}",
     "sizes": "medium",
     "tags": ["chicken", "spicy", "honey"]
   }
@@ -493,8 +467,9 @@ Output: {
   "description": "Beef burger",
   "price": 50,
   "type": "${itemType}",
+  "category": "${topCategory}",
   "attributes": {
-    "menuCategory": "${availableCategories.find((c) => c.key === 'FOOD')?.name || firstCategory}",
+    "menuCategory": "${RestaurantItemCategory.BURGERS}",
     "sizes": "medium",
     "tags": ["beef", "burger"]
   }
@@ -509,8 +484,8 @@ Output: {
   "description": "",
   "price": 25,
   "type": "${itemType}",
+  "category": "${availableCategories.find((c) => c.key === 'DAIRY')?.name || firstCategory}",
   "attributes": {
-    "category": "${availableCategories.find((c) => c.key === 'DAIRY')?.name || firstCategory}",
     "brand": "",
     "weight": "1L",
     "stock": 0
@@ -525,10 +500,12 @@ Output: {
   "name": "iPhone 15 Pro",
   "description": "",
   "price": 999,
-  "type": "product",
+  "type": "${itemType}",
+  "category": "${availableCategories.find((c) => c.key === 'MOBILE_PHONES')?.name || firstCategory}",
   "attributes": {
-    "category": "Mobile Phones",
     "brand": "Apple",
+    "model": "iPhone 15 Pro",
+    "warranty": "1 year",
     "stock": 0
   }
 }`;
@@ -542,8 +519,8 @@ Output: {
   "description": "",
   "price": 50,
   "type": "${itemType}",
+  "category": "${availableCategories.find((c) => c.key === 'DENTAL')?.name || firstCategory}",
   "attributes": {
-    "serviceCategory": "${availableCategories.find((c) => c.key === 'DENTAL')?.name || firstCategory}",
     "doctorName": "Dr. Smith",
     "doctorSpecialization": "Dentist",
     "waitingPeriod": "30 minutes"

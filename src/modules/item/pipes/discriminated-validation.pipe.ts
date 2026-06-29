@@ -6,6 +6,7 @@ import {
   CreateClassSessionDto,
   CreateClinicServiceDto,
   CreateClothingProductDto,
+  CreateElectronicsProductDto,
   CreatePharmacyProductDto,
   CreateRestaurantItemDto,
   CreateSupermarketProductDto,
@@ -19,6 +20,7 @@ export class DiscriminatedItemValidationPipe implements PipeTransform {
     [ItemType.PHARMACY_PRODUCT]: CreatePharmacyProductDto,
     [ItemType.SUPER_MARKET_PRODUCT]: CreateSupermarketProductDto,
     [ItemType.CLOTHING_PRODUCT]: CreateClothingProductDto,
+    [ItemType.ELECTRONICS_PRODUCT]: CreateElectronicsProductDto,
   };
 
   async transform(value: any) {

@@ -10,10 +10,14 @@ export class UploadResultDto {
     example: [
       {
         name: 'Chicken Shawarma',
-        menuCategory: 'Sandwiches',
-        sizes: ['small', 'large'],
-        pricePerSize: { small: 70, large: 90 },
-        type: 'product',
+        price: 90,
+        type: 'restaurant',
+        category: 'Food',
+        attributes: {
+          menuCategory: 'Shawarma',
+          sizes: 'large',
+          tags: ['chicken', 'spicy'],
+        },
       },
     ],
     description: 'Parsed Items ready to be saved as CreateItemDto',
